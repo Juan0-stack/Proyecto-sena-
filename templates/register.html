@@ -16,7 +16,7 @@
 
     <div class="register-container" id="registerContainer">
 
-        <a href="index.html" class="back-link">
+        <a href="/" class="back-link">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
 
@@ -26,158 +26,50 @@
         </div>
 
         <div class="register-box" id="registerBox">
-
+            <form action="/register" method="POST">
             <div class="column" id="colLeft">
                 <label for="nombre">Nombre</label>
-                <input type="text" id="nombre" placeholder="Juan" required>
+                <input type="text" name="nombre" id="nombre" placeholder="Juan" required>
 
                 <label for="apellido">Apellido</label>
-                <input type="text" id="apellido" placeholder="Pérez">
+                <input type="text" name="apellido" id="apellido" placeholder="Pérez">
 
                 <label for="correo">Correo Electrónico</label>
-                <input type="email" id="correo" placeholder="correo@ejemplo.com" required>
+                <input type="email" id="correo" placeholder="correo@ejemplo.com" name="correo" required>
                 <span class="error-msg" id="emailError">Ingresa un correo electrónico válido (debe contener @).</span>
 
                 <label for="password">Contraseña</label>
                 <div class="input-wrapper">
-                    <input type="password" id="password" placeholder="••••••••">
+                    <input type="password" id="password" name="password_hash" placeholder="••••••••" required>
                     <i id="togglePassword" class="fas fa-eye"></i>
                 </div>
             </div>
 
             <div class="column" id="colRight">
                 <label for="rol">Tipo de Usuario</label>
-                <select id="rol">
+                <select id="rol" name="rol">
                     <option value="1">Estudiante</option>
                     <option value="2">Docente</option>
                     <option value="3">Administrador</option>
                 </select>
 
-                <button class="btn-register" id="registerBtn">
+                <button type="submit" class="btn-register" id="registerBtn">
                     Continuar <i class="fas fa-arrow-right"></i>
                 </button>
 
                 <div class="register-links">
                     <p>¿Ya tienes cuenta?</p>
-                    <a href="login.html">Inicia sesión aquí</a>
+                    <a href="/login">Inicia sesión aquí</a>
                 </div>
             </div>
 
+        </form>
         </div>
 
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-
-            gsap.set('.register-decor', { scale: 0.5, opacity: 0 });
-            gsap.set('.register-container', { y: 40, opacity: 0 });
-            gsap.set('.back-link', { x: -30, opacity: 0 });
-            gsap.set('.register-header h2', { y: 25, opacity: 0 });
-            gsap.set('.register-header p', { y: 20, opacity: 0 });
-            gsap.set('.register-box', { y: 30, opacity: 0, scale: 0.97 });
-            gsap.set('#colLeft', { x: -30, opacity: 0 });
-            gsap.set('#colRight', { x: 30, opacity: 0 });
-
-            var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-            tl.to('.register-decor', { duration: 0.6, scale: 1, opacity: 1, stagger: 0.08 })
-              .to('.register-container', { duration: 0.6, y: 0, opacity: 1 }, '-=0.3')
-              .to('.back-link', { duration: 0.4, x: 0, opacity: 1 }, '-=0.2')
-              .to('.register-header h2', { duration: 0.5, y: 0, opacity: 1 }, '-=0.1')
-              .to('.register-header p', { duration: 0.4, y: 0, opacity: 1 }, '-=0.1')
-              .to('.register-box', { duration: 0.6, y: 0, opacity: 1, scale: 1 }, '-=0.1')
-              .to('#colLeft', { duration: 0.5, x: 0, opacity: 1 }, '-=0.3')
-              .to('#colRight', { duration: 0.5, x: 0, opacity: 1 }, '-=0.35');
-
-            document.getElementById('togglePassword').addEventListener('click', function () {
-                var input = document.getElementById('password');
-                var icon = this;
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    input.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
-            });
-
-            var rolSelect = document.getElementById('rol');
-
-            fetch('/api/roles')
-                .then(function (resp) { return resp.json(); })
-                .then(function (res) {
-                    if (res.ok && res.roles.length) {
-                        rolSelect.innerHTML = '';
-                        res.roles.forEach(function (rol) {
-                            var opcion = document.createElement('option');
-                            opcion.value = rol.id_rol;
-                            opcion.textContent = rol.nombre_rol;
-                            rolSelect.appendChild(opcion);
-                        });
-                    }
-                })
-                .catch(function () {});
-
-            document.getElementById('registerBtn').addEventListener('click', function () {
-                var correo = document.getElementById('correo').value.trim();
-                var errorEl = document.getElementById('emailError');
-                if (correo.indexOf('@') === -1) {
-                    errorEl.classList.add('error-msg--visible');
-                    return;
-                }
-                errorEl.classList.remove('error-msg--visible');
-
-                var datos = {
-                    nombre: document.getElementById('nombre').value.trim(),
-                    apellido: document.getElementById('apellido').value.trim(),
-                    correo: correo,
-                    password: document.getElementById('password').value,
-                    rol: document.getElementById('rol').value
-                };
-
-                fetch('/api/clientes/registrar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(datos)
-                })
-                .then(function (resp) { return resp.json(); })
-                .then(function (res) {
-                    if (res.ok) {
-                        gsap.to('.register-container', {
-                            duration: 0.4,
-                            scale: 0.96,
-                            opacity: 0,
-                            y: -20,
-                            ease: 'power2.in',
-                            onComplete: function () {
-                                window.location.href = 'login.html';
-                            }
-                        });
-                    } else {
-                        errorEl.textContent = res.error || 'No se pudo completar el registro.';
-                        errorEl.classList.add('error-msg--visible');
-                    }
-                })
-                .catch(function () {
-                    gsap.to('.register-container', {
-                        duration: 0.4,
-                        scale: 0.96,
-                        opacity: 0,
-                        y: -20,
-                        ease: 'power2.in',
-                        onComplete: function () {
-                            window.location.href = 'login.html';
-                        }
-                    });
-                });
-            });
-
-        });
-    </script>
+   
 
 </body>
 </html>
