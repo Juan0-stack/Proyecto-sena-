@@ -3,7 +3,7 @@ var ADMIN_PASS = 'isailo2026';
 
 function checkAdminAuth() {
     if (sessionStorage.getItem('adminAuth') !== 'true') {
-        window.location.href = '/admin-login';
+        window.location.href = 'admin-login.html';
     }
 }
 
@@ -16,7 +16,7 @@ function adminLogin(event) {
     if (usuario === ADMIN_USER && contrasena === ADMIN_PASS) {
         sessionStorage.setItem('adminAuth', 'true');
         errorEl.classList.remove('admin-login__error--visible');
-        window.location.href = '/admin';
+        window.location.href = 'admin.html';
     } else {
         errorEl.textContent = 'Credenciales incorrectas. Verifica usuario y contraseña.';
         errorEl.classList.add('admin-login__error--visible');
@@ -25,7 +25,7 @@ function adminLogin(event) {
 
 function adminLogout() {
     sessionStorage.removeItem('adminAuth');
-    window.location.href = '/home';
+    window.location.href = 'home.html';
 }
 
 document.addEventListener('DOMContentLoaded', function () {

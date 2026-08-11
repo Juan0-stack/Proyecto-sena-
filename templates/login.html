@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISAILO MAPS — Iniciar Sesión</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='logincss.css') }}">
+    <link rel="stylesheet" href="../static/logincss.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -20,7 +20,7 @@
     <div class="login-card" id="loginCard">
 
         <div class="login-logo-wrap">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="ISAILO MAPS" class="login-logo" id="loginLogo">
+            <img src="../static/logo.png" alt="ISAILO MAPS" class="login-logo" id="loginLogo">
             <div class="login-brand">ISAILO MAPS</div>
             <div class="login-brand-sub">Institución Educativa San Ignacio de Loyola</div>
         </div>
@@ -72,8 +72,8 @@
 
         <div class="login-links">
             <p>¿No tienes cuenta?</p>
-            <a href="{{ url_for('clientes.register') }}">Regístrate aquí <i class="fas fa-external-link-alt" style="font-size:11px;"></i></a>
-            <a href="{{ url_for('clientes.index') }}" class="login-back">
+            <a href="register.html">Regístrate aquí <i class="fas fa-external-link-alt" style="font-size:11px;"></i></a>
+            <a href="index.html" class="login-back">
                 <i class="fas fa-arrow-left"></i> Volver al inicio
             </a>
         </div>
@@ -166,7 +166,7 @@
                         ease: 'power3.in',
                         onComplete: function () {
                             sessionStorage.setItem('adminAuth', 'true');
-                            window.location.href = '/admin';
+                            window.location.href = 'admin.html';
                         }
                     });
                     return;
@@ -196,7 +196,7 @@
                             ease: 'power3.in',
                             onComplete: function () {
                                 sessionStorage.setItem('userName', res.cliente.nombre);
-                                window.location.href = '/home';
+                                window.location.href = 'home.html';
                             }
                         });
                     } else {
@@ -213,7 +213,7 @@
                         y: -30,
                         ease: 'power3.in',
                         onComplete: function () {
-                            window.location.href = '/home';
+                            window.location.href = 'home.html';
                         }
                     });
                 });

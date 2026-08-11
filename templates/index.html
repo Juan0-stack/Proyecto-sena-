@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISAILO MAPS</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css.css') }}">
+    <link rel="stylesheet" href="../static/css.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -17,8 +17,8 @@
                 <li><a href="#inicio">Inicio</a></li>
                 <li><a href="#nosotros">Nosotros</a></li>
                 <li><a href="#contacto">Contacto</a></li>
-                <li><a href="{{ url_for('clientes.login') }}">Inicio de sesión</a></li>
-                <li><a href="{{ url_for('clientes.register') }}">Registro</a></li>
+                <li><a href="login.html">Inicio de sesión</a></li>
+                <li><a href="register.html">Registro</a></li>
             </ul>
             <button class="hamburguesa" id="hamburguesa" aria-label="Menú" style="display:none;">
                 <span></span><span></span><span></span>
@@ -34,7 +34,7 @@
         <div class="hero__decoracion hero__decoracion--5"></div>
 
         <div class="hero__contenido">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo Isailo Maps" class="hero__logo" id="heroLogo">
+            <img src="../static/logo.png" alt="Logo Isailo Maps" class="hero__logo" id="heroLogo">
             <h1 class="hero__h1">ISAILO <span>MAPS</span></h1>
             <p class="hero__sub">
                 Descubre, explora y gestiona cada espacio de la
@@ -42,7 +42,7 @@
                 a través de la <strong>realidad aumentada</strong>.
             </p>
             <div class="hero__acciones">
-                <a href="{{ url_for('clientes.login') }}" class="btn-hero--primario">
+                <a href="login.html" class="btn-hero--primario">
                     <i class="fas fa-rocket"></i> Comenzar
                 </a>
                 <a href="#nosotros" class="btn-hero--secundario">
@@ -141,7 +141,7 @@
     <section class="cta">
         <h2>Únete a ISAILO MAPS</h2>
         <p>Forma parte de la transformación digital de tu institución.</p>
-        <a href="{{ url_for('clientes.register') }}" class="btn-cta">
+        <a href="register.html" class="btn-cta">
             <i class="fas fa-user-plus"></i> Crear Cuenta
         </a>
     </section>

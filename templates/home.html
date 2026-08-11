@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISAILO MAPS — Inicio</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="../static/home.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -13,7 +13,7 @@
 
     <header class="header" id="header">
         <div class="header__logo">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="ISAILO MAPS" class="header__logo-img">
+            <img src="../static/logo.png" alt="ISAILO MAPS" class="header__logo-img">
             <span class="header__logo-texto">ISAILO MAPS</span>
         </div>
         <nav>
@@ -21,7 +21,7 @@
                 <li><a class="nav__enlace" href="#mapa"><i class="fas fa-map-marked-alt nav__icono"></i> Mapa AR</a></li>
                 <li><a class="nav__enlace" href="#agenda"><i class="fas fa-calendar-check nav__icono"></i> Agenda</a></li>
                 <li><a class="nav__enlace" href="#reservas"><i class="fas fa-door-open nav__icono"></i> Reservas</a></li>
-                <li><a class="nav__enlace nav__enlace--salir" href="{{ url_for('clientes.index') }}"><i class="fas fa-sign-out-alt nav__icono"></i> Salir</a></li>
+                <li><a class="nav__enlace nav__enlace--salir" href="index.html"><i class="fas fa-sign-out-alt nav__icono"></i> Salir</a></li>
             </ul>
             <button class="nav__hamburguesa" id="hamburguesa" aria-label="Menú">
                 <span class="nav__hamburguesa-linea"></span>
@@ -34,7 +34,7 @@
     <section class="hero">
         <div class="hero__contenedor">
             <div class="hero__visual">
-                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo ISAILO MAPS" class="hero__logo">
+                <img src="../static/logo.png" alt="Logo ISAILO MAPS" class="hero__logo">
                 <div class="hero__linea"></div>
             </div>
             <div class="hero__contenido">
@@ -142,6 +142,6 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="{{ url_for('static', filename='home.js') }}"></script>
+    <script src="../static/home.js"></script>
 </body>
 </html>

@@ -11,8 +11,18 @@ def index():
     return render_template('index.html')
 
 
+@clientes_bp.route('/index.html')
+def index_html():
+    return render_template('index.html')
+
+
 @clientes_bp.route('/login')
 def login():
+    return render_template('login.html')
+
+
+@clientes_bp.route('/login.html')
+def login_html():
     return render_template('login.html')
 
 
@@ -21,8 +31,18 @@ def register():
     return render_template('register.html')
 
 
+@clientes_bp.route('/register.html')
+def register_html():
+    return render_template('register.html')
+
+
 @clientes_bp.route('/home')
 def home():
+    return render_template('home.html')
+
+
+@clientes_bp.route('/home.html')
+def home_html():
     return render_template('home.html')
 
 
@@ -31,8 +51,18 @@ def admin():
     return render_template('admin.html')
 
 
+@clientes_bp.route('/admin.html')
+def admin_html():
+    return render_template('admin.html')
+
+
 @clientes_bp.route('/admin-login')
 def admin_login():
+    return render_template('admin-login.html')
+
+
+@clientes_bp.route('/admin-login.html')
+def admin_login_html():
     return render_template('admin-login.html')
 
 

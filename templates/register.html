@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISAILO MAPS — Registro</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='registercss.css') }}">
+    <link rel="stylesheet" href="../static/registercss.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -16,7 +16,7 @@
 
     <div class="register-container" id="registerContainer">
 
-        <a href="{{ url_for('clientes.index') }}" class="back-link">
+        <a href="index.html" class="back-link">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
 
@@ -59,7 +59,7 @@
 
                 <div class="register-links">
                     <p>¿Ya tienes cuenta?</p>
-                    <a href="{{ url_for('clientes.login') }}">Inicia sesión aquí</a>
+                    <a href="login.html">Inicia sesión aquí</a>
                 </div>
             </div>
 
@@ -154,7 +154,7 @@
                             y: -20,
                             ease: 'power2.in',
                             onComplete: function () {
-                                window.location.href = '/login';
+                                window.location.href = 'login.html';
                             }
                         });
                     } else {
@@ -170,7 +170,7 @@
                         y: -20,
                         ease: 'power2.in',
                         onComplete: function () {
-                            window.location.href = '/login';
+                            window.location.href = 'login.html';
                         }
                     });
                 });

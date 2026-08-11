@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISAILO MAPS — Panel Administrativo</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="stylesheet" href="../static/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -13,7 +13,7 @@
 
     <header class="header" id="header">
         <div class="header__logo">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="ISAILO MAPS" class="header__logo-img">
+            <img src="../static/logo.png" alt="ISAILO MAPS" class="header__logo-img">
             <span class="header__logo-texto">ISAILO MAPS — Admin</span>
         </div>
         <nav>
@@ -192,7 +192,7 @@
         </div>
     </footer>
 
-    <script src="{{ url_for('static', filename='admin.js') }}"></script>
+    <script src="../static/admin.js"></script>
     <script>checkAdminAuth();</script>
 </body>
 </html>
