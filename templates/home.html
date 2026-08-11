@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAILO MAPS — Inicio</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="header" id="header">
+        <div class="header__logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="ISAILO MAPS" class="header__logo-img">
+            <span class="header__logo-texto">ISAILO MAPS</span>
+        </div>
+        <nav>
+            <ul class="nav__lista" id="navLista">
+                <li><a class="nav__enlace" href="#mapa"><i class="fas fa-map-marked-alt nav__icono"></i> Mapa AR</a></li>
+                <li><a class="nav__enlace" href="#agenda"><i class="fas fa-calendar-check nav__icono"></i> Agenda</a></li>
+                <li><a class="nav__enlace" href="#reservas"><i class="fas fa-door-open nav__icono"></i> Reservas</a></li>
+                <li><a class="nav__enlace nav__enlace--salir" href="{{ url_for('clientes.index') }}"><i class="fas fa-sign-out-alt nav__icono"></i> Salir</a></li>
+            </ul>
+            <button class="nav__hamburguesa" id="hamburguesa" aria-label="Menú">
+                <span class="nav__hamburguesa-linea"></span>
+                <span class="nav__hamburguesa-linea"></span>
+                <span class="nav__hamburguesa-linea"></span>
+            </button>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero__contenedor">
+            <div class="hero__visual">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo ISAILO MAPS" class="hero__logo">
+                <div class="hero__linea"></div>
+            </div>
+            <div class="hero__contenido">
+                <p class="hero__bienvenida">Bienvenido a tu plataforma</p>
+                <h1 class="hero__titulo">Explora la institución en <span style="color:#8B1E1E;">realidad aumentada</span></h1>
+                <p class="hero__descripcion">
+                    Localiza salones, laboratorios y oficinas al instante, consulta la agenda
+                    y aparta espacios para tus actividades académicas.
+                </p>
+                <div class="hero__acciones">
+                    <a href="#mapa" class="boton boton--primario"><i class="fas fa-map-marked-alt"></i> Ver Mapa</a>
+                    <a href="#agenda" class="boton boton--secundario"><i class="fas fa-calendar-check"></i> Ver Agenda</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about">
+        <div class="about__contenedor">
+            <span class="etiqueta-seccion">Sobre la plataforma</span>
+            <h2 class="about__titulo">Tu institución al alcance de la mano</h2>
+            <p class="about__texto">
+                ISAILO MAPS integra realidad aumentada, mapa interactivo y agenda institucional
+                para facilitar la navegación y gestión de cada espacio del colegio.
+            </p>
+            <p class="about__texto">
+                Encuentra cualquier salón o área común en segundos y aprovecha al máximo los
+                recursos de la Institución Educativa San Ignacio de Loyola.
+            </p>
+        </div>
+    </section>
+
+    <section class="carrusel-seccion">
+        <div class="carrusel-seccion__contenedor">
+            <span class="etiqueta-seccion">Destacados</span>
+            <h2 class="carrusel-seccion__titulo" id="mapa">Espacios de la institución</h2>
+            <div class="carrusel">
+                <div class="carrusel__pista" id="carruselPista">
+                    <div class="carrusel__diapositiva">
+                        <div class="carrusel__ilustracion"><i class="fas fa-school carrusel__emoji"></i></div>
+                        <span class="carrusel__etiqueta">Aulas de Clase</span>
+                        <p class="carrusel__subtexto">Salones equipados para las clases de todos los grados de la institución.</p>
+                    </div>
+                    <div class="carrusel__diapositiva">
+                        <div class="carrusel__ilustracion"><i class="fas fa-flask carrusel__emoji"></i></div>
+                        <span class="carrusel__etiqueta">Laboratorios</span>
+                        <p class="carrusel__subtexto">Espacios para ciencias, informática y actividades prácticas.</p>
+                    </div>
+                    <div class="carrusel__diapositiva">
+                        <div class="carrusel__ilustracion"><i class="fas fa-building carrusel__emoji"></i></div>
+                        <span class="carrusel__etiqueta">Oficinas</span>
+                        <p class="carrusel__subtexto">Rectoría, coordinación y áreas administrativas localizables al instante.</p>
+                    </div>
+                    <div class="carrusel__diapositiva">
+                        <div class="carrusel__ilustracion"><i class="fas fa-theater-masks carrusel__emoji"></i></div>
+                        <span class="carrusel__etiqueta">Auditorio y Salón de Eventos</span>
+                        <p class="carrusel__subtexto">Reserva el auditorio para eventos y actividades institucionales.</p>
+                    </div>
+                </div>
+                <button class="carrusel__boton carrusel__boton--anterior" id="anterior" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
+                <button class="carrusel__boton carrusel__boton--siguiente" id="siguiente" aria-label="Siguiente"><i class="fas fa-chevron-right"></i></button>
+                <div class="carrusel__indicadores" id="indicadores"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" id="agenda">
+        <div class="about__contenedor">
+            <span class="etiqueta-seccion">Agenda</span>
+            <h2 class="about__titulo">Consulta tus actividades</h2>
+            <p class="about__texto">
+                Revisa horarios, eventos y actividades programadas en el colegio para no
+                perderte ninguna fecha importante.
+            </p>
+            <div class="hero__acciones" style="justify-content:center;">
+                <a href="#reservas" class="boton boton--secundario"><i class="fas fa-door-open"></i> Ir a Reservas</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="carrusel-seccion" id="reservas">
+        <div class="carrusel-seccion__contenedor">
+            <span class="etiqueta-seccion">Reservas</span>
+            <h2 class="carrusel-seccion__titulo">Aparta un espacio</h2>
+            <p class="carrusel__subtexto" style="max-width:560px; margin:0 auto 30px;">
+                Solicita el uso de salones, laboratorios o el auditorio para tus actividades.
+            </p>
+            <a href="#mapa" class="boton boton--primario"><i class="fas fa-calendar-check"></i> Solicitar Reserva</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer__contenedor">
+            <div class="footer__logo">
+                <i class="fas fa-map-marked-alt footer__logo-icono"></i>
+                <span class="footer__logo-texto">ISAILO MAPS</span>
+            </div>
+            <div class="footer__nav">
+                <a class="footer__enlace" href="#mapa">Mapa AR</a>
+                <a class="footer__enlace" href="#agenda">Agenda</a>
+                <a class="footer__enlace" href="#reservas">Reservas</a>
+            </div>
+            <p class="footer__derechos">© 2026 ISAILO MAPS — Institución Educativa San Ignacio de Loyola, Barrio Olaya</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="{{ url_for('static', filename='home.js') }}"></script>
+</body>
+</html>

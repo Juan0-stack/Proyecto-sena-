@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAILO MAPS — Panel Administrativo</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="header" id="header">
+        <div class="header__logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="ISAILO MAPS" class="header__logo-img">
+            <span class="header__logo-texto">ISAILO MAPS — Admin</span>
+        </div>
+        <nav>
+            <ul class="nav__lista">
+                <li><a class="nav__enlace nav__enlace--activo" href="#panel"><i class="fas fa-tachometer-alt nav__icono"></i> Panel</a></li>
+                <li><a class="nav__enlace" href="#espacios"><i class="fas fa-door-open nav__icono"></i> Espacios</a></li>
+                <li><a class="nav__enlace" href="#agenda"><i class="fas fa-calendar-check nav__icono"></i> Agenda</a></li>
+                <li><a class="nav__enlace" href="#usuarios"><i class="fas fa-users nav__icono"></i> Usuarios</a></li>
+                <li><a class="nav__enlace nav__enlace--salir" href="#" onclick="adminLogout(); return false;"><i class="fas fa-sign-out-alt nav__icono"></i> Salir</a></li>
+            </ul>
+            <button class="nav__hamburguesa" id="hamburguesa" aria-label="Menú">
+                <span class="nav__hamburguesa-linea"></span>
+                <span class="nav__hamburguesa-linea"></span>
+                <span class="nav__hamburguesa-linea"></span>
+            </button>
+        </nav>
+    </header>
+
+    <section class="panel-hero" id="panel">
+        <div class="panel-hero__decoracion panel-hero__decoracion--1"></div>
+        <div class="panel-hero__decoracion panel-hero__decoracion--2"></div>
+        <div class="panel-hero__decoracion panel-hero__decoracion--3"></div>
+        <div class="panel-hero__decoracion panel-hero__decoracion--4"></div>
+        <div class="panel-hero__contenido">
+            <span class="panel-hero__badge"><i class="fas fa-user-shield"></i> Acceso Administrativo</span>
+            <h1 class="panel-hero__titulo">Panel de Administración</h1>
+            <p class="panel-hero__subtitulo">
+                Gestiona los espacios, la agenda institucional y los usuarios de la plataforma ISAILO MAPS.
+            </p>
+        </div>
+    </section>
+
+    <main class="dashboard">
+
+        <section class="modulo">
+            <div class="modulo__encabezado">
+                <span class="etiqueta-seccion">Resumen</span>
+                <h2>Indicadores generales</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card__icono"><i class="fas fa-map-pin"></i></div>
+                    <div class="stat-card__numero">30</div>
+                    <div class="stat-card__label">Espacios registrados</div>
+                    <div class="stat-card__sub">Aulas, laboratorios y oficinas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__icono"><i class="fas fa-calendar-day"></i></div>
+                    <div class="stat-card__numero">12</div>
+                    <div class="stat-card__label">Reservas activas</div>
+                    <div class="stat-card__sub">Esta semana</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__icono"><i class="fas fa-users"></i></div>
+                    <div class="stat-card__numero">500</div>
+                    <div class="stat-card__label">Usuarios</div>
+                    <div class="stat-card__sub">Estudiantes y docentes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__icono"><i class="fas fa-star"></i></div>
+                    <div class="stat-card__numero">98%</div>
+                    <div class="stat-card__label">Disponibilidad</div>
+                    <div class="stat-card__sub">De los espacios</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="modulo" id="espacios">
+            <div class="modulo__encabezado">
+                <span class="etiqueta-seccion">Gestión</span>
+                <h2>Espacios</h2>
+            </div>
+            <div class="espacios-grid">
+                <div class="espacio-card">
+                    <div class="espacio-card__icono"><i class="fas fa-school"></i></div>
+                    <span class="espacio-card__nombre">Aula 101</span>
+                    <span class="espacio-card__estado espacio-card__estado--disponible"><i class="fas fa-circle"></i> Disponible</span>
+                    <div class="espacio-card__acciones">
+                        <button class="btn-admin btn-admin--primario"><i class="fas fa-pen"></i> Editar</button>
+                        <button class="btn-admin btn-admin--outline"><i class="fas fa-history"></i> Reservas</button>
+                    </div>
+                </div>
+                <div class="espacio-card">
+                    <div class="espacio-card__icono"><i class="fas fa-flask"></i></div>
+                    <span class="espacio-card__nombre">Laboratorio de Ciencias</span>
+                    <span class="espacio-card__estado espacio-card__estado--ocupado"><i class="fas fa-circle"></i> Ocupado</span>
+                    <div class="espacio-card__acciones">
+                        <button class="btn-admin btn-admin--primario"><i class="fas fa-pen"></i> Editar</button>
+                        <button class="btn-admin btn-admin--outline"><i class="fas fa-history"></i> Reservas</button>
+                    </div>
+                </div>
+                <div class="espacio-card espacio-card--destacada">
+                    <div class="espacio-card__icono"><i class="fas fa-theater-masks"></i></div>
+                    <span class="espacio-card__badge-externo"><i class="fas fa-star"></i> Destacado</span>
+                    <span class="espacio-card__nombre">Auditorio Principal</span>
+                    <span class="espacio-card__estado espacio-card__estado--disponible"><i class="fas fa-circle"></i> Disponible</span>
+                    <p class="espacio-card__texto-adicional">Capacidad para 200 personas. Ideal para eventos y ceremonias.</p>
+                    <div class="espacio-card__acciones">
+                        <button class="btn-admin btn-admin--primario"><i class="fas fa-pen"></i> Editar</button>
+                        <button class="btn-admin btn-admin--outline"><i class="fas fa-history"></i> Reservas</button>
+                    </div>
+                </div>
+                <div class="espacio-card">
+                    <div class="espacio-card__icono"><i class="fas fa-wrench"></i></div>
+                    <span class="espacio-card__nombre">Sala de Informática</span>
+                    <span class="espacio-card__estado espacio-card__estado--mantenimiento"><i class="fas fa-circle"></i> Mantenimiento</span>
+                    <p class="espacio-card__nota">Sin reservas mientras dure el mantenimiento programado.</p>
+                    <div class="espacio-card__acciones">
+                        <button class="btn-admin btn-admin--primario"><i class="fas fa-pen"></i> Editar</button>
+                        <button class="btn-admin btn-admin--outline"><i class="fas fa-history"></i> Reservas</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="modulo" id="agenda">
+            <div class="modulo__encabezado">
+                <span class="etiqueta-seccion">Agenda</span>
+                <h2>Acciones rápidas de la agenda</h2>
+            </div>
+            <div class="modulo__card">
+                <div class="modulo__icono"><i class="fas fa-calendar-plus"></i></div>
+                <h3>Gestionar agenda institucional</h3>
+                <p>
+                    Crea, edita o cancela eventos y reservas. Revisa la disponibilidad de cada
+                    espacio y asigna responsables a las actividades.
+                </p>
+                <div class="agenda__acciones">
+                    <button class="btn-admin btn-admin--primario"><i class="fas fa-plus"></i> Nueva reserva</button>
+                    <button class="btn-admin btn-admin--outline"><i class="fas fa-list"></i> Ver todas</button>
+                    <button class="btn-admin btn-admin--danger"><i class="fas fa-ban"></i> Cancelar reserva</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="modulo" id="usuarios">
+            <div class="modulo__encabezado">
+                <span class="etiqueta-seccion">Usuarios</span>
+                <h2>Comunidad ISAILO</h2>
+            </div>
+            <div class="usuarios__stats">
+                <div class="usuario-stat">
+                    <div class="usuario-stat__numero">480</div>
+                    <div class="usuario-stat__label">Estudiantes</div>
+                </div>
+                <div class="usuario-stat">
+                    <div class="usuario-stat__numero">18</div>
+                    <div class="usuario-stat__label">Docentes</div>
+                </div>
+                <div class="usuario-stat">
+                    <div class="usuario-stat__numero">2</div>
+                    <div class="usuario-stat__label">Administradores</div>
+                </div>
+            </div>
+            <div class="modulo__card" style="margin-top:20px;">
+                <div class="modulo__icono"><i class="fas fa-user-plus"></i></div>
+                <h3>Registro de usuarios</h3>
+                <p>Administra las cuentas de estudiantes, docentes y personal administrativo.</p>
+                <div class="agenda__acciones">
+                    <button class="btn-admin btn-admin--success"><i class="fas fa-user-plus"></i> Registrar usuario</button>
+                    <button class="btn-admin btn-admin--outline"><i class="fas fa-user-cog"></i> Gestionar roles</button>
+                </div>
+            </div>
+            <span class="dev-badge"><i class="fas fa-code"></i> Módulo en desarrollo</span>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="footer__contenedor">
+            <div class="footer__logo">
+                <i class="fas fa-map-marked-alt"></i>
+                <span class="footer__logo-texto">ISAILO MAPS</span>
+            </div>
+            <p class="footer__derechos">© 2026 ISAILO MAPS — Institución Educativa San Ignacio de Loyola, Barrio Olaya</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='admin.js') }}"></script>
+    <script>checkAdminAuth();</script>
+</body>
+</html>

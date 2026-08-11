@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAILO MAPS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="navbar navbar--transparent" id="navbar">
+        <div class="logo-nav">ISAILO MAPS</div>
+        <nav>
+            <ul class="menu" id="menu">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#nosotros">Nosotros</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+                <li><a href="{{ url_for('clientes.login') }}">Inicio de sesión</a></li>
+                <li><a href="{{ url_for('clientes.register') }}">Registro</a></li>
+            </ul>
+            <button class="hamburguesa" id="hamburguesa" aria-label="Menú" style="display:none;">
+                <span></span><span></span><span></span>
+            </button>
+        </nav>
+    </header>
+
+    <section class="hero" id="inicio">
+        <div class="hero__decoracion hero__decoracion--1"></div>
+        <div class="hero__decoracion hero__decoracion--2"></div>
+        <div class="hero__decoracion hero__decoracion--3"></div>
+        <div class="hero__decoracion hero__decoracion--4"></div>
+        <div class="hero__decoracion hero__decoracion--5"></div>
+
+        <div class="hero__contenido">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo Isailo Maps" class="hero__logo" id="heroLogo">
+            <h1 class="hero__h1">ISAILO <span>MAPS</span></h1>
+            <p class="hero__sub">
+                Descubre, explora y gestiona cada espacio de la
+                <strong>Institución Educativa San Ignacio de Loyola</strong>
+                a través de la <strong>realidad aumentada</strong>.
+            </p>
+            <div class="hero__acciones">
+                <a href="{{ url_for('clientes.login') }}" class="btn-hero--primario">
+                    <i class="fas fa-rocket"></i> Comenzar
+                </a>
+                <a href="#nosotros" class="btn-hero--secundario">
+                    <i class="fas fa-arrow-down"></i> Más información
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" id="nosotros">
+        <div class="about__contenedor">
+            <span class="etiqueta">Sobre Nosotros</span>
+            <h2>Institución Educativa San Ignacio de Loyola</h2>
+            <p>
+                Ubicada en el barrio Olaya, nuestra institución es un espacio comprometido
+                con la formación académica, cultural y social de sus estudiantes.
+                <strong>ISAILO MAPS</strong> nace como una plataforma innovadora que
+                integra <strong>realidad aumentada</strong> para facilitar la navegación
+                y gestión de cada espacio del colegio.
+            </p>
+            <p>
+                Con nuestro mapa interactivo puedes localizar salones, laboratorios y
+                oficinas al instante. La agenda institucional te permite apartar espacios
+                para actividades académicas, optimizando el uso de cada recurso.
+            </p>
+            <div class="about__stats">
+                <div class="stat">
+                    <span class="stat__num">+500</span>
+                    <span class="stat__label">Estudiantes</span>
+                </div>
+                <div class="stat">
+                    <span class="stat__num">+30</span>
+                    <span class="stat__label">Espacios</span>
+                </div>
+                <div class="stat">
+                    <span class="stat__num">100%</span>
+                    <span class="stat__label">Digital</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="funciones">
+        <h2>¿Qué puedes hacer?</h2>
+        <div class="features__grid">
+            <div class="feature-card">
+                <div class="feature-card__icono"><i class="fas fa-map-marked-alt"></i></div>
+                <h3>Mapa AR</h3>
+                <p>Recorre la institución en realidad aumentada y encuentra cualquier espacio en segundos.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icono"><i class="fas fa-calendar-check"></i></div>
+                <h3>Agenda</h3>
+                <p>Consulta horarios, eventos y actividades programadas en el colegio.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icono"><i class="fas fa-door-open"></i></div>
+                <h3>Reservas</h3>
+                <p>Aparta salones de clase, laboratorios y espacios para tus actividades.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-card__icono"><i class="fas fa-map-pin"></i></div>
+                <h3>Ubicaciones</h3>
+                <p>Localiza salones, oficinas administrativas y áreas comunes al instante.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="contacto" id="contacto">
+        <div class="contacto__contenedor">
+            <span class="etiqueta">Contacto</span>
+            <h2>Estamos aquí para ayudarte</h2>
+            <p class="contacto__sub">
+                Si tienes dudas o necesitas asistencia, no dudes en comunicarte con nosotros.
+            </p>
+            <div class="contacto__grid">
+                <div class="contacto__item">
+                    <div class="contacto__icono"><i class="fas fa-envelope"></i></div>
+                    <h3>Correo Electrónico</h3>
+                    <p>contacto@isailomaps.edu.co</p>
+                </div>
+                <div class="contacto__item">
+                    <div class="contacto__icono"><i class="fas fa-map-marker-alt"></i></div>
+                    <h3>Ubicación</h3>
+                    <p>Barrio Olaya — Institución Educativa San Ignacio de Loyola</p>
+                </div>
+                <div class="contacto__item">
+                    <div class="contacto__icono"><i class="fas fa-clock"></i></div>
+                    <h3>Horario de Atención</h3>
+                    <p>Lunes a Viernes · 7:00 AM – 5:00 PM</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <h2>Únete a ISAILO MAPS</h2>
+        <p>Forma parte de la transformación digital de tu institución.</p>
+        <a href="{{ url_for('clientes.register') }}" class="btn-cta">
+            <i class="fas fa-user-plus"></i> Crear Cuenta
+        </a>
+    </section>
+
+    <footer>
+        <p>© 2026 ISAILO MAPS — Institución Educativa San Ignacio de Loyola, Barrio Olaya</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            gsap.registerPlugin(ScrollTrigger);
+
+            var navbar = document.getElementById('navbar');
+            var hamburguesa = document.getElementById('hamburguesa');
+            var menu = document.getElementById('menu');
+
+            if (window.innerWidth <= 600) {
+                hamburguesa.style.display = 'flex';
+            }
+
+            hamburguesa.addEventListener('click', function () {
+                menu.classList.toggle('abierto');
+            });
+
+            menu.querySelectorAll('a').forEach(function (a) {
+                a.addEventListener('click', function () {
+                    menu.classList.remove('abierto');
+                });
+            });
+
+            ScrollTrigger.create({
+                start: 'top top',
+                end: window.innerHeight * 0.85,
+                onUpdate: function (self) {
+                    if (self.progress > 0.15) {
+                        navbar.classList.remove('navbar--transparent');
+                        navbar.classList.add('navbar--solid');
+                    } else {
+                        navbar.classList.remove('navbar--solid');
+                        navbar.classList.add('navbar--transparent');
+                    }
+                }
+            });
+
+            var heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+            heroTl.set('.navbar', { y: -80, opacity: 0 })
+                   .set('.hero__logo', { scale: 0.4, opacity: 0, rotation: -15 })
+                   .set('.hero__h1', { y: 60, opacity: 0 })
+                   .set('.hero__sub', { y: 40, opacity: 0 })
+                   .set('.hero__acciones > *', { y: 30, opacity: 0 })
+                   .set('.hero__decoracion--1', { scale: 0, opacity: 0 })
+                   .set('.hero__decoracion--2', { scale: 0, opacity: 0 })
+                   .set('.hero__decoracion--3', { scale: 0.5, opacity: 0, rotation: -20 })
+                   .set('.hero__decoracion--4', { scale: 0, opacity: 0 })
+                   .set('.hero__decoracion--5', { scaleY: 0, opacity: 0, transformOrigin: 'top center' });
+
+            heroTl.to('.navbar', { duration: 0.5, y: 0, opacity: 1 }, 0)
+                  .to('.hero__decoracion--1', { duration: 0.7, scale: 1, opacity: 1, ease: 'back.out(1.7)' }, 0.05)
+                  .to('.hero__decoracion--2', { duration: 0.6, scale: 1, opacity: 1, ease: 'back.out(1.7)' }, 0.1)
+                  .to('.hero__decoracion--3', { duration: 0.5, scale: 1, opacity: 1, rotation: 0, ease: 'back.out(1.4)' }, 0.12)
+                  .to('.hero__decoracion--4', { duration: 0.4, scale: 1, opacity: 1, ease: 'back.out(2)' }, 0.15)
+                  .to('.hero__decoracion--5', { duration: 0.4, scaleY: 1, opacity: 1, ease: 'power3.out' }, 0.18)
+                  .to('.hero__logo', { duration: 0.7, scale: 1, opacity: 1, rotation: 0, ease: 'back.out(2)' }, 0.2)
+                  .to('.hero__h1', { duration: 0.7, y: 0, opacity: 1 }, 0.3)
+                  .to('.hero__sub', { duration: 0.5, y: 0, opacity: 1 }, 0.4)
+                  .to('.hero__acciones > *', { duration: 0.5, y: 0, opacity: 1, stagger: 0.08 }, 0.5);
+
+            gsap.set('.about, .features, .contacto, .cta, footer', { y: 60, opacity: 0 });
+
+            ScrollTrigger.batch('.about, .features, .contacto, .cta, footer', {
+                start: 'top 82%',
+                onEnter: function (elements) {
+                    gsap.to(elements, {
+                        duration: 0.8, y: 0, opacity: 1, ease: 'power3.out', stagger: 0.12, overwrite: 'auto'
+                    });
+                },
+                once: true
+            });
+
+            gsap.set('.feature-card', { y: 40, opacity: 0 });
+
+            ScrollTrigger.batch('.feature-card', {
+                start: 'top 82%',
+                onEnter: function (elements) {
+                    gsap.to(elements, {
+                        duration: 0.7, y: 0, opacity: 1, ease: 'power3.out', stagger: 0.1, overwrite: 'auto'
+                    });
+                },
+                once: true
+            });
+
+            gsap.set('.contacto__item', { y: 40, opacity: 0 });
+
+            ScrollTrigger.batch('.contacto__item', {
+                start: 'top 82%',
+                onEnter: function (elements) {
+                    gsap.to(elements, {
+                        duration: 0.7, y: 0, opacity: 1, ease: 'power3.out', stagger: 0.1, overwrite: 'auto'
+                    });
+                },
+                once: true
+            });
+
+            gsap.set('.stat', { y: 30, opacity: 0 });
+
+            ScrollTrigger.batch('.stat', {
+                start: 'top 85%',
+                onEnter: function (elements) {
+                    gsap.to(elements, {
+                        duration: 0.5, y: 0, opacity: 1, ease: 'power3.out', stagger: 0.12, overwrite: 'auto'
+                    });
+                },
+                once: true
+            });
+
+            ScrollTrigger.refresh();
+        });
+    </script>
+
+</body>
+</html>
