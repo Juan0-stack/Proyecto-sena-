@@ -39,17 +39,3 @@ def guardar_usuario():
     cursor.close()
 
     return "Cliente guardado correctamente"
-
-@app.route('/test-db')
-def test_db():
-    try:
-        cursor = mysql.connection.cursor()
-        cursor.execute("SELECT DATABASE()")
-        resultado = cursor.fetchone()
-        cursor.close()
-        return f"Base de datos conectada: {resultado[0]}"
-    except Exception as e:
-        return f"Error de conexión: {e}"
-
-if __name__ == '__main__':
-    app.run(debug=True)
