@@ -48,5 +48,8 @@ def guardar_usuario():
 
     return render_template('register.html') #opcional, renderizar
 
+
+#falta demas tablas// 
+
 if __name__ == '__main__':
     app.run(debug=True) #ejecuta flask con app.py
