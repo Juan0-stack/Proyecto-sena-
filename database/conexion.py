@@ -1,5 +1,7 @@
 import mysql.connector
 from mysql.connector import Error
+from werkzeug.security import generate_password_hash
+
 from config import Config
 
 
@@ -15,6 +17,23 @@ def get_connection():
     except Error as e:
         print(f'Error al conectar a la base de datos: {e}')
         return None
+
+
+def _sembrar_admin(cursor):
+    cursor.execute("SELECT id_usuario FROM usuarios WHERE correo = %s", ('admin',))
+    if cursor.fetchone() is None:
+        cursor.execute(
+            """
+            INSERT INTO usuarios (nombre, apellido, correo, password_hash, estado, id_rol)
+            VALUES (%s, %s, %s, %s, 'Activo', 3)
+            """,
+            (
+                'Administrador',
+                'ISAILO',
+                'admin',
+                generate_password_hash('isailo2026', method='pbkdf2:sha256')
+            )
+        )
 
 
 def init_db():
@@ -65,6 +84,58 @@ def init_db():
                 (3, 'Administrador', 'Usuario con acceso administrativo')
             """
         )
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS espacios (
+                id_espacio INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                nombre VARCHAR(100) NOT NULL,
+                tipo VARCHAR(50),
+                descripcion VARCHAR(255),
+                capacidad INT,
+                estado ENUM('Disponible','Ocupado','Mantenimiento') DEFAULT 'Disponible',
+                destacado BOOLEAN DEFAULT FALSE,
+                id_usuario_encargado INT NULL,
+                CONSTRAINT espacios_ibfk_1 FOREIGN KEY (id_usuario_encargado)
+                    REFERENCES usuarios (id_usuario) ON DELETE SET NULL
+            )
+            """
+        )
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS solicitudes (
+                id_solicitud INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                id_usuario INT NOT NULL,
+                id_espacio INT NOT NULL,
+                fecha_uso DATE NOT NULL,
+                hora_inicio TIME NOT NULL,
+                hora_fin TIME NOT NULL,
+                nombre_actividad VARCHAR(100),
+                descripcion VARCHAR(255),
+                estado ENUM('pendiente','aprobada','rechazada') DEFAULT 'pendiente',
+                fecha_solicitud DATETIME DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT solicitudes_ibfk_1 FOREIGN KEY (id_usuario)
+                    REFERENCES usuarios (id_usuario),
+                CONSTRAINT solicitudes_ibfk_2 FOREIGN KEY (id_espacio)
+                    REFERENCES espacios (id_espacio)
+            )
+            """
+        )
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS eventos_institucionales (
+                id_evento INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                nombre VARCHAR(100) NOT NULL,
+                descripcion VARCHAR(255),
+                fecha_inicio DATE NOT NULL,
+                fecha_fin DATE,
+                color VARCHAR(20) DEFAULT '#8B1E1E',
+                creado_por INT,
+                CONSTRAINT eventos_ibfk_1 FOREIGN KEY (creado_por)
+                    REFERENCES usuarios (id_usuario) ON DELETE SET NULL
+            )
+            """
+        )
+        _sembrar_admin(cursor)
         conn.commit()
         cursor.close()
         conn.close()
