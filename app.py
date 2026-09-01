@@ -1,8 +1,17 @@
 #'llamando librerias'
 from flask import Flask, render_template, request
 from config import Config
+<<<<<<< HEAD
 from database.conexion import mysql
 #llama flask
+=======
+from database.conexion import init_db
+from routes.clientes_routes import clientes_bp
+from routes.espacio_routes import espacios_bp
+from routes.evento_routes import eventos_bp
+from routes.solicitud_routes import solicitudes_bp
+
+>>>>>>> 1e4c3fe97b6e61d64da03b3d87cf9f41b590d2d1
 app = Flask(__name__)
 
 # Configuración MySQL
@@ -11,6 +20,7 @@ app.config['MYSQL_USER'] = Config.MYSQL_USER
 app.config['MYSQL_PASSWORD'] = Config.MYSQL_PASSWORD
 app.config['MYSQL_DB'] = Config.MYSQL_DB
 
+<<<<<<< HEAD
 # Inicializar MySQL
 mysql.init_app(app)
 
@@ -55,6 +65,12 @@ def guardar_usuario():
 
 
 #falta demas tablas// 
+=======
+app.register_blueprint(clientes_bp)
+app.register_blueprint(espacios_bp)
+app.register_blueprint(solicitudes_bp)
+app.register_blueprint(eventos_bp)
+>>>>>>> 1e4c3fe97b6e61d64da03b3d87cf9f41b590d2d1
 
 if __name__ == '__main__':
     app.run(debug=True) #ejecuta flask con app.py

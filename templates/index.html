@@ -18,7 +18,10 @@
                 <li><a href="#nosotros">Nosotros</a></li>
                 <li><a href="#contacto">Contacto</a></li>
                 <li><a href="login.html">Inicio de sesión</a></li>
+<<<<<<< HEAD
                 <li><a href="/register">Registro</a></li>
+=======
+>>>>>>> 1e4c3fe97b6e61d64da03b3d87cf9f41b590d2d1
             </ul>
             <button class="hamburguesa" id="hamburguesa" aria-label="Menú" style="display:none;">
                 <span></span><span></span><span></span>
@@ -37,8 +40,8 @@
             <img src="../static/logo.png" alt="Logo Isailo Maps" class="hero__logo" id="heroLogo">
             <h1 class="hero__h1">ISAILO <span>MAPS</span></h1>
             <p class="hero__sub">
-                Descubre, explora y gestiona cada espacio de la
-                <strong>Institución Educativa San Ignacio de Loyola</strong>
+                Descubre, explora y gestiona cada espacio del
+                <strong>Instituto San Ignacio de Loyola</strong>
                 a través de la <strong>realidad aumentada</strong>.
             </p>
             <div class="hero__acciones">
@@ -55,7 +58,7 @@
     <section class="about" id="nosotros">
         <div class="about__contenedor">
             <span class="etiqueta">Sobre Nosotros</span>
-            <h2>Institución Educativa San Ignacio de Loyola</h2>
+            <h2>Instituto San Ignacio de Loyola</h2>
             <p>
                 Ubicada en el barrio Olaya, nuestra institución es un espacio comprometido
                 con la formación académica, cultural y social de sus estudiantes.
@@ -127,7 +130,7 @@
                 <div class="contacto__item">
                     <div class="contacto__icono"><i class="fas fa-map-marker-alt"></i></div>
                     <h3>Ubicación</h3>
-                    <p>Barrio Olaya — Institución Educativa San Ignacio de Loyola</p>
+                    <p>Barrio Olaya — Instituto San Ignacio de Loyola</p>
                 </div>
                 <div class="contacto__item">
                     <div class="contacto__icono"><i class="fas fa-clock"></i></div>
@@ -141,13 +144,18 @@
     <section class="cta">
         <h2>Únete a ISAILO MAPS</h2>
         <p>Forma parte de la transformación digital de tu institución.</p>
+<<<<<<< HEAD
         <a href="/register_pag" class="btn-cta">
             <i class="fas fa-user-plus"></i> Crear Cuenta
+=======
+        <a href="login.html" class="btn-cta">
+            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+>>>>>>> 1e4c3fe97b6e61d64da03b3d87cf9f41b590d2d1
         </a>
     </section>
 
     <footer>
-        <p>© 2026 ISAILO MAPS — Institución Educativa San Ignacio de Loyola, Barrio Olaya</p>
+        <p>© 2026 ISAILO MAPS — Instituto San Ignacio de Loyola, Barrio Olaya</p>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -202,12 +210,12 @@
                    .set('.hero__decoracion--5', { scaleY: 0, opacity: 0, transformOrigin: 'top center' });
 
             heroTl.to('.navbar', { duration: 0.5, y: 0, opacity: 1 }, 0)
-                  .to('.hero__decoracion--1', { duration: 0.7, scale: 1, opacity: 1, ease: 'back.out(1.7)' }, 0.05)
-                  .to('.hero__decoracion--2', { duration: 0.6, scale: 1, opacity: 1, ease: 'back.out(1.7)' }, 0.1)
-                  .to('.hero__decoracion--3', { duration: 0.5, scale: 1, opacity: 1, rotation: 0, ease: 'back.out(1.4)' }, 0.12)
-                  .to('.hero__decoracion--4', { duration: 0.4, scale: 1, opacity: 1, ease: 'back.out(2)' }, 0.15)
+                  .to('.hero__decoracion--1', { duration: 0.7, scale: 1, opacity: 1, ease: 'power2.out' }, 0.05)
+                  .to('.hero__decoracion--2', { duration: 0.6, scale: 1, opacity: 1, ease: 'power2.out' }, 0.1)
+                  .to('.hero__decoracion--3', { duration: 0.5, scale: 1, opacity: 1, rotation: 0, ease: 'back.out(1.2)' }, 0.12)
+                  .to('.hero__decoracion--4', { duration: 0.4, scale: 1, opacity: 1, ease: 'back.out(1.2)' }, 0.15)
                   .to('.hero__decoracion--5', { duration: 0.4, scaleY: 1, opacity: 1, ease: 'power3.out' }, 0.18)
-                  .to('.hero__logo', { duration: 0.7, scale: 1, opacity: 1, rotation: 0, ease: 'back.out(2)' }, 0.2)
+                  .to('.hero__logo', { duration: 0.7, scale: 1, opacity: 1, rotation: 0, ease: 'back.out(1.2)' }, 0.2)
                   .to('.hero__h1', { duration: 0.7, y: 0, opacity: 1 }, 0.3)
                   .to('.hero__sub', { duration: 0.5, y: 0, opacity: 1 }, 0.4)
                   .to('.hero__acciones > *', { duration: 0.5, y: 0, opacity: 1, stagger: 0.08 }, 0.5);

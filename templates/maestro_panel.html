@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAILO MAPS — Panel Docente</title>
+
+    <link rel="stylesheet" href="../static/admin.css">
+    <link rel="stylesheet" href="../static/variables.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body data-rol="Docente" data-usuario-id="{{ session['id_usuario'] }}">
+
+    <header class="header" id="header">
+        <div class="header__logo">
+            <img src="../static/logo.png" alt="ISAILO MAPS" class="header__logo-img">
+            <span class="header__logo-texto">ISAILO MAPS — Docente</span>
+        </div>
+        <nav>
+            <ul class="nav__lista">
+                <li><a class="nav__enlace nav__enlace--activo" href="#panel" data-vista="panel"><i class="fas fa-chalkboard-user nav__icono"></i> Panel</a></li>
+                <li><a class="nav__enlace" href="#espacios" data-vista="espacios"><i class="fas fa-door-open nav__icono"></i> Espacios</a></li>
+                <li><a class="nav__enlace" href="#calendario" data-vista="calendario"><i class="fas fa-calendar-check nav__icono"></i> Calendario</a></li>
+                <li><a class="nav__enlace" href="#mapa" data-vista="mapa"><i class="fas fa-map-marked-alt nav__icono"></i> Mapa</a></li>
+                <li><a class="nav__enlace nav__enlace--salir" href="/logout"><i class="fas fa-sign-out-alt nav__icono"></i> Salir</a></li>
+            </ul>
+            <button class="nav__hamburguesa" id="hamburguesa" aria-label="Menú">
+                <span class="nav__hamburguesa-linea"></span>
+                <span class="nav__hamburguesa-linea"></span>
+                <span class="nav__hamburguesa-linea"></span>
+            </button>
+        </nav>
+    </header>
+
+    <main class="dashboard">
+
+        <section class="modulo vista vista--activa" id="panel">
+            <div class="panel-hero">
+                <div class="panel-hero__decoracion panel-hero__decoracion--1"></div>
+                <div class="panel-hero__decoracion panel-hero__decoracion--2"></div>
+                <div class="panel-hero__contenido">
+                    <span class="panel-hero__badge"><i class="fas fa-chalkboard-user"></i> Espacio Docente</span>
+                    <h1 class="panel-hero__titulo">Panel del Docente</h1>
+                    <p class="panel-hero__subtitulo">
+                        Bienvenido, {{ session['nombre'] }}. Solicita espacios para tus clases y,
+                        si tienes espacios a cargo, revisa y autoriza las solicitudes que llegan a ellos.
+                    </p>
+                </div>
+            </div>
+
+            <div class="modulo__encabezado">
+                <span class="etiqueta-seccion">Resumen</span>
+                <h2>Tu actividad</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card__icono"><i class="fas fa-paper-plane"></i></div>
+                    <div class="stat-card__numero" id="statMisSolicitudes">—</div>
+                    <div class="stat-card__label">Mis solicitudes</div>
+                    <div class="stat-card__sub">Enviadas en total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__icono"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="stat-card__numero" id="statPorAutorizar">—</div>
+                    <div class="stat-card__label">Por autorizar</div>
+                    <div class="stat-card__sub">En tus espacios a cargo</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__icono"><i class="fas fa-key"></i></div>
+                    <div class="stat-card__numero" id="statMiCargo">—</div>
+                    <div class="stat-card__label">Espacios a tu cargo</div>
+                    <div class="stat-card__sub">Como encargado</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__icono"><i class="fas fa-calendar-day"></i></div>
+                    <div class="stat-card__numero" id="statProximos">—</div>
+                    <div class="stat-card__label">Próximos eventos</div>
+                    <div class="stat-card__sub">Calendario institucional</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="modulo vista" id="espacios">
+            <div class="modulo__encabezado">
+                <span class="etiqueta-seccion">Espacios</span>
+                <h2>Disponibilidad del Instituto</h2>
+            </div>
+            <p class="seccion-nota">
+                Consulta el estado de cada espacio, revisa el calendario operativo y envía tus solicitudes.
+            </p>
+
+            <div class="toolbar">
+                <div class="toolbar__campo">
+                    <label class="toolbar__label" for="filtroTipo">Filtrar por tipo</label>
+                    <select id="filtroTipo" class="input-min">
+                        <option value="">Todos los tipos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="cal-op modulo__card">
+                <div class="cal-op__cabecera">
+                    <button id="btnOpAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
+                    <h3 id="opTitulo">Calendario operativo</h3>
+                    <button id="btnOpSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
+                    <div class="cal-op__leyenda">
+                        <span class="leyenda"><i class="punto punto--aprobada"></i> Actividad aprobada</span>
+                    </div>
+                </div>
+                <div class="cal-op__grilla" id="calOperativo"></div>
+            </div>
+
+            <h3 class="acordeon__titulo">Listado de espacios</h3>
+            <div class="acordeon" id="listaEspacios"></div>
+        </section>
+
+        <section class="modulo vista" id="calendario">
+            <div class="modulo__encabezado modulo__encabezado--fila">
+                <div>
+                    <span class="etiqueta-seccion">Agenda</span>
+                    <h2>Calendario institucional <span class="badge-beta">Beta</span></h2>
+                </div>
+            </div>
+            <p class="seccion-nota">
+                Eventos publicados por la administración: izadas de bandera, entrega de boletines,
+                actividades culturales y más.
+            </p>
+
+            <div class="cal-pared__nav">
+                <button id="btnAnioAnterior" class="btn-nav" aria-label="Año anterior"><i class="fas fa-chevron-left"></i></button>
+                <span id="anioActual" class="cal-pared__anio"></span>
+                <button id="btnAnioSiguiente" class="btn-nav" aria-label="Año siguiente"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="cal-pared" id="calPared"></div>
+        </section>
+
+        <section class="modulo vista" id="mapa">
+            <span class="badge-proximamente"><i class="fas fa-helmet-safety"></i> Próximamente</span>
+            <h2>Mapa interactivo</h2>
+            <p class="seccion-nota mapa-intro">
+                Este es el mapa del Instituto San Ignacio de Loyola. Aquí podrás ubicar salones,
+                laboratorios y oficinas al instante. Esta función estará disponible próximamente.
+            </p>
+            <div id="mapa-container" aria-hidden="true"></div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="footer__contenedor">
+            <div class="footer__logo">
+                <i class="fas fa-map-marked-alt"></i>
+                <span class="footer__logo-texto">ISAILO MAPS</span>
+            </div>
+            <p class="footer__derechos">© 2026 ISAILO MAPS — Instituto San Ignacio de Loyola, Barrio Olaya</p>
+        </div>
+    </footer>
+
+    <div class="modal-overlay" id="modalSolicitud" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true">
+            <button type="button" class="modal__cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+            <span class="etiqueta-seccion">Solicitud</span>
+            <h3>Solicitar espacio</h3>
+            <div class="solicitud-info" id="solInfo"></div>
+            <form id="formSolicitud" autocomplete="off">
+                <div class="form-grid">
+                    <div class="form-campo">
+                        <label for="solFecha">Fecha</label>
+                        <input id="solFecha" type="date" required>
+                    </div>
+                    <div class="form-campo form-campo--par">
+                        <label for="solInicio">Hora inicio</label>
+                        <input id="solInicio" type="time" required>
+                    </div>
+                    <div class="form-campo form-campo--par">
+                        <label for="solFin">Hora fin</label>
+                        <input id="solFin" type="time" required>
+                    </div>
+                    <div class="form-campo form-campo--ancho">
+                        <label for="solActividad">Actividad</label>
+                        <input id="solActividad" type="text" maxlength="100" required placeholder="¿Para qué necesitas el espacio?">
+                    </div>
+                    <div class="form-campo form-campo--ancho">
+                        <label for="solDescripcion">Descripción (opcional)</label>
+                        <textarea id="solDescripcion" rows="2" maxlength="255"></textarea>
+                    </div>
+                </div>
+
+                <p class="solicitud-aviso" id="solAviso" hidden>
+                    <i class="fas fa-circle-exclamation"></i>
+                    <strong>Fecha no disponible.</strong>
+                    <span id="solAvisoTexto"></span>
+                </p>
+                <div class="mini-cal" id="miniCal" hidden>
+                    <div class="mini-cal__cab">
+                        <button type="button" id="miniAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
+                        <span id="miniTitulo"></span>
+                        <button type="button" id="miniSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="mini-cal__dias mini-cal__dias--cab" id="miniCabecera"></div>
+                    <div class="mini-cal__dias" id="miniDias"></div>
+                    <p class="mini-cal__ayuda">Elige un día libre para reprogramar tu solicitud.</p>
+                </div>
+
+                <p class="form-error" id="errorModalSolicitud" hidden></p>
+                <div class="modal__acciones">
+                    <button type="button" class="btn-admin btn-admin--outline" data-cerrar>Cancelar</button>
+                    <button type="submit" class="btn-admin btn-admin--primario">Enviar solicitud</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="../static/panel.js"></script>
+</body>
+</html>

@@ -22,7 +22,7 @@
         <div class="login-logo-wrap">
             <img src="../static/logo.png" alt="ISAILO MAPS" class="login-logo" id="loginLogo">
             <div class="login-brand">ISAILO MAPS</div>
-            <div class="login-brand-sub">Institución Educativa San Ignacio de Loyola</div>
+            <div class="login-brand-sub">Instituto San Ignacio de Loyola</div>
         </div>
 
         <h1 class="login-title">Inicio de Sesión</h1>
@@ -71,9 +71,7 @@
         </form>
 
         <div class="login-links">
-            <p>¿No tienes cuenta?</p>
-            <a href="register.html">Regístrate aquí <i class="fas fa-external-link-alt" style="font-size:11px;"></i></a>
-            <a href="index.html" class="login-back">
+            <a href="/" class="login-back">
                 <i class="fas fa-arrow-left"></i> Volver al inicio
             </a>
         </div>
@@ -109,16 +107,16 @@
             tl.to('.login-decor--1', { duration: 0.5, scale: 1, opacity: 1, ease: 'power2.out' })
               .to('.login-decor--2', { duration: 0.4, scale: 1, opacity: 1, ease: 'power2.out' }, '-=0.3')
               .to('.login-decor--3', { duration: 0.35, scale: 1, opacity: 1, rotation: 0, ease: 'back.out(1.4)' }, '-=0.25')
-              .to('.login-decor--4', { duration: 0.3, scale: 1, opacity: 1, ease: 'back.out(2)' }, '-=0.2')
+              .to('.login-decor--4', { duration: 0.3, scale: 1, opacity: 1, ease: 'back.out(1.2)' }, '-=0.2')
               .to('.login-decor--5', { duration: 0.3, scaleY: 1, opacity: 1, ease: 'power3.out' }, '-=0.15')
               .to('.login-card', { duration: 0.55, y: 0, opacity: 1, scale: 1, ease: 'power2.out' }, '-=0.2')
-              .to('.login-logo', { duration: 0.5, scale: 1, opacity: 1, rotation: 0, ease: 'back.out(2)' }, '-=0.3')
+              .to('.login-logo', { duration: 0.5, scale: 1, opacity: 1, rotation: 0, ease: 'back.out(1.2)' }, '-=0.3')
               .to('.login-brand', { duration: 0.35, y: 0, opacity: 1 }, '-=0.2')
               .to('.login-brand-sub', { duration: 0.3, y: 0, opacity: 1 }, '-=0.15')
               .to('.login-title', { duration: 0.35, y: 0, opacity: 1 }, '-=0.1')
               .to('.login-subtitle', { duration: 0.3, y: 0, opacity: 1 }, '-=0.1')
               .to('.login-field', { duration: 0.35, x: 0, opacity: 1, stagger: 0.06, ease: 'power2.out' }, '-=0.1')
-              .to('.login-btn', { duration: 0.4, y: 0, opacity: 1, ease: 'back.out(1.7)', onComplete: pulseGlow }, '-=0.05')
+              .to('.login-btn', { duration: 0.4, y: 0, opacity: 1, ease: 'back.out(1.2)', onComplete: pulseGlow }, '-=0.05')
               .to('.login-links', { duration: 0.3, y: 0, opacity: 1 }, '-=0.05')
               .to('.login-admin-hint', { duration: 0.3, opacity: 1 }, '-=0.05');
 
@@ -157,26 +155,10 @@
 
                 errorEl.classList.remove('login-error--visible');
 
-                if (user === 'admin' && pass === 'isailo2026') {
-                    gsap.to('.login-card', {
-                        duration: 0.5,
-                        scale: 0.92,
-                        opacity: 0,
-                        y: -30,
-                        ease: 'power3.in',
-                        onComplete: function () {
-                            sessionStorage.setItem('adminAuth', 'true');
-                            window.location.href = 'admin.html';
-                        }
-                    });
-                    return;
-                }
-
-                if (user.indexOf('@') === -1) {
-                    errorText.textContent = 'Ingresa un correo electrónico válido (debe contener @).';
+                if (!user || !pass) {
+                    errorText.textContent = 'Completa usuario y contraseña.';
                     errorEl.classList.add('login-error--visible');
                     gsap.fromTo(errorEl, { x: -10 }, { duration: 0.35, x: 0, ease: 'power3.out' });
-                    document.getElementById('loginUser').classList.add('login-input--error');
                     return;
                 }
 
@@ -187,7 +169,7 @@
                 })
                 .then(function (resp) { return resp.json(); })
                 .then(function (res) {
-                    if (res.ok) {
+                    if (res.ok && res.panel) {
                         gsap.to('.login-card', {
                             duration: 0.5,
                             scale: 0.92,
@@ -195,8 +177,7 @@
                             y: -30,
                             ease: 'power3.in',
                             onComplete: function () {
-                                sessionStorage.setItem('userName', res.cliente.nombre);
-                                window.location.href = 'home.html';
+                                window.location.href = res.panel;
                             }
                         });
                     } else {
@@ -206,16 +187,9 @@
                     }
                 })
                 .catch(function () {
-                    gsap.to('.login-card', {
-                        duration: 0.5,
-                        scale: 0.92,
-                        opacity: 0,
-                        y: -30,
-                        ease: 'power3.in',
-                        onComplete: function () {
-                            window.location.href = 'home.html';
-                        }
-                    });
+                    errorText.textContent = 'No se pudo conectar con el servidor. Intenta nuevamente.';
+                    errorEl.classList.add('login-error--visible');
+                    gsap.fromTo(errorEl, { x: -10 }, { duration: 0.35, x: 0, ease: 'power3.out' });
                 });
             });
 

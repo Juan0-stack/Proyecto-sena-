@@ -1,0 +1,57 @@
+:root {
+    --color-bg: #0d0505;
+    --color-bg-elevado: #160a0a;
+    --color-superficie: #140808;
+    --color-accent: #8B1E1E;
+    --color-accent-oscuro: #6B1212;
+    --color-gold: #E6D7B8;
+    --color-gold-claro: #F5E8CC;
+    --color-disponible: #4CAF50;
+    --color-ocupado: #CF6679;
+    --color-mantenimiento: #D4A843;
+    --color-texto-suave: rgba(242, 232, 214, 0.78);
+    --borde-suave: rgba(230, 215, 184, 0.12);
+    --sombra-suave: 0 6px 24px rgba(0, 0, 0, 0.28);
+    --radio: 14px;
+}
+
+body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    line-height: 1.55;
+}
+
+.etiqueta-seccion,
+.stat-card__label,
+.stat-card__sub,
+.espacio-card__estado,
+.toolbar__label,
+.footer__derechos {
+    letter-spacing: 0.02em;
+}
+
+.etiqueta-seccion {
+    font-size: 0.85rem;
+}
+
+.stat-card__label {
+    font-size: 0.95rem;
+}
+
+.stat-card__sub {
+    font-size: 0.82rem;
+}
+
+.modulo__card,
+.stat-card,
+.modal,
+.cal-op,
+.tabla-wrap,
+.mapa-placeholder {
+    border-radius: var(--radio);
+}
+
+.modulo,
+.modulo__card,
+.stat-card {
+    box-shadow: var(--sombra-suave);
+}
