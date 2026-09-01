@@ -18,6 +18,11 @@ mysql.init_app(app)
 @app.route('/')
 def inicio():
     return render_template('index.html')
+
+@app.route('/pan')
+def panellum():
+    return render_template('panellum_example_1.html')
+
 #cuando se abre el href, /register_pag, abre el html
 @app.route('/register_pag')
 def register_pag():
