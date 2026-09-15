@@ -1296,6 +1296,18 @@ ul {
     margin-left: auto;
 }
 
+.cal-op__selector,
+.cal-pared__selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cal-pared__selector {
+    flex: 1 1 auto;
+    justify-content: center;
+}
+
 .leyenda {
     display: inline-flex;
     align-items: center;
@@ -1356,6 +1368,26 @@ ul {
     background: rgba(230, 215, 184, 0.06);
 }
 
+.cal-celda--pasado {
+    opacity: 0.32;
+    cursor: not-allowed;
+    filter: saturate(0.55);
+}
+
+.cal-celda--pasado:hover,
+.cal-celda--pasado .cal-chip,
+.cal-celda--pasado .cal-evento {
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none !important;
+}
+
+.cal-celda--pasado .cal-chip,
+.cal-celda--pasado .cal-evento {
+    box-shadow: none !important;
+    filter: grayscale(0.6);
+}
+
 .cal-celda__numero {
     font-size: 0.75rem;
     font-weight: 600;
@@ -1406,6 +1438,7 @@ ul {
     display: flex;
     align-items: center;
     gap: 14px;
+    flex-wrap: wrap;
     margin-bottom: 18px;
 }
 

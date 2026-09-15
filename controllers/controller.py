@@ -332,6 +332,9 @@ def crear_solicitud(datos):
     if error:
         return {'ok': False, 'error': error}
 
+    if fecha_uso < datetime.date.today().isoformat():
+        return {'ok': False, 'error': 'No se pueden hacer solicitudes en fechas pasadas.'}
+
     try:
         id_espacio = int(datos.get('id_espacio'))
     except (TypeError, ValueError):

@@ -527,7 +527,7 @@
         for (_dia = 1; _dia <= total; _dia++) {
             var fecha = anio + '-' + dos(mes + 1) + '-' + dos(_dia);
             if (fecha < hoy) {
-                html += '<span class="cal-celda" style="opacity:.35">' + _dia + '</span>';
+                html += '<span class="cal-celda cal-celda--pasado" style="opacity:.35">' + _dia + '</span>';
             } else if (estado.miniOcupacion[fecha]) {
                 html += '<span class="cal-celda cal-celda--ocupada" title="Ocupado">' + _dia + '</span>';
             } else {
@@ -582,6 +582,50 @@
         });
     }
 
+    /* ================= SELECTOR RÁPIDO MES/AÑO ================= */
+
+    function aniosRapidos() {
+        var actual = new Date().getFullYear();
+        var lista = [];
+        for (var a = actual - 1; a <= actual + 2; a++) lista.push(a);
+        return lista;
+    }
+
+    function fijarSelector(sel, valor, predeterminado) {
+        if (!sel) return;
+        sel.value = String(valor);
+        if (sel.selectedIndex === -1) sel.value = String(predeterminado);
+    }
+
+    function poblarSelectorMes(sel, mesActual) {
+        if (!sel) return;
+        sel.innerHTML = MESES.map(function (m, i) {
+            return '<option value="' + i + '">' + m[0].toUpperCase() + m.slice(1) + '</option>';
+        }).join('');
+        fijarSelector(sel, mesActual, 0);
+    }
+
+    function poblarSelectorAnio(sel, anioActual) {
+        if (!sel) return;
+        var anios = aniosRapidos();
+        sel.innerHTML = anios.map(function (a) {
+            return '<option value="' + a + '">' + a + '</option>';
+        }).join('');
+        fijarSelector(sel, anioActual, anios[anios.length - 1]);
+    }
+
+    function sincronizarSelectorOp() {
+        fijarSelector($('#opSelectorMes'), estado.opMes, 0);
+        fijarSelector($('#opSelectorAnio'), estado.opAnio, aniosRapidos()[aniosRapidos().length - 1]);
+    }
+
+    function sincronizarSelectorCal() {
+        fijarSelector($('#calSelectorMes'), estado.calMes, 0);
+        fijarSelector($('#calSelectorAnio'), estado.calAnio, aniosRapidos()[aniosRapidos().length - 1]);
+    }
+
+    /* ================= CALENDARIO OPERATIVO ================= */
+
     function cambiarMesOperativo(delta) {
         estado.opMes += delta;
         if (estado.opMes < 0) { estado.opMes = 11; estado.opAnio--; }
@@ -593,6 +637,7 @@
         var cont = $('#calOperativo');
         if (!cont) return;
         $('#opTitulo').textContent = 'Calendario operativo — ' + MESES[estado.opMes] + ' ' + estado.opAnio;
+        sincronizarSelectorOp();
 
         var filtradas = estado.filtroOpTipo
             ? estado.ocupOp.filter(function (b) { return b.espacio_tipo === estado.filtroOpTipo; })
@@ -614,7 +659,8 @@
         var _d;
         for (_d = 1; _d <= total; _d++) {
             var fecha = estado.opAnio + '-' + dos(estado.opMes + 1) + '-' + dos(_d);
-            var clases = 'cal-celda' + ((_d + offset - 1) % 7 >= 5 ? ' cal-celda--fin-semana' : '') + (fecha === hoy ? ' cal-celda--hoy' : '');
+            var clases = 'cal-celda' + ((_d + offset - 1) % 7 >= 5 ? ' cal-celda--fin-semana' : '') +
+                (fecha === hoy ? ' cal-celda--hoy' : '') + (fecha < hoy ? ' cal-celda--pasado' : '');
             var items = (porFecha[fecha] || []).map(function (b) {
                 var detalle = esc(b.nombre_actividad) + ' — ' + esc(b.espacio_nombre) + ' · ' +
                     esc(String(b.hora_inicio).slice(0, 5)) + '–' + esc(String(b.hora_fin).slice(0, 5));
@@ -651,6 +697,7 @@
         var anio = estado.calAnio, mes = estado.calMes;
         var periodo = $('#calPeriodo');
         if (periodo) periodo.textContent = MESES[mes][0].toUpperCase() + MESES[mes].slice(1) + ' ' + anio;
+        sincronizarSelectorCal();
 
         var offset = (new Date(anio, mes, 1).getDay() + 6) % 7;
         var total = new Date(anio, mes + 1, 0).getDate();
@@ -666,7 +713,7 @@
             var fecha = anio + '-' + dos(mes + 1) + '-' + dos(dia);
             var colIdx = (offset + dia - 1) % 7;
             var clases = 'cal-celda' + (colIdx >= 5 ? ' cal-celda--fin-semana' : '') +
-                (fecha === hoy ? ' cal-celda--hoy' : '');
+                (fecha === hoy ? ' cal-celda--hoy' : '') + (fecha < hoy ? ' cal-celda--pasado' : '');
             var chips = eventosEnFecha(fecha).map(function (ev) {
                 var claro = ev.color.toUpperCase() === '#E6D7B8';
                 return '<button type="button" class="cal-chip' + (claro ? '' : ' cal-chip--oscuro') +
@@ -1004,6 +1051,7 @@
             var evObj = null;
             estado.eventos.forEach(function (e) { if (e.id_evento === id) evObj = e; });
             if (!evObj) return;
+            if (evObj.fecha_inicio < hoyISO()) return;
 
             var rango = evObj.fecha_fin && evObj.fecha_fin !== evObj.fecha_inicio
                 ? fmtFecha(evObj.fecha_inicio) + ' – ' + fmtFecha(evObj.fecha_fin)
@@ -1255,6 +1303,36 @@
         if (mesAnt) mesAnt.addEventListener('click', function () { cambiarMesPared(-1); });
         if (mesSig) mesSig.addEventListener('click', function () { cambiarMesPared(1); });
         if (btnHoy) btnHoy.addEventListener('click', irAlMesActual);
+
+        var now = new Date();
+        poblarSelectorMes($('#opSelectorMes'), estado.opMes);
+        poblarSelectorAnio($('#opSelectorAnio'), estado.opAnio);
+        poblarSelectorMes($('#calSelectorMes'), estado.calMes);
+        poblarSelectorAnio($('#calSelectorAnio'), estado.calAnio);
+        var anios = aniosRapidos();
+        var selOpMes = $('#opSelectorMes'), selOpAnio = $('#opSelectorAnio');
+        if (selOpMes && selOpMes.selectedIndex === -1) fijarSelector(selOpMes, now.getMonth(), 0);
+        if (selOpAnio && selOpAnio.selectedIndex === -1) fijarSelector(selOpAnio, now.getFullYear(), anios[anios.length - 1]);
+        var selCalMes = $('#calSelectorMes'), selCalAnio = $('#calSelectorAnio');
+        if (selCalMes && selCalMes.selectedIndex === -1) fijarSelector(selCalMes, now.getMonth(), 0);
+        if (selCalAnio && selCalAnio.selectedIndex === -1) fijarSelector(selCalAnio, now.getFullYear(), anios[anios.length - 1]);
+
+        if (selOpMes) selOpMes.addEventListener('change', function () {
+            estado.opMes = parseInt(this.value, 10);
+            cargarOcupacionOperativa();
+        });
+        if (selOpAnio) selOpAnio.addEventListener('change', function () {
+            estado.opAnio = parseInt(this.value, 10);
+            cargarOcupacionOperativa();
+        });
+        if (selCalMes) selCalMes.addEventListener('change', function () {
+            estado.calMes = parseInt(this.value, 10);
+            pintarCalPared();
+        });
+        if (selCalAnio) selCalAnio.addEventListener('change', function () {
+            estado.calAnio = parseInt(this.value, 10);
+            pintarCalPared();
+        });
     }
 
     /* ================= ARRANQUE ================= */

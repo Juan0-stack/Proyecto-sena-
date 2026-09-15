@@ -122,6 +122,10 @@
                 <button id="btnMesAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
                 <span id="calPeriodo" class="cal-pared__anio"></span>
                 <button id="btnMesSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
+                <div class="cal-pared__selector">
+                    <select id="calSelectorMes" class="input-min" aria-label="Saltar a mes"></select>
+                    <select id="calSelectorAnio" class="input-min" aria-label="Saltar a año"></select>
+                </div>
                 <button id="btnCalHoy" class="btn-nav btn-nav--texto" title="Ir al mes actual">Hoy</button>
             </div>
             <div class="cal-pared" id="calPared"></div>
@@ -192,6 +196,10 @@
                             <button id="btnOpAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
                             <h3 id="opTitulo">Calendario operativo</h3>
                             <button id="btnOpSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
+                            <div class="cal-op__selector">
+                                <select id="opSelectorMes" class="input-min" aria-label="Saltar a mes"></select>
+                                <select id="opSelectorAnio" class="input-min" aria-label="Saltar a año"></select>
+                            </div>
                             <div class="cal-op__leyenda">
                                 <select id="filtroOpTipo" class="input-min calop-filtro" aria-label="Filtrar calendario operativo por tipo">
                                     <option value="">Todos los tipos</option>

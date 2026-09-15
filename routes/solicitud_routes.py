@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from flask import Blueprint, jsonify, request, session
 
-from controllers.controller import autorizar_solicitud, crear_solicitud, listar_solicitudes_para_sesion
+from controllers.controller import autorizar_solicitud, crear_solicitud as crear_solicitud_ctrl, listar_solicitudes_para_sesion
 from models.solicitud_model import SolicitudModel
 from utils.auth import login_required, role_required
 
@@ -13,7 +13,7 @@ solicitudes_bp = Blueprint('solicitudes', __name__)
 @role_required('Docente', api=True)
 def crear_solicitud():
     datos = request.get_json(silent=True) or {}
-    return jsonify(crear_solicitud(datos))
+    return jsonify(crear_solicitud_ctrl(datos))
 
 
 @solicitudes_bp.route('/api/solicitudes', methods=['GET'])
