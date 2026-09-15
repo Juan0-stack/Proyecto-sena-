@@ -117,6 +117,51 @@ class EventoModel:
             conn.close()
 
     @staticmethod
+    def listar_futuros(limite=None):
+        conn = get_connection()
+        if not conn:
+            return []
+        try:
+            cursor = conn.cursor(dictionary=True)
+            sql = (
+                "SELECT * FROM eventos_institucionales "
+                "WHERE fecha_fin IS NULL OR fecha_fin >= CURDATE() "
+                "ORDER BY fecha_inicio ASC, nombre ASC"
+            )
+            if limite:
+                sql += " LIMIT %s"
+                cursor.execute(sql, (limite,))
+            else:
+                cursor.execute(sql)
+            return lista(cursor.fetchall())
+        except Exception as e:
+            print(f'Error al listar eventos futuros: {e}')
+            return []
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
+    def listar_recientes(limite=5):
+        conn = get_connection()
+        if not conn:
+            return []
+        try:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute(
+                "SELECT * FROM eventos_institucionales "
+                "ORDER BY COALESCE(fecha_creacion, fecha_inicio) DESC LIMIT %s",
+                (limite,)
+            )
+            return lista(cursor.fetchall())
+        except Exception as e:
+            print(f'Error al listar eventos recientes: {e}')
+            return []
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
     def contar():
         conn = get_connection()
         if not conn:

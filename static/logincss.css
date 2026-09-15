@@ -10,10 +10,18 @@ body {
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #0d0505 0%, #1f0c0c 25%, #2a1010 50%, #1a0a0a 75%, #0d0505 100%);
-    font-family: Arial, sans-serif;
+    font-family: 'Manrope', 'Inter', Arial, sans-serif;
     padding: 24px;
     position: relative;
     overflow-x: hidden;
+    line-height: 1.6;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
 }
 
 /* ============================================
@@ -207,7 +215,7 @@ body {
     width: 100%;
     padding: 16px 18px;
     font-size: 15px;
-    font-family: Arial, sans-serif;
+    font-family: 'Manrope', 'Inter', Arial, sans-serif;
     color: #F5E8CC;
     background: rgba(255,255,255,0.04);
     border: 1.5px solid rgba(230,215,184,0.10);
@@ -289,7 +297,7 @@ body {
 .login-btn {
     width: 100%;
     padding: 17px 32px;
-    font-family: Arial, sans-serif;
+    font-family: 'Manrope', 'Inter', Arial, sans-serif;
     font-size: 16px;
     font-weight: 700;
     color: #F5E8CC;

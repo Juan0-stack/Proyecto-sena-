@@ -60,13 +60,11 @@
     var estado = {
         espacios: [],
         filtroTipo: '',
-        filtroOpTipo: '',
         opMes: new Date().getMonth(),
         opAnio: new Date().getFullYear(),
         ocupOp: [],
         eventos: [],
         calAnio: new Date().getFullYear(),
-        calMes: new Date().getMonth(),
         usuarios: [],
         docentes: [],
         solicitudes: [],
@@ -77,6 +75,8 @@
         miniAnio: null,
         miniMes: null,
         miniOcupacion: {},
+        campanaEspacio: null,
+        campanaIndice: 0,
         confirmCallback: null
     };
 
@@ -238,21 +238,17 @@
     }
 
     function pintarFiltroTipos() {
+        var sel = $('#filtroTipo');
+        if (!sel) return;
         var tipos = {};
         estado.espacios.forEach(function (e) { if (e.tipo) tipos[e.tipo] = true; });
-        var opciones = '<option value="">Todos los tipos</option>' +
+        var valor = sel.value;
+        sel.innerHTML = '<option value="">Todos los tipos</option>' +
             Object.keys(tipos).sort().map(function (t) {
                 return '<option value="' + esc(t) + '">' + esc(t) + '</option>';
             }).join('');
-
-        ['#filtroTipo', '#filtroOpTipo'].forEach(function (selSel) {
-            var sel = $(selSel);
-            if (!sel) return;
-            var valor = sel.value;
-            sel.innerHTML = opciones;
-            sel.value = valor;
-            if (sel.selectedIndex === -1) sel.value = '';
-        });
+        sel.value = valor;
+        if (sel.selectedIndex === -1) sel.value = '';
     }
 
     function espaciosFiltrados() {
@@ -297,6 +293,16 @@
             if (e.destacado) meta += ' <span class="badge-mini"><i class="fas fa-star"></i> Destacado</span>';
             if (esMio) meta += ' <span class="badge-mini"><i class="fas fa-key"></i> Mi espacio</span>';
 
+            var campanaHtml = '';
+            if (ROL !== 'Estudiante') {
+                var pendientes = pendientesDeEspacio(e.id_espacio);
+                if (pendientes.length > 0) {
+                    campanaHtml = '<button type="button" class="campana-boton" data-accion="campana" data-id="' +
+                        e.id_espacio + '" title="' + pendientes.length + ' solicitud(es) pendiente(s) por revisar" aria-label="Ver solicitudes pendientes">' +
+                        '<i class="fas fa-bell"></i><span class="campana-boton__badge">' + pendientes.length + '</span></button>';
+                }
+            }
+
             var detalle =
                 '<div class="espacio-detalle__contenido">' +
                     (e.descripcion ? '<p class="espacio-detalle__texto">' + esc(e.descripcion) + '</p>' : '') +
@@ -312,6 +318,7 @@
                     '<div class="espacio-fila__icono"><i class="fas ' + iconoPorTipo(e.tipo) + '"></i></div>' +
                     '<div><span class="espacio-fila__nombre">' + esc(e.nombre) + '</span>' +
                         '<div class="espacio-fila__meta">' + meta + '</div></div>' +
+                    campanaHtml +
                     '<i class="fas fa-chevron-down espacio-fila__chevron"></i>' +
                 '</div>' +
                 '<div class="espacio-detalle">' + detalle + '</div>' +
@@ -394,12 +401,18 @@
             }).join('');
     }
 
+    function pendientesDeEspacio(idEspacio) {
+        return estado.solicitudes.filter(function (s) {
+            return s.id_espacio === idEspacio && s.estado === 'pendiente' && s.puede_autorizar;
+        });
+    }
+
     function decidirSolicitud(idSolicitud, nuevoEstado) {
-        api('/api/solicitudes/' + idSolicitud + '/estado', 'PATCH', { estado: nuevoEstado })
+        return api('/api/solicitudes/' + idSolicitud + '/estado', 'PATCH', { estado: nuevoEstado })
             .then(function (res) {
-                if (!res.ok) { toast(res.error || 'No se pudo actualizar.', 'error'); return; }
+                if (!res.ok) { toast(res.error || 'No se pudo actualizar.', 'error'); return false; }
                 toast(nuevoEstado === 'aprobada' ? 'Solicitud aprobada.' : 'Solicitud rechazada.');
-                refrescarDespuesDeCambio();
+                return refrescarDespuesDeCambio();
             });
     }
 
@@ -407,7 +420,9 @@
         var promesas = [];
         if (ROL !== 'Estudiante') promesas.push(cargarSolicitudes());
         promesas.push(cargarOcupacionOperativa());
-        Promise.all(promesas).then(function () {
+        if (ROL === 'Administrador') promesas.push(cargarResumen(), cargarPanel());
+        if (ROL === 'Docente') promesas.push(cargarPanel());
+        return Promise.all(promesas).then(function () {
             pintarEspacios();
             pintarCalOperativo();
             $$('.espacio-fila--abierta').forEach(function (f) {
@@ -415,8 +430,94 @@
                 var zona = document.getElementById('zonaSol-' + id);
                 if (zona && !zona.hidden) alternarZonaSolicitudes(parseInt(id, 10));
             });
-            if (ROL === 'Administrador') cargarResumen();
             if (ROL === 'Docente') pintarStatsMaestro();
+        });
+    }
+
+    /* ================= CAMPANA DE SOLICITUDES ================= */
+
+    function abrirCampana(idEspacio) {
+        estado.campanaEspacio = idEspacio;
+        var pend = pendientesDeEspacio(idEspacio);
+        estado.campanaIndice = pend.length ? 0 : -1;
+
+        var espacio = null;
+        estado.espacios.forEach(function (e) { if (e.id_espacio === idEspacio) espacio = e; });
+        var info = $('#campanaEspacioInfo');
+        if (info) {
+            var icono = espacio ? iconoPorTipo(espacio.tipo) : 'fa-bell';
+            var nombre = espacio ? espacio.nombre : 'Espacio';
+            info.style.display = '';
+            info.innerHTML = '<i class="fas ' + icono + '"></i> <strong>' + esc(nombre) + '</strong>' +
+                '<span>' + pend.length + ' pendiente' + (pend.length === 1 ? '' : 's') + ' por revisar</span>';
+        }
+        pintarCampana();
+        abrirModal('modalCampana');
+    }
+
+    function pintarCampana() {
+        var pend = estado.campanaEspacio ? pendientesDeEspacio(estado.campanaEspacio) : [];
+        var cuerpo = $('#campanaCuerpo');
+        if (!cuerpo) return;
+
+        var btnA = $('#campanaAprobar'), btnR = $('#campanaRechazar');
+        var previo = $('#campanaAnterior'), sig = $('#campanaSiguiente');
+        var cont = $('#campanaContador');
+        var info = $('#campanaEspacioInfo');
+
+        if (!pend.length) {
+            cuerpo.innerHTML = '<p class="campana-vacia"><i class="fas fa-bell-slash"></i> No hay solicitudes pendientes para este espacio.</p>';
+            if (btnA) btnA.disabled = true;
+            if (btnR) btnR.disabled = true;
+            if (previo) previo.disabled = true;
+            if (sig) sig.disabled = true;
+            if (cont) cont.textContent = '';
+            if (info) info.style.display = 'none';
+            return;
+        }
+
+        if (estado.campanaIndice >= pend.length) estado.campanaIndice = pend.length - 1;
+        if (estado.campanaIndice < 0) estado.campanaIndice = 0;
+        var s = pend[estado.campanaIndice];
+
+        if (btnA) btnA.disabled = false;
+        if (btnR) btnR.disabled = false;
+        if (previo) previo.disabled = pend.length <= 1;
+        if (sig) sig.disabled = pend.length <= 1;
+        if (cont) cont.textContent = (estado.campanaIndice + 1) + ' / ' + pend.length;
+        if (info) info.style.display = '';
+
+        cuerpo.innerHTML =
+            '<div class="campana-item">' +
+                '<span class="etiqueta-seccion">Actividad</span>' +
+                '<h4 class="campana-item__titulo">' + esc(s.nombre_actividad) + ' ' + badgeSol(s.estado) + '</h4>' +
+                '<p class="campana-item__detalle"><i class="fas fa-user"></i> ' + esc(s.solicitante || '—') + '</p>' +
+                '<p class="campana-item__detalle"><i class="fas fa-calendar-day"></i> ' + fmtFecha(s.fecha_uso) +
+                    ' · ' + esc(String(s.hora_inicio).slice(0, 5)) + ' – ' + esc(String(s.hora_fin).slice(0, 5)) + '</p>' +
+                (s.descripcion ? '<p class="campana-item__desc">' + esc(s.descripcion) + '</p>' : '') +
+                '<p class="campana-item__recibida"><i class="fas fa-key"></i> Encargado: ' + esc(s.encargado_nombre || 'Sin asignar') +
+                    ' · <i class="fas fa-clock"></i> Recibida ' +
+                    esc((s.fecha_solicitud || '').replace('T', ' ').slice(0, 16)) + '</p>' +
+            '</div>';
+    }
+
+    function moverCampana(delta) {
+        var pend = estado.campanaEspacio ? pendientesDeEspacio(estado.campanaEspacio) : [];
+        if (pend.length <= 1) return;
+        estado.campanaIndice = (pend.length + (estado.campanaIndice + delta)) % pend.length;
+        pintarCampana();
+    }
+
+    function decidirDesdeCampana(nuevoEstado) {
+        var pend = estado.campanaEspacio ? pendientesDeEspacio(estado.campanaEspacio) : [];
+        if (!estado.campanaEspacio || !pend.length) return;
+        var guardar = estado.campanaEspacio;
+        var idx = Math.min(estado.campanaIndice, pend.length - 1);
+        var s = pend[idx];
+        decidirSolicitud(s.id_solicitud, nuevoEstado).then(function () {
+            var restantes = pendientesDeEspacio(guardar);
+            estado.campanaIndice = restantes.length ? Math.min(idx, restantes.length - 1) : -1;
+            pintarCampana();
         });
     }
 
@@ -425,6 +526,7 @@
     function cargarSolicitudes() {
         return api('/api/solicitudes').then(function (res) {
             estado.solicitudes = res.ok ? (res.solicitudes || []) : [];
+            pintarEspacios();
         });
     }
 
@@ -527,7 +629,7 @@
         for (_dia = 1; _dia <= total; _dia++) {
             var fecha = anio + '-' + dos(mes + 1) + '-' + dos(_dia);
             if (fecha < hoy) {
-                html += '<span class="cal-celda cal-celda--pasado" style="opacity:.35">' + _dia + '</span>';
+                html += '<span class="cal-celda" style="opacity:.35">' + _dia + '</span>';
             } else if (estado.miniOcupacion[fecha]) {
                 html += '<span class="cal-celda cal-celda--ocupada" title="Ocupado">' + _dia + '</span>';
             } else {
@@ -582,50 +684,6 @@
         });
     }
 
-    /* ================= SELECTOR RÁPIDO MES/AÑO ================= */
-
-    function aniosRapidos() {
-        var actual = new Date().getFullYear();
-        var lista = [];
-        for (var a = actual - 1; a <= actual + 2; a++) lista.push(a);
-        return lista;
-    }
-
-    function fijarSelector(sel, valor, predeterminado) {
-        if (!sel) return;
-        sel.value = String(valor);
-        if (sel.selectedIndex === -1) sel.value = String(predeterminado);
-    }
-
-    function poblarSelectorMes(sel, mesActual) {
-        if (!sel) return;
-        sel.innerHTML = MESES.map(function (m, i) {
-            return '<option value="' + i + '">' + m[0].toUpperCase() + m.slice(1) + '</option>';
-        }).join('');
-        fijarSelector(sel, mesActual, 0);
-    }
-
-    function poblarSelectorAnio(sel, anioActual) {
-        if (!sel) return;
-        var anios = aniosRapidos();
-        sel.innerHTML = anios.map(function (a) {
-            return '<option value="' + a + '">' + a + '</option>';
-        }).join('');
-        fijarSelector(sel, anioActual, anios[anios.length - 1]);
-    }
-
-    function sincronizarSelectorOp() {
-        fijarSelector($('#opSelectorMes'), estado.opMes, 0);
-        fijarSelector($('#opSelectorAnio'), estado.opAnio, aniosRapidos()[aniosRapidos().length - 1]);
-    }
-
-    function sincronizarSelectorCal() {
-        fijarSelector($('#calSelectorMes'), estado.calMes, 0);
-        fijarSelector($('#calSelectorAnio'), estado.calAnio, aniosRapidos()[aniosRapidos().length - 1]);
-    }
-
-    /* ================= CALENDARIO OPERATIVO ================= */
-
     function cambiarMesOperativo(delta) {
         estado.opMes += delta;
         if (estado.opMes < 0) { estado.opMes = 11; estado.opAnio--; }
@@ -637,10 +695,9 @@
         var cont = $('#calOperativo');
         if (!cont) return;
         $('#opTitulo').textContent = 'Calendario operativo — ' + MESES[estado.opMes] + ' ' + estado.opAnio;
-        sincronizarSelectorOp();
 
-        var filtradas = estado.filtroOpTipo
-            ? estado.ocupOp.filter(function (b) { return b.espacio_tipo === estado.filtroOpTipo; })
+        var filtradas = estado.filtroTipo
+            ? estado.ocupOp.filter(function (b) { return b.espacio_tipo === estado.filtroTipo; })
             : estado.ocupOp;
 
         var porFecha = {};
@@ -659,12 +716,11 @@
         var _d;
         for (_d = 1; _d <= total; _d++) {
             var fecha = estado.opAnio + '-' + dos(estado.opMes + 1) + '-' + dos(_d);
-            var clases = 'cal-celda' + ((_d + offset - 1) % 7 >= 5 ? ' cal-celda--fin-semana' : '') +
-                (fecha === hoy ? ' cal-celda--hoy' : '') + (fecha < hoy ? ' cal-celda--pasado' : '');
+            var clases = 'cal-celda' + ((_d + offset - 1) % 7 >= 5 ? ' cal-celda--fin-semana' : '') + (fecha === hoy ? ' cal-celda--hoy' : '');
             var items = (porFecha[fecha] || []).map(function (b) {
-                var detalle = esc(b.nombre_actividad) + ' — ' + esc(b.espacio_nombre) + ' · ' +
-                    esc(String(b.hora_inicio).slice(0, 5)) + '–' + esc(String(b.hora_fin).slice(0, 5));
-                return '<div class="cal-evento" data-tooltip="' + detalle + '">' +
+                return '<div class="cal-evento" title="' + esc(b.nombre_actividad) + ' — ' +
+                    esc(b.espacio_nombre) + ' (' + esc(String(b.hora_inicio).slice(0, 5)) + '–' +
+                    esc(String(b.hora_fin).slice(0, 5)) + ')">' +
                     esc(String(b.hora_inicio).slice(0, 5)) + ' ' + esc(b.nombre_actividad) + '</div>';
             }).join('');
             html += '<div class="' + clases + '"><div class="cal-celda__numero">' + _d + '</div>' + items + '</div>';
@@ -694,56 +750,44 @@
     function pintarCalPared() {
         var cont = $('#calPared');
         if (!cont) return;
-        var anio = estado.calAnio, mes = estado.calMes;
-        var periodo = $('#calPeriodo');
-        if (periodo) periodo.textContent = MESES[mes][0].toUpperCase() + MESES[mes].slice(1) + ' ' + anio;
-        sincronizarSelectorCal();
+        $('#anioActual').textContent = estado.calAnio;
 
-        var offset = (new Date(anio, mes, 1).getDay() + 6) % 7;
-        var total = new Date(anio, mes + 1, 0).getDate();
-        var hoy = hoyISO();
+        var html = '';
+        for (var m = 0; m < 12; m++) {
+            var offset = (new Date(estado.calAnio, m, 1).getDay() + 6) % 7;
+            var total = new Date(estado.calAnio, m + 1, 0).getDate();
 
-        var html = DIAS.map(function (d) { return '<span class="cal-mes__cab">' + d + '</span>'; }).join('');
+            var celdas = DIAS.map(function (d) { return '<span class="cal-mes__cab">' + d + '</span>'; }).join('');
+            var i;
+            for (i = 0; i < offset; i++) celdas += '<span class="cal-celda cal-celda--fuera"></span>';
 
-        var i;
-        for (i = 0; i < offset; i++) html += '<span class="cal-celda cal-celda--fuera"></span>';
+            var dia;
+            for (dia = 1; dia <= total; dia++) {
+                var fecha = estado.calAnio + '-' + dos(m + 1) + '-' + dos(dia);
+                var colIdx = (offset + dia - 1) % 7;
+                var clases = 'cal-celda' + (colIdx >= 5 ? ' cal-celda--fin-semana' : '');
+                var chips = eventosEnFecha(fecha).map(function (ev) {
+                    var claro = ev.color.toUpperCase() === '#E6D7B8';
+                    return '<span class="cal-chip' + (claro ? '' : ' cal-chip--oscuro') +
+                        '" style="background:' + esc(ev.color) + '" title="' + esc(ev.nombre) + '">' +
+                        esc(ev.nombre) + '</span>';
+                }).join('');
+                celdas += '<div class="' + clases + '"><span class="cal-celda__numero" style="margin:0;">' + dia + '</span>' + chips + '</div>';
+            }
 
-        var dia;
-        for (dia = 1; dia <= total; dia++) {
-            var fecha = anio + '-' + dos(mes + 1) + '-' + dos(dia);
-            var colIdx = (offset + dia - 1) % 7;
-            var clases = 'cal-celda' + (colIdx >= 5 ? ' cal-celda--fin-semana' : '') +
-                (fecha === hoy ? ' cal-celda--hoy' : '') + (fecha < hoy ? ' cal-celda--pasado' : '');
-            var chips = eventosEnFecha(fecha).map(function (ev) {
-                var claro = ev.color.toUpperCase() === '#E6D7B8';
-                return '<button type="button" class="cal-chip' + (claro ? '' : ' cal-chip--oscuro') +
-                    '" style="background:' + esc(ev.color) + '" data-evento="' + ev.id_evento + '">' +
-                    esc(ev.nombre) + '</button>';
-            }).join('');
-            html += '<div class="' + clases + '"><span class="cal-celda__numero" style="margin:0;">' + dia + '</span>' + chips + '</div>';
+            html += '<div class="cal-mes">' +
+                '<span class="cal-mes__nombre">' + MESES[m] + '</span>' +
+                '<div class="cal-mes__dias">' + celdas + '</div>' +
+            '</div>';
         }
 
-        cont.innerHTML = '<div class="cal-mes-pared">' + html + '</div>';
+        cont.innerHTML = html;
         aplicarContrasteChips(cont);
 
         if (!REDUCE && TIENE_GSAP) {
-            gsap.fromTo($$('.cal-mes-pared .cal-celda', cont), { autoAlpha: 0, scale: 0.94 },
-                { autoAlpha: 1, scale: 1, duration: 0.24, ease: 'power2.out', stagger: 0.006 });
+            gsap.fromTo($$('.cal-mes', cont), { autoAlpha: 0, y: 12 },
+                { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out', stagger: 0.03 });
         }
-    }
-
-    function cambiarMesPared(delta) {
-        estado.calMes += delta;
-        if (estado.calMes < 0) { estado.calMes = 11; estado.calAnio--; }
-        if (estado.calMes > 11) { estado.calMes = 0; estado.calAnio++; }
-        pintarCalPared();
-    }
-
-    function irAlMesActual() {
-        var ahora = new Date();
-        estado.calAnio = ahora.getFullYear();
-        estado.calMes = ahora.getMonth();
-        pintarCalPared();
     }
 
     function aplicarContrasteChips(cont) {
@@ -856,18 +900,15 @@
         tbody.innerHTML = estado.usuarios.map(function (u) {
             var activo = u.estado === 'Activo';
             var esPropio = u.id_usuario === ID_USUARIO;
-            var esSistema = u.correo === 'admin';
             var pill = activo
                 ? '<span class="estado-sol estado-sol--aprobada">Activo</span>'
                 : '<span class="estado-sol estado-sol--rechazada">Inactivo</span>';
             var acciones = '<span class="tabla__acciones">' +
                 '<button class="btn-icono" title="Editar" data-accion="usu-editar" data-id="' + u.id_usuario + '"><i class="fas fa-pen"></i></button>' +
-                (esPropio || esSistema ? '' :
+                (esPropio ? '' :
                     '<button class="btn-icono btn-icono--peligro" title="' + (activo ? 'Deshabilitar' : 'Habilitar') +
                     '" data-accion="usu-estado" data-id="' + u.id_usuario + '" data-nuevo="' + (activo ? 'Inactivo' : 'Activo') + '">' +
                     '<i class="fas ' + (activo ? 'fa-user-slash' : 'fa-user-check') + '"></i></button>') +
-                (esPropio || esSistema ? '' :
-                    '<button class="btn-icono btn-icono--peligro" title="Eliminar" data-accion="usu-eliminar" data-id="' + u.id_usuario + '"><i class="fas fa-trash"></i></button>') +
                 '</span>';
             return '<tr>' +
                 '<td><strong>' + esc(u.nombre + (u.apellido ? ' ' + u.apellido : '')) + '</strong></td>' +
@@ -999,111 +1040,227 @@
         }
     }
 
-    /* ================= FLOTANTES (TOOLTIP Y DETALLE) ================= */
+    /* ================= PANELES POR ROL ================= */
 
-    function posicionarFlotante(el, x, y, margen) {
-        var pad = margen || 14;
-        var left = x + pad;
-        var top = y + pad;
-        if (left + el.offsetWidth > window.innerWidth - 8) left = x - el.offsetWidth - pad;
-        if (top + el.offsetHeight > window.innerHeight - 8) top = y - el.offsetHeight - pad;
-        if (top < 8) top = 8;
-        el.style.left = Math.max(8, left) + 'px';
-        el.style.top = top + 'px';
-        el.style.opacity = '1';
+    function tiempoRelativo(isoStr) {
+        if (!isoStr) return '';
+        var partes = String(isoStr).split('T');
+        var d = partes[0] ? partes[0].split('-') : [];
+        var t = partes[1] ? partes[1].split(':') : [];
+        if (d.length < 3) return '';
+        var fecha = new Date(+d[0], +d[1] - 1, +d[2], +(t[0] || 0), +(t[1] || 0));
+        if (isNaN(fecha.getTime())) return '';
+        var difMin = Math.round((Date.now() - fecha.getTime()) / 60000);
+        if (difMin < 1) return 'Ahora';
+        if (difMin < 60) return 'hace ' + difMin + ' min';
+        var horas = Math.floor(difMin / 60);
+        if (horas < 24) return 'hace ' + horas + ' h';
+        var dias = Math.floor(horas / 24);
+        if (dias < 7) return 'hace ' + dias + ' d';
+        return fmtFecha(String(isoStr).split('T')[0]);
     }
 
-    function ocultarFlotante(el) {
-        el.style.opacity = '0';
-        el.style.left = '-9999px';
-        el.style.top = '-9999px';
-    }
-
-    function initTooltipOperativo() {
-        var tooltip = document.createElement('div');
-        tooltip.id = 'tooltipIsailo';
-        document.body.appendChild(tooltip);
-
-        document.addEventListener('mouseover', function (ev) {
-            var origen = ev.target.closest ? ev.target.closest('[data-tooltip]') : null;
-            if (!origen) return;
-            tooltip.innerHTML = '<strong>' + esc(origen.getAttribute('data-tooltip')) + '</strong>';
-            posicionarFlotante(tooltip, ev.clientX, ev.clientY, 14);
-        });
-        document.addEventListener('mouseout', function (ev) {
-            if (ev.target.closest && ev.target.closest('[data-tooltip]')) ocultarFlotante(tooltip);
+    function cargarPanel() {
+        return api('/api/panel').then(function (res) {
+            estado.panelDatos = res.ok ? (res.datos || {}) : null;
+            if (!estado.panelDatos) return;
+            if (ROL === 'Administrador') pintarPanelAdmin();
+            else if (ROL === 'Docente') pintarPanelDocente();
+            else pintarPanelEstudiante();
         });
     }
 
-    function initDetalleEventoPared() {
-        var cal = $('#calPared');
-        if (!cal) return;
-        var pop = document.createElement('div');
-        pop.id = 'calPopover';
-        document.body.appendChild(pop);
-
-        function ocultar() { ocultarFlotante(pop); pop.innerHTML = ''; }
-
-        cal.addEventListener('click', function (ev) {
-            var chip = ev.target.closest('.cal-chip[data-evento]');
-            if (!chip || !document.getElementById('calPared').contains(chip)) { ocultar(); return; }
-            var id = parseInt(chip.getAttribute('data-evento'), 10);
-            var evObj = null;
-            estado.eventos.forEach(function (e) { if (e.id_evento === id) evObj = e; });
-            if (!evObj) return;
-            if (evObj.fecha_inicio < hoyISO()) return;
-
-            var rango = evObj.fecha_fin && evObj.fecha_fin !== evObj.fecha_inicio
-                ? fmtFecha(evObj.fecha_inicio) + ' – ' + fmtFecha(evObj.fecha_fin)
-                : fmtFecha(evObj.fecha_inicio);
-
-            pop.innerHTML =
-                '<div class="cal-pop__bar" style="background:' + esc(evObj.color) + '"></div>' +
-                '<div class="cal-pop__nombre">' + esc(evObj.nombre) + '</div>' +
-                '<div class="cal-pop__fecha"><i class="fas fa-calendar-day"></i> ' + rango + '</div>' +
-                (evObj.descripcion ? '<div class="cal-pop__desc">' + esc(evObj.descripcion) + '</div>' : '');
-
-            var rect = chip.getBoundingClientRect();
-            var already = pop.style.opacity === '1';
-
-            var posFL = function () {
-                var left = rect.left + rect.width / 2 - pop.offsetWidth / 2;
-                var top = rect.top - pop.offsetHeight - 10;
-                if (top < 8) top = rect.bottom + 10;
-                if (left < 8) left = 8;
-                if (left + pop.offsetWidth > window.innerWidth - 8) left = window.innerWidth - pop.offsetWidth - 8;
-                pop.style.left = left + 'px';
-                pop.style.top = top + 'px';
-                pop.style.opacity = '1';
-            };
-
-            if (!REDUCE && TIENE_GSAP && !already) {
-                pop.style.opacity = '0';
-                posFL();
-                gsap.to(pop, { autoAlpha: 1, y: -4, duration: 0.22, ease: 'power2.out' });
+    function pintarPanelAdmin() {
+        var d = estado.panelDatos;
+        var alerta = $('#alertaVencidas');
+        if (alerta) {
+            if (d.vencidas_total > 0) {
+                $('#alertaVencidasTexto').textContent =
+                    d.vencidas_total + ' solicitud' + (d.vencidas_total === 1 ? '' : 'es') +
+                    ' con más de 24 h esperando revisión.';
+                alerta.hidden = false;
             } else {
-                posFL();
+                alerta.hidden = true;
             }
-        });
+        }
 
-        document.addEventListener('click', function (ev) {
-            if (ev.target.closest && !ev.target.closest('.cal-chip[data-evento]')) ocultar();
+        var fecha = $('#hoyFecha');
+        if (fecha) fecha.textContent = fmtFecha(d.hoy.fecha);
+        var hoy = $('#hoyContenido');
+        if (hoy) {
+            var html = '';
+            var aprobadas = d.hoy.aprobadas || [];
+            var eventos = d.hoy.eventos || [];
+            if (!aprobadas.length && !eventos.length) {
+                html = '<p class="panel-vacio"><i class="fas fa-coffee"></i> Sin actividades programadas para hoy.</p>';
+            } else {
+                aprobadas.forEach(function (b) {
+                    html += '<div class="hoy-item">' +
+                        '<span class="hoy-item__hora">' + esc(String(b.hora_inicio).slice(0, 5)) + '–' +
+                            esc(String(b.hora_fin).slice(0, 5)) + '</span>' +
+                        '<span class="hoy-item__texto"><i class="fas fa-door-open"></i> ' +
+                            esc(b.nombre_actividad) + ' · ' + esc(b.espacio_nombre) + '</span>' +
+                    '</div>';
+                });
+                eventos.forEach(function (ev) {
+                    html += '<div class="hoy-item">' +
+                        '<span class="hoy-item__hora">Hoy</span>' +
+                        '<span class="hoy-item__texto"><i class="fas fa-star" style="color:' + esc(ev.color) + '"></i> ' +
+                            esc(ev.nombre) + '</span>' +
+                    '</div>';
+                });
+            }
+            hoy.innerHTML = html;
+        }
+
+        var act = $('#actividadLista');
+        if (act) {
+            var feed = d.actividad || [];
+            if (!feed.length) {
+                act.innerHTML = '<p class="panel-vacio">Aún no hay actividad registrada.</p>';
+            } else {
+                act.innerHTML = feed.map(function (it) {
+                    var icono = it.tipo === 'evento' ? 'fa-star' : 'fa-paper-plane';
+                    var pill = it.estado ? badgeSol(it.estado) : '';
+                    return '<div class="actividad-item">' +
+                        '<span class="actividad-item__icono"><i class="fas ' + icono + '"></i></span>' +
+                        '<div class="actividad-item__cuerpo">' +
+                            '<p class="actividad-item__texto">' + esc(it.texto) + ' ' + pill + '</p>' +
+                            (it.detalle ? '<p class="actividad-item__detalle">' + esc(it.detalle) + '</p>' : '') +
+                        '</div>' +
+                        '<span class="actividad-item__tiempo">' + esc(tiempoRelativo(it.tiempo)) + '</span>' +
+                    '</div>';
+                }).join('');
+            }
+        }
+    }
+
+    function pintarPanelDocente() {
+        var d = estado.panelDatos;
+        var cont = $('#misEspaciosCargo');
+        if (!cont) return;
+        var espacios = d.mis_espacios || [];
+        var pendientes = d.pendientes || [];
+
+        if (!espacios.length) {
+            cont.innerHTML = '<p class="panel-vacio"><i class="fas fa-key"></i> Aún no tienes espacios a tu cargo.</p>' +
+                '<p class="panel-vacio-texto">Cuando el administrador te asigne un espacio podrás revisar y autorizar sus solicitudes aquí.</p>';
+            return;
+        }
+
+        var html = '';
+        espacios.forEach(function (e) {
+            var pends = pendientes.filter(function (s) { return s.id_espacio === e.id_espacio; });
+            html += '<div class="cargo-espacio">' +
+                '<div class="cargo-espacio__cab">' +
+                    '<span class="cargo-espacio__nombre"><i class="fas ' + iconoPorTipo(e.tipo) + '"></i> ' + esc(e.nombre) + '</span>' +
+                    badgeEstado(e.estado) +
+                    (pends.length
+                        ? '<button type="button" class="cargo-espacio__campana" data-accion="campana-panel" data-id="' +
+                            e.id_espacio + '" title="Revisar solicitudes pendientes"><i class="fas fa-bell"></i> ' +
+                            pends.length + '</button>'
+                        : '') +
+                '</div>';
+            pends.forEach(function (s) {
+                html += '<div class="cargo-solicitud">' +
+                    '<div class="cargo-solicitud__info">' +
+                        '<strong>' + esc(s.nombre_actividad) + '</strong>' +
+                        '<small>' + esc(s.solicitante) + ' · ' + fmtFecha(s.fecha_uso) + ' · ' +
+                            esc(String(s.hora_inicio).slice(0, 5)) + '–' +
+                            esc(String(s.hora_fin).slice(0, 5)) + '</small>' +
+                    '</div>' +
+                    '<span class="tabla__acciones">' +
+                        '<button class="btn-icono" title="Aprobar" data-accion="aprobar" data-id="' + s.id_solicitud + '"><i class="fas fa-check"></i></button>' +
+                        '<button class="btn-icono btn-icono--peligro" title="Rechazar" data-accion="rechazar" data-id="' + s.id_solicitud + '"><i class="fas fa-xmark"></i></button>' +
+                    '</span>' +
+                '</div>';
+            });
+            if (!pends.length) html += '<p class="panel-vacio-texto">Sin solicitudes pendientes.</p>';
+            html += '</div>';
         });
-        document.addEventListener('keydown', function (ev) {
-            if (ev.key === 'Escape') ocultar();
-        });
-        window.addEventListener('scroll', ocultar, true);
-        window.addEventListener('resize', ocultar);
+        cont.innerHTML = html;
+
+        var act = $('#actividadDocente');
+        if (act) {
+            var feed = d.actividad || [];
+            if (!feed.length) {
+                act.innerHTML = '<p class="panel-vacio">Aún no hay actividad registrada.</p>';
+            } else {
+                act.innerHTML = feed.map(function (it) {
+                    return '<div class="actividad-item">' +
+                        '<span class="actividad-item__icono"><i class="fas fa-paper-plane"></i></span>' +
+                        '<div class="actividad-item__cuerpo">' +
+                            '<p class="actividad-item__texto">' + esc(it.texto) + ' ' + badgeSol(it.estado) + '</p>' +
+                            '<p class="actividad-item__detalle">' + esc(it.detalle) + '</p>' +
+                        '</div>' +
+                        '<span class="actividad-item__tiempo">' + esc(tiempoRelativo(it.tiempo)) + '</span>' +
+                    '</div>';
+                }).join('');
+            }
+        }
+    }
+
+    function pintarPanelEstudiante() {
+        var d = estado.panelDatos || {};
+        var cont = $('#proximoEventoContenido');
+        if (!cont) return;
+        var ev = d.proximo_evento;
+        if (!ev) {
+            cont.innerHTML = '<div class="primer-evento__card primer-evento__card--vacio">' +
+                '<i class="fas fa-calendar-xmark"></i>' +
+                '<h3>No hay eventos próximos</h3>' +
+                '<p>La administración publicará aquí las fechas importantes del instituto.</p>' +
+            '</div>';
+            return;
+        }
+        var rango = ev.fecha_fin && ev.fecha_fin !== ev.fecha_inicio
+            ? fmtFecha(ev.fecha_inicio) + ' – ' + fmtFecha(ev.fecha_fin)
+            : fmtFecha(ev.fecha_inicio);
+        cont.innerHTML = '<article class="primer-evento__card" style="--ev-color:' + esc(ev.color) + '">' +
+            '<div class="primer-evento__fecha"><i class="fas fa-calendar-day"></i> ' + esc(rango) + '</div>' +
+            '<h3 class="primer-evento__nombre">' + esc(ev.nombre) + '</h3>' +
+            (ev.descripcion ? '<p class="primer-evento__desc">' + esc(ev.descripcion) + '</p>' : '') +
+        '</article>';
     }
 
     /* ================= ACCIONES DELEGADAS ================= */
 
     function initAcciones() {
+        function irAVista(nombre) {
+            var vista = document.getElementById(nombre);
+            if (vista) activarVista(nombre);
+        }
+
+        document.addEventListener('click', function (ev) {
+            var ir = ev.target.closest('[data-ir]');
+            if (ir) irAVista(ir.getAttribute('data-ir'));
+        });
+        document.addEventListener('keydown', function (ev) {
+            if (ev.key !== 'Enter' && ev.key !== ' ') return;
+            var ir = ev.target.closest('[data-ir]');
+            if (ir) { ev.preventDefault(); irAVista(ir.getAttribute('data-ir')); }
+        });
+
+        var cargo = $('#misEspaciosCargo');
+        if (cargo) {
+            cargo.addEventListener('click', function (ev) {
+                var btn = ev.target.closest('[data-accion]');
+                if (!btn) return;
+                var accion = btn.getAttribute('data-accion');
+                var id = parseInt(btn.getAttribute('data-id'), 10);
+                if (accion === 'campana-panel') {
+                    abrirCampana(id);
+                } else if (accion === 'aprobar' || accion === 'rechazar') {
+                    decidirSolicitud(id, accion === 'aprobar' ? 'aprobada' : 'rechazada');
+                }
+            });
+        }
+
         var lista = $('#listaEspacios');
         if (lista) {
             lista.addEventListener('click', function (ev) {
                 var principal = ev.target.closest('.espacio-fila__principal');
-                if (principal) { alternarFila(principal); return; }
+                if (principal && !ev.target.closest('[data-accion]')) { alternarFila(principal); return; }
 
                 var btn = ev.target.closest('[data-accion]');
                 if (!btn) return;
@@ -1128,6 +1285,8 @@
                         });
                 } else if (accion === 'solicitudes') {
                     alternarZonaSolicitudes(id, btn);
+                } else if (accion === 'campana') {
+                    abrirCampana(id);
                 } else if (accion === 'aprobar' || accion === 'rechazar') {
                     decidirSolicitud(id, accion === 'aprobar' ? 'aprobada' : 'rechazada');
                 }
@@ -1181,17 +1340,6 @@
                                 if (!res.ok) { toast(res.error || 'No se pudo actualizar.', 'error'); return; }
                                 toast('Estado actualizado.');
                                 cargarUsuarios();
-                            });
-                        });
-                } else if (btn.getAttribute('data-accion') === 'usu-eliminar') {
-                    confirmar('Eliminar usuario',
-                        'Esta acción no se puede deshacer. Se eliminarán los datos de acceso de este usuario.',
-                        function () {
-                            api('/api/clientes/' + id, 'DELETE').then(function (res) {
-                                if (!res.ok) { toast(res.error || 'No se pudo eliminar.', 'error'); return; }
-                                toast('Usuario eliminado.');
-                                cargarUsuarios();
-                                if (ROL === 'Administrador') cargarResumen();
                             });
                         });
                 }
@@ -1257,6 +1405,11 @@
         if (btnEv) btnEv.addEventListener('click', function () { abrirModalEvento(null); });
         $('#formEvento') && ($('#formEvento').addEventListener('submit', guardarEvento));
 
+        var accesoEsp = $('#accesoNuevoEspacio');
+        if (accesoEsp) accesoEsp.addEventListener('click', function () { abrirModalEspacio(null); });
+        var accesoUsu = $('#accesoNuevoUsuario');
+        if (accesoUsu) accesoUsu.addEventListener('click', function () { abrirModalUsuario(null); });
+
         $('#formSolicitud') && ($('#formSolicitud').addEventListener('submit', enviarSolicitud));
 
         ['#solFecha', '#solInicio', '#solFin'].forEach(function (sel) {
@@ -1287,11 +1440,6 @@
         if (filtro) filtro.addEventListener('change', function () {
             estado.filtroTipo = this.value;
             pintarEspacios();
-        });
-
-        var filtroOp = $('#filtroOpTipo');
-        if (filtroOp) filtroOp.addEventListener('change', function () {
-            estado.filtroOpTipo = this.value;
             pintarCalOperativo();
         });
 
@@ -1299,40 +1447,31 @@
         if (opAnt) opAnt.addEventListener('click', function () { cambiarMesOperativo(-1); });
         if (opSig) opSig.addEventListener('click', function () { cambiarMesOperativo(1); });
 
-        var mesAnt = $('#btnMesAnterior'), mesSig = $('#btnMesSiguiente'), btnHoy = $('#btnCalHoy');
-        if (mesAnt) mesAnt.addEventListener('click', function () { cambiarMesPared(-1); });
-        if (mesSig) mesSig.addEventListener('click', function () { cambiarMesPared(1); });
-        if (btnHoy) btnHoy.addEventListener('click', irAlMesActual);
+        var anioAnt = $('#btnAnioAnterior'), anioSig = $('#btnAnioSiguiente');
+        if (anioAnt) anioAnt.addEventListener('click', function () { estado.calAnio--; pintarCalPared(); });
+        if (anioSig) anioSig.addEventListener('click', function () { estado.calAnio++; pintarCalPared(); });
 
-        var now = new Date();
-        poblarSelectorMes($('#opSelectorMes'), estado.opMes);
-        poblarSelectorAnio($('#opSelectorAnio'), estado.opAnio);
-        poblarSelectorMes($('#calSelectorMes'), estado.calMes);
-        poblarSelectorAnio($('#calSelectorAnio'), estado.calAnio);
-        var anios = aniosRapidos();
-        var selOpMes = $('#opSelectorMes'), selOpAnio = $('#opSelectorAnio');
-        if (selOpMes && selOpMes.selectedIndex === -1) fijarSelector(selOpMes, now.getMonth(), 0);
-        if (selOpAnio && selOpAnio.selectedIndex === -1) fijarSelector(selOpAnio, now.getFullYear(), anios[anios.length - 1]);
-        var selCalMes = $('#calSelectorMes'), selCalAnio = $('#calSelectorAnio');
-        if (selCalMes && selCalMes.selectedIndex === -1) fijarSelector(selCalMes, now.getMonth(), 0);
-        if (selCalAnio && selCalAnio.selectedIndex === -1) fijarSelector(selCalAnio, now.getFullYear(), anios[anios.length - 1]);
-
-        if (selOpMes) selOpMes.addEventListener('change', function () {
-            estado.opMes = parseInt(this.value, 10);
-            cargarOcupacionOperativa();
-        });
-        if (selOpAnio) selOpAnio.addEventListener('change', function () {
-            estado.opAnio = parseInt(this.value, 10);
-            cargarOcupacionOperativa();
-        });
-        if (selCalMes) selCalMes.addEventListener('change', function () {
-            estado.calMes = parseInt(this.value, 10);
+        var calHoy = $('#btnCalHoy');
+        if (calHoy) calHoy.addEventListener('click', function () {
+            estado.calAnio = new Date().getFullYear();
             pintarCalPared();
         });
-        if (selCalAnio) selCalAnio.addEventListener('change', function () {
-            estado.calAnio = parseInt(this.value, 10);
-            pintarCalPared();
+
+        var opHoy = $('#btnOpHoy');
+        if (opHoy) opHoy.addEventListener('click', function () {
+            estado.opMes = new Date().getMonth();
+            estado.opAnio = new Date().getFullYear();
+            cargarOcupacionOperativa();
         });
+
+        var campAnt = $('#campanaAnterior'), campSig = $('#campanaSiguiente');
+        if (campAnt) campAnt.addEventListener('click', function () { moverCampana(-1); });
+        if (campSig) campSig.addEventListener('click', function () { moverCampana(1); });
+
+        var campApr = $('#campanaAprobar');
+        if (campApr) campApr.addEventListener('click', function () { decidirDesdeCampana('aprobada'); });
+        var campRec = $('#campanaRechazar');
+        if (campRec) campRec.addEventListener('click', function () { decidirDesdeCampana('rechazada'); });
     }
 
     /* ================= ARRANQUE ================= */
@@ -1343,14 +1482,9 @@
         initModales();
         initBotones();
         initAcciones();
-        initTooltipOperativo();
-        initDetalleEventoPared();
 
-        var cargas = [cargarEspacios(), cargarEventos()];
-        if (ROL !== 'Estudiante') {
-            cargas.push(cargarSolicitudes());
-            cargas.push(cargarOcupacionOperativa());
-        }
+        var cargas = [cargarEspacios(), cargarEventos(), cargarPanel()];
+        if (ROL !== 'Estudiante') cargas.push(cargarSolicitudes());
         if (ROL === 'Administrador') cargas.push(cargarResumen(), cargarUsuarios(), cargarDocentes());
 
         Promise.all(cargas).then(function () {

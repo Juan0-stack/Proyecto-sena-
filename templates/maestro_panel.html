@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISAILO MAPS — Panel Docente</title>
 
-    <link rel="stylesheet" href="../static/admin.css">
+    <link rel="stylesheet" href="../static/admin.css?v=7">
     <link rel="stylesheet" href="../static/variables.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body data-rol="Docente" data-usuario-id="{{ session['id_usuario'] }}">
@@ -60,24 +60,51 @@
                     <div class="stat-card__label">Mis solicitudes</div>
                     <div class="stat-card__sub">Enviadas en total</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card stat-card--click" data-ir="espacios" role="button" tabindex="0" title="Revisar solicitudes pendientes">
                     <div class="stat-card__icono"><i class="fas fa-hourglass-half"></i></div>
                     <div class="stat-card__numero" id="statPorAutorizar">—</div>
                     <div class="stat-card__label">Por autorizar</div>
                     <div class="stat-card__sub">En tus espacios a cargo</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card stat-card--click" data-ir="espacios" role="button" tabindex="0" title="Ver tus espacios a cargo">
                     <div class="stat-card__icono"><i class="fas fa-key"></i></div>
                     <div class="stat-card__numero" id="statMiCargo">—</div>
                     <div class="stat-card__label">Espacios a tu cargo</div>
                     <div class="stat-card__sub">Como encargado</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card stat-card--click" data-ir="calendario" role="button" tabindex="0" title="Ver calendario">
                     <div class="stat-card__icono"><i class="fas fa-calendar-day"></i></div>
                     <div class="stat-card__numero" id="statProximos">—</div>
                     <div class="stat-card__label">Próximos eventos</div>
                     <div class="stat-card__sub">Calendario institucional</div>
                 </div>
+            </div>
+
+            <div class="panel-bloques panel-bloques--docente">
+                <div class="panel-bloque panel-bloque--cargo">
+                    <div class="panel-bloque__cab">
+                        <div>
+                            <span class="etiqueta-seccion">Gestión</span>
+                            <h3>Espacios a tu cargo</h3>
+                        </div>
+                    </div>
+                    <div class="panel-bloque__cuerpo" id="misEspaciosCargo"></div>
+                </div>
+                <div class="panel-bloque panel-bloque--actividad">
+                    <div class="panel-bloque__cab">
+                        <div>
+                            <span class="etiqueta-seccion">Reciente</span>
+                            <h3>Tu actividad</h3>
+                        </div>
+                    </div>
+                    <div class="panel-bloque__cuerpo" id="actividadDocente"></div>
+                </div>
+            </div>
+
+            <div class="accesos-rapidos">
+                <button type="button" class="btn-admin btn-admin--primario" data-ir="espacios"><i class="fas fa-calendar-plus"></i> Solicitar un espacio</button>
+                <button type="button" class="btn-admin btn-admin--outline" data-ir="calendario"><i class="fas fa-calendar-check"></i> Ver calendario</button>
+                <button type="button" class="btn-admin btn-admin--outline" data-ir="mapa"><i class="fas fa-map-marked-alt"></i> Ver mapa</button>
             </div>
         </section>
 
@@ -87,7 +114,7 @@
                 <h2>Disponibilidad del Instituto</h2>
             </div>
             <p class="seccion-nota">
-                Consulta el estado de cada espacio y envía tus solicitudes de uso.
+                Consulta el estado de cada espacio, revisa el calendario operativo y envía tus solicitudes.
             </p>
 
             <div class="toolbar">
@@ -97,6 +124,19 @@
                         <option value="">Todos los tipos</option>
                     </select>
                 </div>
+            </div>
+
+            <div class="cal-op modulo__card">
+                <div class="cal-op__cabecera">
+                    <button id="btnOpAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
+                    <h3 id="opTitulo">Calendario operativo</h3>
+                    <button id="btnOpSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
+                    <button type="button" id="btnOpHoy" class="btn-hoy" aria-label="Volver al mes actual">Hoy</button>
+                    <div class="cal-op__leyenda">
+                        <span class="leyenda"><i class="punto punto--aprobada"></i> Actividad aprobada</span>
+                    </div>
+                </div>
+                <div class="cal-op__grilla" id="calOperativo"></div>
             </div>
 
             <h3 class="acordeon__titulo">Listado de espacios</h3>
@@ -116,55 +156,22 @@
             </p>
 
             <div class="cal-pared__nav">
-                <button id="btnMesAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
-                <span id="calPeriodo" class="cal-pared__anio"></span>
-                <button id="btnMesSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
-                <div class="cal-pared__selector">
-                    <select id="calSelectorMes" class="input-min" aria-label="Saltar a mes"></select>
-                    <select id="calSelectorAnio" class="input-min" aria-label="Saltar a año"></select>
-                </div>
-                <button id="btnCalHoy" class="btn-nav btn-nav--texto" title="Ir al mes actual">Hoy</button>
+                <button id="btnAnioAnterior" class="btn-nav" aria-label="Año anterior"><i class="fas fa-chevron-left"></i></button>
+                <span id="anioActual" class="cal-pared__anio"></span>
+                <button id="btnAnioSiguiente" class="btn-nav" aria-label="Año siguiente"><i class="fas fa-chevron-right"></i></button>
+                <button type="button" id="btnCalHoy" class="btn-hoy" aria-label="Volver al año actual">Hoy</button>
             </div>
             <div class="cal-pared" id="calPared"></div>
         </section>
 
         <section class="modulo vista" id="mapa">
-            <div class="modulo__encabezado">
-                <span class="etiqueta-seccion">Ocupación y ubicación</span>
-                <h2>Mapa y disponibilidad</h2>
-            </div>
+            <span class="badge-proximamente"><i class="fas fa-helmet-safety"></i> Próximamente</span>
+            <h2>Mapa interactivo</h2>
             <p class="seccion-nota mapa-intro">
-                Consulta la ocupación real de los espacios y, próximamente, ubícalos directamente
-                en el mapa del Instituto San Ignacio de Loyola.
+                Este es el mapa del Instituto San Ignacio de Loyola. Aquí podrás ubicar salones,
+                laboratorios y oficinas al instante. Esta función estará disponible próximamente.
             </p>
-
-            <div class="mapa-layout">
-                <div class="mapa-layout__col">
-                    <div class="cal-op modulo__card">
-                        <div class="cal-op__cabecera">
-                            <button id="btnOpAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
-                            <h3 id="opTitulo">Calendario operativo</h3>
-                            <button id="btnOpSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
-                            <div class="cal-op__selector">
-                                <select id="opSelectorMes" class="input-min" aria-label="Saltar a mes"></select>
-                                <select id="opSelectorAnio" class="input-min" aria-label="Saltar a año"></select>
-                            </div>
-                            <div class="cal-op__leyenda">
-                                <select id="filtroOpTipo" class="input-min calop-filtro" aria-label="Filtrar calendario operativo por tipo">
-                                    <option value="">Todos los tipos</option>
-                                </select>
-                                <span class="leyenda"><i class="punto punto--aprobada"></i> Actividad aprobada</span>
-                            </div>
-                        </div>
-                        <div class="cal-op__grilla" id="calOperativo"></div>
-                    </div>
-                </div>
-                <div class="mapa-layout__col">
-                    <span class="badge-proximamente"><i class="fas fa-helmet-safety"></i> Próximamente</span>
-                    <h2 class="mapa-titulo">Mapa interactivo</h2>
-                    <div id="mapa-container" aria-hidden="true"></div>
-                </div>
-            </div>
+            <div id="mapa-container" aria-hidden="true"></div>
         </section>
 
     </main>
@@ -234,7 +241,27 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalCampana" aria-hidden="true">
+        <div class="modal modal--campana" role="dialog" aria-modal="true">
+            <button type="button" class="modal__cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+            <span class="etiqueta-seccion">Notificaciones</span>
+            <h3>Solicitudes pendientes</h3>
+            <div class="campana-espacio" id="campanaEspacioInfo"></div>
+            <div class="campana-cuerpo" id="campanaCuerpo"></div>
+            <div class="campana-pie">
+                <button type="button" class="btn-nav" id="campanaAnterior" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
+                <span class="campana-contador" id="campanaContador"></span>
+                <button type="button" class="btn-nav" id="campanaSiguiente" aria-label="Siguiente"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="modal__acciones">
+                <button type="button" class="btn-admin btn-admin--outline" data-cerrar>Cerrar</button>
+                <button type="button" class="btn-admin btn-admin--success" id="campanaAprobar"><i class="fas fa-check"></i> Aprobar</button>
+                <button type="button" class="btn-admin btn-admin--danger" id="campanaRechazar"><i class="fas fa-xmark"></i> Rechazar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="../static/panel.js"></script>
+    <script src="../static/panel.js?v=7"></script>
 </body>
 </html>

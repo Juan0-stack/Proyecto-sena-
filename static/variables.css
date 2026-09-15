@@ -13,11 +13,25 @@
     --borde-suave: rgba(230, 215, 184, 0.12);
     --sombra-suave: 0 6px 24px rgba(0, 0, 0, 0.28);
     --radio: 14px;
+    --fuente-sans: 'Manrope', 'Inter', Arial, Helvetica, sans-serif;
+    --tracking-mayusculas: 0.08em;
+    --tracking-suave: 0.02em;
 }
 
 body {
-    font-family: 'Inter', Arial, Helvetica, sans-serif;
-    line-height: 1.55;
+    font-family: var(--fuente-sans);
+    line-height: 1.6;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+h1, h2, h3, h4 {
+    line-height: 1.25;
 }
 
 .etiqueta-seccion,
@@ -26,7 +40,20 @@ body {
 .espacio-card__estado,
 .toolbar__label,
 .footer__derechos {
-    letter-spacing: 0.02em;
+    letter-spacing: var(--tracking-suave);
+}
+
+.tabla th,
+.etiqueta-seccion,
+.estado-badge,
+.estado-sol,
+.panel-hero__badge,
+.badge-beta,
+.badge-proximamente,
+.cal-dia-nombre,
+.evento-card__fecha,
+.toolbar__label {
+    letter-spacing: var(--tracking-mayusculas);
 }
 
 .etiqueta-seccion {

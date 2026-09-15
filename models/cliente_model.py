@@ -178,24 +178,6 @@ class ClienteModel:
         return None
 
     @staticmethod
-    def eliminar(id_usuario):
-        conn = get_connection()
-        if not conn:
-            return False
-        try:
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM usuarios WHERE id_usuario = %s", (id_usuario,))
-            conn.commit()
-            return cursor.rowcount > 0
-        except Exception as e:
-            print(f'Error al eliminar usuario: {e}')
-            conn.rollback()
-            return False
-        finally:
-            cursor.close()
-            conn.close()
-
-    @staticmethod
     def listar():
         conn = get_connection()
         if not conn:

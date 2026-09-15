@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISAILO MAPS — Panel Estudiante</title>
 
-    <link rel="stylesheet" href="../static/admin.css">
+    <link rel="stylesheet" href="../static/admin.css?v=7">
     <link rel="stylesheet" href="../static/variables.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body data-rol="Estudiante" data-usuario-id="{{ session['id_usuario'] }}">
@@ -49,6 +49,17 @@
             </div>
 
             <div class="modulo__encabezado">
+                <span class="etiqueta-seccion">Hoy y próximamente</span>
+                <h2>Próximo evento</h2>
+            </div>
+            <div id="proximoEventoContenido"></div>
+
+            <div class="accesos-estudiante">
+                <button type="button" class="btn-admin btn-admin--primario" data-ir="calendario"><i class="fas fa-calendar-check"></i> Ver calendario</button>
+                <button type="button" class="btn-admin btn-admin--outline" data-ir="mapa"><i class="fas fa-map-marked-alt"></i> Ver mapa</button>
+            </div>
+
+            <div class="modulo__encabezado">
                 <span class="etiqueta-seccion">Agenda</span>
                 <h2>Próximos eventos</h2>
             </div>
@@ -68,14 +79,10 @@
             </p>
 
             <div class="cal-pared__nav">
-                <button id="btnMesAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
-                <span id="calPeriodo" class="cal-pared__anio"></span>
-                <button id="btnMesSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
-                <div class="cal-pared__selector">
-                    <select id="calSelectorMes" class="input-min" aria-label="Saltar a mes"></select>
-                    <select id="calSelectorAnio" class="input-min" aria-label="Saltar a año"></select>
-                </div>
-                <button id="btnCalHoy" class="btn-nav btn-nav--texto" title="Ir al mes actual">Hoy</button>
+                <button id="btnAnioAnterior" class="btn-nav" aria-label="Año anterior"><i class="fas fa-chevron-left"></i></button>
+                <span id="anioActual" class="cal-pared__anio"></span>
+                <button id="btnAnioSiguiente" class="btn-nav" aria-label="Año siguiente"><i class="fas fa-chevron-right"></i></button>
+                <button type="button" id="btnCalHoy" class="btn-hoy" aria-label="Volver al año actual">Hoy</button>
             </div>
             <div class="cal-pared" id="calPared"></div>
         </section>
@@ -103,6 +110,6 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="../static/panel.js"></script>
+    <script src="../static/panel.js?v=7"></script>
 </body>
 </html>

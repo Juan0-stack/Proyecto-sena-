@@ -1,10 +1,11 @@
-from flask import Flask, render_template
+from flask import Flask
 
 from config import Config
 from database.conexion import init_db
 from routes.clientes_routes import clientes_bp
 from routes.espacio_routes import espacios_bp
 from routes.evento_routes import eventos_bp
+from routes.panel_routes import panel_bp
 from routes.solicitud_routes import solicitudes_bp
 
 app = Flask(__name__)
@@ -16,12 +17,7 @@ app.register_blueprint(clientes_bp)
 app.register_blueprint(espacios_bp)
 app.register_blueprint(solicitudes_bp)
 app.register_blueprint(eventos_bp)
-
-
-@app.route('/pan')
-def panellum_vista():
-    return render_template('panellum_example_1.html')
-
+app.register_blueprint(panel_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)

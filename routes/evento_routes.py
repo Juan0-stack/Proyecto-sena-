@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 
-from controllers.controller import actualizar_evento, crear_evento, eliminar_evento
+from controllers.evento_controller import EventoController
 from utils.auth import login_required, role_required
 
 eventos_bp = Blueprint('eventos', __name__)
@@ -17,17 +17,17 @@ def listar_eventos():
 @role_required('Administrador', api=True)
 def crear_evento():
     datos = request.get_json(silent=True) or {}
-    return jsonify(crear_evento(datos, session.get('id_usuario')))
+    return jsonify(EventoController.crear(datos, session.get('id_usuario')))
 
 
 @eventos_bp.route('/api/eventos/<int:id_evento>', methods=['PUT'])
 @role_required('Administrador', api=True)
 def actualizar_evento(id_evento):
     datos = request.get_json(silent=True) or {}
-    return jsonify(actualizar_evento(id_evento, datos))
+    return jsonify(EventoController.actualizar(id_evento, datos))
 
 
 @eventos_bp.route('/api/eventos/<int:id_evento>', methods=['DELETE'])
 @role_required('Administrador', api=True)
 def eliminar_evento(id_evento):
-    return jsonify(eliminar_evento(id_evento))
+    return jsonify(EventoController.eliminar(id_evento))

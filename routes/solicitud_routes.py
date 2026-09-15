@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from flask import Blueprint, jsonify, request, session
 
-from controllers.controller import autorizar_solicitud, crear_solicitud as crear_solicitud_ctrl, listar_solicitudes_para_sesion
+from controllers.solicitud_controller import SolicitudController
 from models.solicitud_model import SolicitudModel
 from utils.auth import login_required, role_required
 
@@ -13,7 +13,7 @@ solicitudes_bp = Blueprint('solicitudes', __name__)
 @role_required('Docente', api=True)
 def crear_solicitud():
     datos = request.get_json(silent=True) or {}
-    return jsonify(crear_solicitud_ctrl(datos))
+    return jsonify(SolicitudController.crear(datos))
 
 
 @solicitudes_bp.route('/api/solicitudes', methods=['GET'])
@@ -21,7 +21,7 @@ def crear_solicitud():
 def listar_solicitudes():
     if session.get('nombre_rol') == 'Estudiante':
         return jsonify({'ok': False, 'error': 'No tienes permisos para ver las solicitudes.'}), 403
-    return jsonify({'ok': True, 'solicitudes': listar_solicitudes_para_sesion()})
+    return jsonify({'ok': True, 'solicitudes': SolicitudController.listar_para_sesion()})
 
 
 @solicitudes_bp.route('/api/solicitudes/<int:id_solicitud>/estado', methods=['PATCH'])
@@ -29,7 +29,7 @@ def listar_solicitudes():
 def cambiar_estado_solicitud(id_solicitud):
     datos = request.get_json(silent=True) or {}
     nuevo_estado = (datos.get('estado') or '').strip().lower()
-    return jsonify(autorizar_solicitud(id_solicitud, nuevo_estado))
+    return jsonify(SolicitudController.autorizar(id_solicitud, nuevo_estado))
 
 
 @solicitudes_bp.route('/api/ocupacion', methods=['GET'])

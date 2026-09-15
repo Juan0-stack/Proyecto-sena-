@@ -7,9 +7,17 @@
 
 body {
     background: #0d0505;
-    font-family: Arial, sans-serif;
+    font-family: 'Manrope', 'Inter', Arial, sans-serif;
     color: #E6D7B8;
     overflow-x: hidden;
+    line-height: 1.6;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
 }
 
 img {
@@ -396,7 +404,7 @@ ul {
 .feature-card__icono {
     width: 64px;
     height: 64px;
-    background: rgba(139, 30, 30, 0.10);
+    background: rgba(139, 30, 30, 0.16);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -415,6 +423,7 @@ ul {
 .feature-card h3 {
     font-family: 'Playfair Display', serif;
     font-size: 20px;
+    font-weight: 700;
     color: #E6D7B8;
     margin-bottom: 10px;
 }
@@ -480,7 +489,7 @@ ul {
 .contacto__icono {
     width: 56px;
     height: 56px;
-    background: rgba(139, 30, 30, 0.08);
+    background: rgba(139, 30, 30, 0.16);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -499,6 +508,7 @@ ul {
 .contacto__item h3 {
     font-family: 'Playfair Display', serif;
     font-size: 18px;
+    font-weight: 700;
     color: #E6D7B8;
     margin-bottom: 8px;
 }

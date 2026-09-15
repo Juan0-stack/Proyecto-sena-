@@ -130,11 +130,20 @@ def init_db():
                 fecha_fin DATE,
                 color VARCHAR(20) DEFAULT '#8B1E1E',
                 creado_por INT,
+                fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
                 CONSTRAINT eventos_ibfk_1 FOREIGN KEY (creado_por)
                     REFERENCES usuarios (id_usuario) ON DELETE SET NULL
             )
             """
         )
+        cursor.execute(
+            "SHOW COLUMNS FROM eventos_institucionales LIKE 'fecha_creacion'"
+        )
+        if cursor.fetchone() is None:
+            cursor.execute(
+                "ALTER TABLE eventos_institucionales "
+                "ADD COLUMN fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP"
+            )
         _sembrar_admin(cursor)
         conn.commit()
         cursor.close()

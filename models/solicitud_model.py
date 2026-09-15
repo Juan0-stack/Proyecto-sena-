@@ -11,10 +11,12 @@ class SolicitudModel:
                    e.nombre AS espacio_nombre,
                    e.tipo AS espacio_tipo,
                    e.id_usuario_encargado,
+                   CONCAT(enc.nombre, ' ', COALESCE(enc.apellido, '')) AS encargado_nombre,
                    CONCAT(u.nombre, ' ', COALESCE(u.apellido, '')) AS solicitante
             FROM solicitudes s
             JOIN espacios e ON s.id_espacio = e.id_espacio
             JOIN usuarios u ON s.id_usuario = u.id_usuario
+            LEFT JOIN usuarios enc ON e.id_usuario_encargado = enc.id_usuario
         """
 
     @staticmethod
@@ -100,6 +102,45 @@ class SolicitudModel:
         except Exception as e:
             print(f'Error al listar solicitudes: {e}')
             return []
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
+    def listar_recientes(limite=8):
+        conn = get_connection()
+        if not conn:
+            return []
+        try:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute(
+                SolicitudModel._consulta_base() +
+                " ORDER BY s.fecha_solicitud DESC LIMIT %s",
+                (limite,)
+            )
+            return lista(cursor.fetchall())
+        except Exception as e:
+            print(f'Error al listar solicitudes recientes: {e}')
+            return []
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
+    def contar_vencidas():
+        conn = get_connection()
+        if not conn:
+            return 0
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT COUNT(*) FROM solicitudes "
+                "WHERE estado = 'pendiente' AND fecha_solicitud < NOW() - INTERVAL 24 HOUR"
+            )
+            return cursor.fetchone()[0]
+        except Exception as e:
+            print(f'Error al contar solicitudes vencidas: {e}')
+            return 0
         finally:
             cursor.close()
             conn.close()
