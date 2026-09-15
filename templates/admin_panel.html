@@ -100,18 +100,6 @@
                 </button>
             </div>
 
-            <div class="cal-op modulo__card">
-                <div class="cal-op__cabecera">
-                    <button id="btnOpAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
-                    <h3 id="opTitulo">Calendario operativo</h3>
-                    <button id="btnOpSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
-                    <div class="cal-op__leyenda">
-                        <span class="leyenda"><i class="punto punto--aprobada"></i> Actividad aprobada</span>
-                    </div>
-                </div>
-                <div class="cal-op__grilla" id="calOperativo"></div>
-            </div>
-
             <h3 class="acordeon__titulo">Listado de espacios</h3>
             <div class="acordeon" id="listaEspacios"></div>
         </section>
@@ -131,9 +119,10 @@
             </p>
 
             <div class="cal-pared__nav">
-                <button id="btnAnioAnterior" class="btn-nav" aria-label="Año anterior"><i class="fas fa-chevron-left"></i></button>
-                <span id="anioActual" class="cal-pared__anio"></span>
-                <button id="btnAnioSiguiente" class="btn-nav" aria-label="Año siguiente"><i class="fas fa-chevron-right"></i></button>
+                <button id="btnMesAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
+                <span id="calPeriodo" class="cal-pared__anio"></span>
+                <button id="btnMesSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
+                <button id="btnCalHoy" class="btn-nav btn-nav--texto" title="Ir al mes actual">Hoy</button>
             </div>
             <div class="cal-pared" id="calPared"></div>
 
@@ -164,8 +153,9 @@
                 </button>
             </div>
             <p class="seccion-nota">
-                Crea cuentas, edita datos y habilita o deshabilita usuarios. El alta es interna:
-                no existe registro público en la plataforma.
+                Crea cuentas, edita datos, habilita o deshabilita usuarios. El alta es interna:
+                no existe registro público en la plataforma. La cuenta principal del sistema no
+                puede deshabilitarse ni eliminarse.
             </p>
 
             <div class="tabla-wrap modulo__card">
@@ -186,13 +176,38 @@
         </section>
 
         <section class="modulo vista" id="mapa">
-            <span class="badge-proximamente"><i class="fas fa-helmet-safety"></i> Próximamente</span>
-            <h2>Mapa interactivo</h2>
+            <div class="modulo__encabezado">
+                <span class="etiqueta-seccion">Ocupación y ubicación</span>
+                <h2>Mapa y disponibilidad</h2>
+            </div>
             <p class="seccion-nota mapa-intro">
-                Este es el mapa del Instituto San Ignacio de Loyola. Aquí podrás ubicar salones,
-                laboratorios y oficinas al instante. Esta función estará disponible próximamente.
+                Consulta la ocupación real de los espacios y, próximamente, ubícalos directamente
+                en el mapa del Instituto San Ignacio de Loyola.
             </p>
-            <div id="mapa-container" aria-hidden="true"></div>
+
+            <div class="mapa-layout">
+                <div class="mapa-layout__col">
+                    <div class="cal-op modulo__card">
+                        <div class="cal-op__cabecera">
+                            <button id="btnOpAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
+                            <h3 id="opTitulo">Calendario operativo</h3>
+                            <button id="btnOpSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
+                            <div class="cal-op__leyenda">
+                                <select id="filtroOpTipo" class="input-min calop-filtro" aria-label="Filtrar calendario operativo por tipo">
+                                    <option value="">Todos los tipos</option>
+                                </select>
+                                <span class="leyenda"><i class="punto punto--aprobada"></i> Actividad aprobada</span>
+                            </div>
+                        </div>
+                        <div class="cal-op__grilla" id="calOperativo"></div>
+                    </div>
+                </div>
+                <div class="mapa-layout__col">
+                    <span class="badge-proximamente"><i class="fas fa-helmet-safety"></i> Próximamente</span>
+                    <h2 class="mapa-titulo">Mapa interactivo</h2>
+                    <div id="mapa-container" aria-hidden="true"></div>
+                </div>
+            </div>
         </section>
 
     </main>

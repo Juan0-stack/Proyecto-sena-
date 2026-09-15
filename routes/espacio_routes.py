@@ -2,7 +2,7 @@ import datetime
 
 from flask import Blueprint, jsonify, request
 
-from controllers.espacio_controller import EspacioController
+from controllers.controller import actualizar_espacio, crear_espacio, eliminar_espacio
 from models.espacio_model import EspacioModel
 from models.solicitud_model import SolicitudModel
 from utils.auth import login_required, role_required
@@ -20,20 +20,20 @@ def listar_espacios():
 @role_required('Administrador', api=True)
 def crear_espacio():
     datos = request.get_json(silent=True) or {}
-    return jsonify(EspacioController.crear(datos))
+    return jsonify(crear_espacio(datos))
 
 
 @espacios_bp.route('/api/espacios/<int:id_espacio>', methods=['PUT'])
 @role_required('Administrador', api=True)
 def actualizar_espacio(id_espacio):
     datos = request.get_json(silent=True) or {}
-    return jsonify(EspacioController.actualizar(id_espacio, datos))
+    return jsonify(actualizar_espacio(id_espacio, datos))
 
 
 @espacios_bp.route('/api/espacios/<int:id_espacio>', methods=['DELETE'])
 @role_required('Administrador', api=True)
 def eliminar_espacio(id_espacio):
-    return jsonify(EspacioController.eliminar(id_espacio))
+    return jsonify(eliminar_espacio(id_espacio))
 
 
 @espacios_bp.route('/api/espacios/<int:id_espacio>/ocupacion', methods=['GET'])

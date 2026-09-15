@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, redirect, render_template, request, session
 
-from controllers.clientes_controller import PANEL_POR_ROL, ClienteController
-from controllers.solicitud_controller import SolicitudController
+from controllers.controller import PANEL_POR_ROL, actualizar_usuario, cambiar_estado_usuario, cerrar_sesion, eliminar_usuario, iniciar_sesion, registrar_usuario
 from models.cliente_model import ClienteModel
 from models.espacio_model import EspacioModel
 from models.evento_model import EventoModel
@@ -31,7 +30,7 @@ def login():
 
 @clientes_bp.route('/logout')
 def logout():
-    ClienteController.cerrar_sesion()
+    cerrar_sesion()
     return redirect('/login')
 
 
@@ -76,14 +75,14 @@ def estudiante_panel():
 @clientes_bp.route('/api/clientes/login', methods=['POST'])
 def login_cliente():
     datos = request.get_json(silent=True) or request.form
-    return jsonify(ClienteController.iniciar_sesion(datos))
+    return jsonify(iniciar_sesion(datos))
 
 
 @clientes_bp.route('/api/clientes/registrar', methods=['POST'])
 @role_required('Administrador', api=True)
 def registrar_cliente():
     datos = request.get_json(silent=True) or request.form
-    return jsonify(ClienteController.registrar(datos))
+    return jsonify(registrar_usuario(datos))
 
 
 @clientes_bp.route('/api/clientes', methods=['GET'])
@@ -96,14 +95,20 @@ def listar_clientes():
 @role_required('Administrador', api=True)
 def actualizar_cliente(id_usuario):
     datos = request.get_json(silent=True) or {}
-    return jsonify(ClienteController.actualizar(id_usuario, datos))
+    return jsonify(actualizar_usuario(id_usuario, datos))
 
 
 @clientes_bp.route('/api/clientes/<int:id_usuario>/estado', methods=['PATCH'])
 @role_required('Administrador', api=True)
 def cambiar_estado_cliente(id_usuario):
     datos = request.get_json(silent=True) or {}
-    return jsonify(ClienteController.cambiar_estado(id_usuario, (datos.get('estado') or '').strip()))
+    return jsonify(cambiar_estado_usuario(id_usuario, (datos.get('estado') or '').strip()))
+
+
+@clientes_bp.route('/api/clientes/<int:id_usuario>', methods=['DELETE'])
+@role_required('Administrador', api=True)
+def eliminar_cliente(id_usuario):
+    return jsonify(eliminar_usuario(id_usuario))
 
 
 @clientes_bp.route('/api/docentes', methods=['GET'])
