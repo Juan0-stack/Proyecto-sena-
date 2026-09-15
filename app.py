@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 
 from config import Config
 from database.conexion import init_db
@@ -16,6 +16,12 @@ app.register_blueprint(clientes_bp)
 app.register_blueprint(espacios_bp)
 app.register_blueprint(solicitudes_bp)
 app.register_blueprint(eventos_bp)
+
+
+@app.route('/pan')
+def panellum_vista():
+    return render_template('panellum_example_1.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

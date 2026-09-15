@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet"
+      href="/static/pannellum/pannellum.css">
+
+<script type="text/javascript"
+        src="/static/pannellum/pannellum.js"></script>
+
+
+    <style>
+    #panorama {
+        width: 1920px;
+        height: 810px;
+    }</style>
+</head>
+<body>
+
+<div id="panorama"></div>
+<script>
+    pannellum.viewer('panorama', {
+    "type": "equirectangular",
+    "panorama": "/static/pannellum/IMAGES/porteria.jpg",
+    "autoLoad": true,
+    "autoRotate": -4,
+    "pitch": 1, //eje y inicio
+    "yaw": -140, // eje x inicio
+    "hfov": 120, //fov
+
+//hot spotdibug te da coordenadas para el hotspot
+//comentarlo al final del proyecto
+    "hotSpotDebug": true,
+    "hotSpots": [
+            {
+                "pitch": -12.91680198698398,
+                "yaw": -260.0696537714195,
+                "type": "info",
+                "text": "papu",
+                "URL": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            }
+        ]
+    });
+
+</script>
+
+</body>
+</html>
