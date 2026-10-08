@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Isailo Maps</title>
+/mini css
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        #contenedor-mapa {
+            position: relative;
+            width: 100%;
+            max-width: 1536px;
+            margin: auto;
+        }
+
+        #mapa-general {
+            width: 100%;
+            display: block;
+        }
+
+    </style>
+
+</head>
+
+<body>
+/Mapa general foto
+<div id="contenedor-mapa">
+
+    <img 
+        id="mapa-general"
+        src="../static/Mapa_general.png"
+        usemap="#mapa-general-areas"
+    >
+/areas del mapa general
+    <map name="mapa-general-areas">
+
+        <area
+            alt="Primaria"
+            title="Primaria"
+            data-seccion="primaria"
+            coords="142,307,244,317,223,715,119,704"
+            shape="poly"
+        >
+
+        <area
+            alt="Balcon"
+            title="Balcon"
+            data-seccion="balcon"
+            coords="218,232,218,313,246,316,248,349,907,351,906,231"
+            shape="poly"
+        >
+
+        <area
+            alt="Musica"
+            title="Musica"
+            data-seccion="musica"
+            coords="922,222,923,401,1151,400,1147,228"
+            shape="poly"
+        >
+
+        <area
+            alt="Torre Bachillerato"
+            title="Torre Bachillerato"
+            data-seccion="bachillerato"
+            coords="1149,370,1465,372,1466,732,1149,730"
+            shape="poly"
+        >
+
+        <area
+            alt="Salon de actos"
+            title="Salon de actos"
+            data-seccion="salon-actos"
+            coords="237,716,237,594,714,598,714,720"
+            shape="poly"
+        >
+
+        <area
+            alt="Administrativo"
+            title="Administrativo"
+            data-seccion="administrativo"
+            coords="724,608,724,726,1135,728,1135,610"
+            shape="poly"
+        >
+
+        <area
+            alt="Patio 1"
+            title="Patio 1"
+            data-seccion="patio1"
+            coords="252,361,244,580,709,575,712,362"
+            shape="poly"
+        >
+
+        <area
+            alt="Patio 2"
+            title="Patio 2"
+            data-seccion="patio2"
+            coords="716,363,914,370,914,399,1138,408,1139,591,713,591"
+            shape="poly"
+        >
+
+        <area
+            alt="Salon Danzas"
+            title="Salon Danzas"
+            data-seccion="danzas"
+            coords="1226,171,1348,174,1347,369,1225,369"
+            shape="poly"
+        >
+
+    </map>
+
+</div>
+/Mini seccion dentro del mismo mapa
+<div id="visor-seccion" style="display:none;">
+
+    <button id="volver">
+        
+    </button>
+
+    <h2 id="titulo-seccion"></h2>
+
+    <div id="contenedor-seccion">
+
+        <img id="imagen-seccion">
+
+    </div>
+
+</div>
+/Doc.JS
+<script src="../mapa.js/Mapa_Generalt.js"></script>
+
+</body>
+
+</html>
