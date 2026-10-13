@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa del instituto | ISAILO MAPS</title>
+    <style>
+        :root { color-scheme: light; font-family: Arial, sans-serif; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #f5f3ee; color: #201717; line-height: 1.5; }
+        .pagina { max-width: 1280px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 48px) 48px; }
+        .cabecera { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+        h1 { margin: 0; font-size: clamp(1.5rem, 3vw, 2.25rem); color: #6b1212; }
+        .volver, .visor__cerrar { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 9px 16px; border: 1px solid #8b1e1e; border-radius: 8px; background: #8b1e1e; color: #fff; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+        .intro { margin: 0 0 18px; color: #514747; }
+        #contenedor-mapa { overflow: hidden; border: 1px solid #ded8ce; border-radius: 14px; background: #fff; box-shadow: 0 8px 28px rgba(0,0,0,.08); }
+        #mapa-general { display: block; width: 100%; height: auto; }
+        map area { cursor: pointer; }
+        .visor { margin-top: 20px; padding: 20px; border: 1px solid #ded8ce; border-left: 5px solid #8b1e1e; border-radius: 12px; background: #fff; }
+        .visor[hidden] { display: none; }
+        .visor__cabecera { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+        .visor h2 { margin: 0; color: #6b1212; }
+        .visor__contenido { display: grid; place-items: center; min-height: 120px; }
+        .visor__contenido img { display: block; max-width: 100%; max-height: 70vh; object-fit: contain; }
+        .visor__mensaje { margin: 0; color: #514747; text-align: center; }
+        @media (max-width: 560px) { .pagina { padding-top: 16px; } .cabecera { align-items: flex-start; flex-direction: column; } .visor__cabecera { align-items: flex-start; flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <main class="pagina">
+        <header class="cabecera">
+            <h1>Mapa del Instituto San Ignacio de Loyola</h1>
+            <a class="volver" href="{{ url_for('clientes.home') }}" id="volverPanel">Volver al panel</a>
+        </header>
+        <p class="intro">Selecciona una zona del mapa para ver su imagen. Algunas zonas todavía no tienen una imagen detallada.</p>
+
+        <div id="contenedor-mapa">
+            <img id="mapa-general" src="{{ url_for('static', filename='Mapa_general.png') }}" alt="Plano general del Instituto San Ignacio de Loyola" usemap="#mapa-general-areas">
+            <map name="mapa-general-areas" id="mapa-general-areas">
+                <area href="#visor-seccion" alt="Primaria" title="Primaria" data-seccion="Primaria" data-imagen="{{ url_for('static', filename='Primaria.png') }}" coords="142,307,244,317,223,715,119,704" shape="poly">
+                <area href="#visor-seccion" alt="Balcón" title="Balcón" data-seccion="Balcón" data-imagen="{{ url_for('static', filename='Balcon.png') }}" coords="218,232,218,313,246,316,248,349,907,351,906,231" shape="poly">
+                <area href="#visor-seccion" alt="Música" title="Música" data-seccion="Música" data-imagen="{{ url_for('static', filename='Salon_musica-artes1.jpg') }}" coords="922,222,923,401,1151,400,1147,228" shape="poly">
+                <area href="#visor-seccion" alt="Torre Bachillerato" title="Torre Bachillerato" data-seccion="Torre Bachillerato" data-imagen="{{ url_for('static', filename='TorreBachillerato1.png') }}" coords="1149,370,1465,372,1466,732,1149,730" shape="poly">
+                <area href="#visor-seccion" alt="Salón de actos" title="Salón de actos" data-seccion="Salón de actos" data-imagen="{{ url_for('static', filename='Salon_actos.png') }}" coords="237,716,237,594,714,598,714,720" shape="poly">
+                <area href="#visor-seccion" alt="Administrativo" title="Administrativo" data-seccion="Administrativo" data-imagen="{{ url_for('static', filename='Administrativo.png') }}" coords="724,608,724,726,1135,728,1135,610" shape="poly">
+                <area href="#visor-seccion" alt="Patio 1" title="Patio 1" data-seccion="Patio 1" coords="252,361,244,580,709,575,712,362" shape="poly">
+                <area href="#visor-seccion" alt="Patio 2" title="Patio 2" data-seccion="Patio 2" coords="716,363,914,370,914,399,1138,408,1139,591,713,591" shape="poly">
+                <area href="#visor-seccion" alt="Salón de danzas" title="Salón de danzas" data-seccion="Salón de danzas" coords="1226,171,1348,174,1347,369,1225,369" shape="poly">
+            </map>
+        </div>
+
+        <section class="visor" id="visor-seccion" aria-labelledby="titulo-seccion" aria-live="polite" hidden>
+            <div class="visor__cabecera">
+                <h2 id="titulo-seccion"></h2>
+                <button class="visor__cerrar" id="volver" type="button">Volver al mapa</button>
+            </div>
+            <div class="visor__contenido" id="contenido-seccion"></div>
+        </section>
+    </main>
+    <script src="{{ url_for('static', filename='mapa-general.js') }}"></script>
+</body>
+</html>
+

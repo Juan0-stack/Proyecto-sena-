@@ -1,0 +1,6 @@
+{
+    "type": "equirectangular",
+    "panorama": "static/porteria.jpg",
+    "autoLoad": true,
+    "autoRotate": -4
+}

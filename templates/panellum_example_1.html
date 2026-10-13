@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recorrido virtual | ISAILO MAPS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='pannellum/pannellum.css') }}">
+    <script src="{{ url_for('static', filename='pannellum/pannellum.js') }}"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 20px; background: #0d0505; color: #f5e8cc; font-family: Arial, sans-serif; }
+        h1 { margin: 0 auto 14px; max-width: 1280px; font-size: clamp(1.4rem, 3vw, 2rem); }
+        #panorama { width: 100%; max-width: 1280px; height: clamp(360px, 78vh, 810px); margin: 0 auto; border-radius: 12px; overflow: hidden; }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Recorrido virtual del instituto</h1>
+        <div id="panorama" aria-label="Recorrido panorámico de la entrada del instituto"></div>
+    </main>
+    <script>
+        pannellum.viewer('panorama', {
+            type: 'equirectangular',
+            panorama: "{{ url_for('static', filename='pannellum/IMAGES/porteria.jpg') }}",
+            autoLoad: true,
+            autoRotate: -4,
+            pitch: 1,
+            yaw: -140,
+            hfov: 120,
+            hotSpotDebug: false,
+            hotSpots: [{
+                pitch: -12.91680198698398,
+                yaw: -260.0696537714195,
+                type: 'info',
+                text: 'Entrada principal'
+            }]
+        });
+    </script>
+</body>
+</html>
