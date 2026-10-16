@@ -1,0 +1,132 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Document</title>
+    <style>
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body{
+            display: flex;
+            height: 100vh;
+            overflow: auto;
+        }
+        /*ASIDE*/
+        aside{
+            width: 250px;
+            padding: 2rem;
+            background-color: rgb(159, 4, 4);
+            
+        }
+        .container-user-actions-aside{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgb(255, 0, 0);
+            padding: 1rem;
+        }
+        .usuario{
+    
+            background-color: rgb(157, 2, 2);
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1rem;
+            box-sizing: content-box;
+
+
+        }
+        aside h3{
+            overflow-wrap: break-word;/*si hay overflow rompe palabras*/
+        }
+        aside div a{
+            display: block;
+            border: 3px solid gold;
+            border-radius: 10px;
+            background-color: cadetblue;
+            padding: 15px;
+            margin-bottom: 6px;
+            margin-top: 6px;
+            color:gold;
+        
+            text-decoration: none;  
+        }
+
+
+        .usuario img{
+            width: 60px;
+            height: 60px;
+        }
+        .log_out{
+            background-color: darkred;
+            border: 4px solid gold;
+            border-radius: 16px ;
+
+        }
+
+
+
+        /*DENTRO DEL MAPA*/
+        main{
+            height: 100vh;
+            flex: 1;
+            background-color: crimson;
+            display: flex;
+            flex-direction: column;
+        }
+        .header_nav{
+            display: flex;
+            height: 3rem;
+
+            justify-content: start;
+            align-items: center;
+            
+            padding: 10px;
+            padding-left: 25px;
+
+            background-color: chartreuse;
+        }
+       
+        
+
+    </style>
+            
+</head>
+<body>
+        <aside>
+            <div class="container-user-actions-aside">
+                <div class="usuario">
+                    <img class="perfil-usuario" src="../static/profile_picture.png">
+                </div>
+                <h3>bienvenido 'user'</h3>
+                <button class="log_out"><h2>CERRAR SESIÓN</h2></button>
+
+            </div>
+            <div class="herramientas">
+                <a href="./NOTIFICACIONES.html"><h3>NOTIFICACIONES</h3></a>
+                <a href="./HOME(MAPA).html"><h3>MAPA</h3></a>
+                <a href="./CALENDARIO.html"><h3>CALENDARIO</h3></a>
+                <a href="./SOLICITUDES.html"><h3>SOLICITUDES/RESERVAS</h3></a>
+            </div>
+        </aside>
+
+
+        <main>
+            <nav class="header_nav">
+                nav-herramientas
+            </nav>  
+            <h1>calendario</h1>
+            
+
+<!--JS-->
+
+<script>
+    
+</script>
+</body>
+</html>

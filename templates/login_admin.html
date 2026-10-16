@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMINISTRACIÓN ISAILO MAPS — Iniciar Sesión </title>
+
+    <!-- 
+
+    <link rel="stylesheet" href="../static/logincss.css?v=8">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    -->
+</head>
+<body>
+
+    <div class="login-a_caja" id="login-a_caja">
+
+        <div class="logina-a-logo">
+            <img src="../static/" alt="ISAILO MAPS logo admin" class="logina-a-logo" id="login-a-logo">
+            <div>ISAILO MAPS</div>
+            <div>Instituto San Ignacio de Loyola</div>
+        </div>
+
+        <h1>ADMINISTRACIÓN Inicio de Sesión</h1>
+        <p>Ingresa tu usuario y contraseña</p>
+<!--
+        <div class="login-error" id="loginError">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="loginErrorText">Credenciales incorrectas. Intenta nuevamente.</span>
+        </div>
+-->
+        <form id="login-a_formulario">
+
+    
+                <label class="login-a-label" for="mail-a_login">
+                    <i></i>Correo
+                </label>
+                <input
+                    class="login-a-input"
+                    type="mail"
+                    id="mail-a_login"
+                    placeholder="usuario@isailo.edu.co"
+                >
+     
+
+                <label class="login-a-label" for="contra-a_login">
+                    <i></i> Contraseña
+                </label>
+                    <input
+                        class="login-a-input"
+                        type="password"
+                        id="contra-a_login"
+                        placeholder="••••••••"
+                    >
+                    <button type="button" class="mostrar-a-contra" id="mostrar-a_contra" aria-label="Mostrar contraseña">
+                        <i></i> <!-- que mrd hace esto?? es el icono??-->
+                    </button>
+
+            <button type="submit" class="login-a-btn" id="login-a_btn">
+                Ingresar <i class="fas fa-arrow-right"></i> <!-- icono -->
+            </button>
+        </form>
+
+            <a href="/index" class="volver_index_login-a">
+                <i class="fas fa-arrow-left"></i> Volver al inicio
+            </a>
+     </div>
+</body>
+</html>

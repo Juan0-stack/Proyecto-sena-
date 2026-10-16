@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Document</title>
+    <style>
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body{
+            display: flex;
+            height: 100vh;
+            overflow: auto;
+        }
+        /*ASIDE*/
+        aside{
+            width: 250px;
+            padding: 2rem;
+            background-color: rgb(159, 4, 4);
+            
+        }
+        .container-user-actions-aside{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgb(255, 0, 0);
+            padding: 1rem;
+        }
+        .usuario{
+    
+            background-color: rgb(157, 2, 2);
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1rem;
+            box-sizing: content-box;
+
+
+        }
+        aside h3{
+            overflow-wrap: break-word;/*si hay overflow rompe palabras*/
+        }
+        aside div a{
+            display: block;
+            border: 3px solid gold;
+            border-radius: 10px;
+            background-color: cadetblue;
+            padding: 15px;
+            margin-bottom: 6px;
+            margin-top: 6px;
+            color:gold;
+        
+            text-decoration: none;  
+        }
+        
+        .usuario img{
+            width: 60px;
+            height: 60px;
+        }
+        .log_out{
+            background-color: darkred;
+            border: 4px solid gold;
+            border-radius: 16px ;
+
+        }
+
+
+
+        /*DENTRO DEL MAPA*/
+        main{
+            height: 100vh;
+            flex: 1;
+            background-color: crimson;
+            display: flex;
+            flex-direction: column;
+        }
+        .header_nav{
+            display: flex;
+            height: 3rem;
+
+            justify-content: start;
+            align-items: center;
+            
+            padding: 10px;
+            padding-left: 25px;
+
+            background-color: chartreuse;
+        }
+        .filtro_mapa{
+            background-color: darkgreen;
+    
+
+            display: flex;
+            justify-content: space-around;
+
+            height: 3.5rem;
+        }
+        .mapa_general{
+            display: flex;
+            background-color: beige;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%
+            
+           
+        }
+        .contenedor-mapas{
+            background-color: blueviolet;
+            display: flex;
+            width: 95%;
+            height: 90.1%;
+            overflow: scroll;
+            box-sizing: content-box;
+            padding: 1.6rem;
+            justify-content: center;
+            align-items:end;
+            
+            
+        }
+        .contenedor-mapas img{
+            width: 100%;      
+            height: 100%;
+            display: block;
+
+ 
+        }
+    
+     
+        
+
+    </style>
+            
+</head>
+<body>
+        <aside>
+            <div class="container-user-actions-aside">
+                <div class="usuario">
+                    <img class="perfil-usuario" src="../static/profile_picture.png">
+                </div>
+                <h3>bienvenido 'user'</h3>
+                <button class="log_out"><h2>CERRAR SESIÓN</h2></button>
+
+            </div>
+            <div class="herramientas">
+                <a href="./NOTIFICACIONES.html"><h3>NOTIFICACIONES</h3></a>
+                <a href="./HOME(MAPA).html"><h3>MAPA</h3></a>
+                <a href="./CALENDARIO.html"><h3>CALENDARIO</h3></a>
+                <a href="./SOLICITUDES.html"><h3>SOLICITUDES/RESERVAS</h3></a>
+            </div>
+        </aside>
+
+        <main>
+            <nav class="header_nav">
+                nav-herramientas
+            </nav>
+            <nav class="filtro_mapa">
+                    <p>nav filtro</p>
+                </nav>
+            <section class="mapa_general">
+                
+                
+
+<!--Mapas-->
+            <div class="contenedor-mapas">
+                <!--Mapa GENERAL-->
+                <div class="mapa_general">
+                    <img 
+                    class="mapa-general"
+                     src="../static/Mapa_general.png"
+                    usemap="#mapa-general-areas">
+               <!--areas del mapa general-->
+                    <map name="mapa-general-areas" class="imge">
+
+                        <area
+                            alt="Primaria"
+                            title="Primaria"
+                            data-seccion="primaria"
+                            coords="130,661,29,649,50,253,152,269"
+                            shape="poly"
+                            href="./SeccionE2.html"
+                        >
+
+                        <area
+                            alt="Balcon"
+                            title="Balcon"
+                            data-seccion="balcon"
+                            coords="125,181,126,258,154,263,154,297,811,296,813,184" 
+                            shape="poly"
+                            href="./SeccionD2.html"
+                        >
+
+                        <area
+                        alt="Musica"
+                        title="Musica"
+                        data-seccion="musica"
+                        coords="837,343,835,176,1055,176,1056,340" 
+                        shape="poly"
+                        href="./SeccionC1.html"
+                        >
+
+                        <area
+                            alt="Torre Bachillerato"
+                            title="Torre Bachillerato"
+                            data-seccion="bachillerato"
+                            coords="1061,320,1374,320,1377,676,1060,676"
+                            shape="poly"
+                            href="./SeccionB0.html"
+                        >
+
+                        <area
+                            alt="Salon de actos"
+                            title="Salon de actos"
+                            data-seccion="salon-actos"
+                            coords="149,544,623,544,622,665,143,666"
+                            shape="poly"
+                            href="./SeccionF2.html"
+                        >
+
+                        <area
+                            alt="Administrativo"
+                            title="Administrativo"
+                            data-seccion="administrativo"
+                            coords="634,560,1046,558,1045,675,637,680"
+                            shape="poly"
+                            href="./SeccionA1.html"
+                        >
+
+                        <area
+                            alt="Patio 1"
+                            title="Patio 1"
+                            data-seccion="patio1"
+                            coords="294,323,595,326,598,497,299,498"
+                            shape="poly"
+                            href=""
+                        >
+
+                        <area
+                            alt="Patio 2"
+                            title="Patio 2"
+                            data-seccion="patio2"
+                            coords="659,364,663,534,967,541,967,369"
+                            shape="poly"
+                            href=""
+                        >
+
+                        <area
+                            alt="Salon Danzas"
+                            title="Salon Danzas"
+                            data-seccion="danzas"
+                            coords="1138,312,1135,18,1257,18,1262,314"
+                            shape="poly"
+                            href=""
+                        >
+
+                    </map>
+
+                </div>
+                <div class="s_a1">
+                    <img src="../static/Administrativo.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="Patio_C1" title="Patio_C1" href="" coords="1100,167,1740,169,1746,643,1099,646" shape="poly">
+                        <area target="" alt="Oficina_Pastoral" title="Oficina_Pastoral" href="" coords="109,171,409,169,407,646,106,644" shape="poly">
+                        </map>
+                </div>
+                <div class="s_a2">
+                    <img src="../static/Administrativo.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="Rectoria" title="Rectoria" href="" coords="107,167,109,638,412,639,414,171" shape="poly">
+                        <area target="" alt="Coordinacion_A" title="Coordinacion_A" href="" coords="628,351,630,638,886,636,886,356" shape="poly">
+                        <area target="" alt="Oficina" title="Oficina" href="" coords="625,351,627,634,412,633,417,351" shape="poly">
+                        <area target="" alt="Salon_P" title="Salon_P" href="" coords="1100,169,1740,174,1746,639,1099,638" shape="poly">
+                    </map>
+                </div>
+                <div class="s_a3">
+                    <img src="../static/Administrativo.png" usemap="#image-map">
+
+                    <map name="image-map">
+                    <area target="" alt="Biblioteca" title="Biblioteca" href="" coords="116,169,108,649,888,644,883,164" shape="poly">
+                    <area target="" alt="Atencion a padres1" title="Atencion a padres1" href="" coords="1102,360,1100,642,1243,641,1241,357" shape="poly">
+                    <area target="" alt="Atencion a padres2" title="Atencion a padres2" href="" coords="1251,354,1253,644,1399,644,1397,357" shape="poly">
+                    </map>
+                </div>
+                <div class="s_b0">
+                        <img src="../static/TorreBachillerato1.png" usemap="#image-map">
+
+                        <map name="image-map">
+                        <area target="" alt="PreJardin" title="PreJardin" href="" coords="709,53,1191,57,1189,974,709,970" shape="poly">
+                    </map>
+                </div>
+                <div class="s_b1">
+                    <img src="../static/TorreBachillerato1.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="Salon" title="Salon" href="" coords="711,674,911,672,911,972,709,970" shape="poly">
+                        <area target="" alt="Salon" title="Salon" href="" coords="711,671,708,365,911,363,913,668" shape="poly">
+                        <area target="" alt="Salon" title="Salon" href="" coords="708,54,708,360,911,359,908,54" shape="poly">
+                        <area target="" alt="Salon" title="Salon" href="" coords="389,675,601,673,599,970,389,971" shape="poly">
+                        <area target="" alt="Salon" title="Salon" href="" coords="391,54,599,57,601,366,388,363" shape="poly">
+                        <area target="" alt="CoordinacionC" title="CoordinacionC" href="" coords="389,367,599,366,602,522,389,526" shape="poly">
+                        <area target="" alt="Bodega" title="Bodega" href="" coords="601,744,707,745,706,968,602,969" shape="poly">
+                    </map>
+                </div>
+                <div class="s_b2">
+                    <img src="../static/TorreBachillerato1.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="Lab_Fisica" title="Lab_Fisica" href="" coords="711,738,710,253,908,254,910,737" shape="poly">
+                        <area target="" alt="Salon" title="Salon" href="" coords="711,54,711,251,910,250,911,54" shape="poly">
+                        <area target="" alt="Lab_Biologia" title="Lab_Biologia" href="" coords="389,670,601,668,598,740,909,741,908,968,390,969" shape="poly">
+                        <area target="" alt="Lab_Quimica" title="Lab_Quimica" href="" coords="710,208,600,209,600,527,388,529,388,51,707,51" shape="poly">
+                    </map>
+                </div>
+                <div class="s_b3">
+                    <img src="../static/TorreBachillerato1.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="Salon" title="Salon" href="" coords="711,671,711,363,910,363,912,671" shape="poly">
+                        <area target="" alt="Salon" title="Salon" href="" coords="711,54,710,360,910,361,911,54" shape="poly">
+                        <area target="" alt="Salon" title="Salon" href="" coords="389,670,601,668,601,966,390,969" shape="poly">
+                        <area target="" alt="Salon" title="Salon" href="" coords="600,209,600,527,388,529,391,207" shape="poly">
+                        <area target="" alt="Salon" title="Salon" href="" coords="711,672,910,672,908,966,710,968" shape="poly">
+                        <area target="" alt="Lab_Sociales" title="Lab_Sociales" href="" coords="388,52,387,205,706,208,707,53" shape="poly">
+                        <area target="" alt="Bodega" title="Bodega" href="" coords="601,744,707,745,706,968,602,969" shape="poly">
+                    </map>
+                </div>
+                <div class="s_c1">
+                    <img src="../static/Salon_musica-artes1.jpg" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="" title="" href="" coords="846,330,847,863,1381,856,1379,327" shape="poly">
+                    </map>
+                </div>
+                <div class="s_c2">
+                    <img src="../static/Salon_musica-artes2.jpg" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="" title="" href="" coords="846,330,847,863,1381,856,1379,327" shape="poly">
+                    </map>
+                </div>
+                <div class="s_d1">
+                    <img src="../static/Balcon.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="Primaria" title="Primaria" href="" coords="316,39,655,34,653,265,318,265" shape="poly">
+                        <area target="" alt="" title="" href="" coords="314,272,653,272,653,494,314,492" shape="poly">
+                        <area target="" alt="" title="" href="" coords="316,496,646,498,650,664,312,664" shape="poly">
+                        <area target="" alt="" title="" href="" coords="316,787,653,783,655,992,314,996" shape="poly">
+                    </map>
+                </div>
+                <div class="s_d2">
+                    <img src="../static/Balcon.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="" title="" href="" coords="1524,284,1526,526,1686,523,1686,282" shape="poly">
+                        <area target="" alt="" title="" href="" coords="1304,282,1524,279,1531,526,1302,531" shape="poly">
+                        <area target="" alt="" title="" href="" coords="1083,287,1297,279,1297,526,1085,526" shape="poly">
+                        <area target="" alt="" title="" href="" coords="858,284,1078,279,1078,528,856,528" shape="poly">
+                        <area target="" alt="" title="" href="" coords="634,282,853,279,853,526,639,528" shape="poly">
+                        <area target="" alt="" title="" href="" coords="410,282,627,287,639,526,412,526" shape="poly">
+                        <area target="" alt="" title="" href="" coords="91,284,300,282,300,531,86,528" shape="poly">
+                </map>
+                </div>
+                <div class="s_e1">
+                    <img src="../" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="Gimnasio" title="Gimnasio" href="" coords="314,34,311,998,654,995,654,35" shape="poly">
+                </map>
+                </div>
+                <div class="s_e2">
+                    <img src="../static/Primaria.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="Primaria" title="Primaria" href="" coords="316,39,655,34,653,265,318,265" shape="poly">
+                        <area target="" alt="" title="" href="" coords="314,272,653,272,653,494,314,492" shape="poly">
+                        <area target="" alt="" title="" href="" coords="316,496,646,498,650,664,312,664" shape="poly">
+                        <area target="" alt="" title="" href="" coords="316,787,653,783,655,992,314,996" shape="poly">
+                    </map>
+                </div>
+                <div class="s_e3">
+                    <img src="../static/Primaria.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="Inf_P" title="Inf_P" href="" coords="312,35,316,273,654,271,654,37" shape="poly">
+                        <area target="" alt="Inf_B" title="Inf_B" href="" coords="315,275,590,276,588,671,315,668" shape="poly">
+                        <area target="" alt="Salon" title="Salon" href="" coords="320,785,319,986,647,985,649,785" shape="poly">
+                    </map>
+                </div>
+                <div class="s_f1">
+                    <img src="../static/Salon_actos.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="Primaria" title="Primaria" href="" coords="316,39,655,34,653,265,318,265" shape="poly">
+                        <area target="" alt="" title="" href="" coords="314,272,653,272,653,494,314,492" shape="poly">
+                        <area target="" alt="" title="" href="" coords="316,496,646,498,650,664,312,664" shape="poly">
+                        <area target="" alt="" title="" href="" coords="316,787,653,783,655,992,314,996" shape="poly">
+                    </map>
+                </div>
+                <div class="s_f2">
+                    <img src="../static/Salon_actos.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="Comedor" title="Comedor" href="" coords="735,296,1404,294,1402,696,735,694" shape="poly">
+                    </map>
+                </div>
+                <div class="s_f3">
+                    <img src="../static/Salon_actos.png" usemap="#image-map">
+
+                    <map name="image-map">
+                        <area target="" alt="SalonC" title="SalonC" href="" coords="737,293,737,689,508,689,506,292" shape="poly">
+                        <area target="" alt="Salon_M" title="Salon_M" href="" coords="63,420,274,425,273,690,62,690" shape="poly">
+                    </map>
+                </div>
+
+
+            </div>
+                
+
+<!--Mini seccion dentro del mismo mapa-->
+            <div id="visor-seccion" style="display:none;">
+
+                <button id="volver"></button>
+                <h2 id="titulo-seccion"></h2>
+                <div id="contenedor-seccion">
+                    <img id="imagen-seccion">
+                </div>
+
+            </div>
+            </section>
+        </main>
+
+<!--JS-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/image-map-resizer/1.0.10/js/imageMapResizer.min.js"></script>
+<script>
+    //IMG RESIZE, PARA EL MAPA
+    imageMapResize();
+    //ALGO CON BOTONES
+    const areas = document.querySelectorAll("#mapa-general-areas area");
+
+    areas.forEach(area => {
+
+        area.addEventListener("click", function(event) {
+
+            event.preventDefault();
+
+            const seccion = this.dataset.seccion;
+
+            abrirSeccion(seccion);
+
+        });
+
+    });
+</script>
+</body>
+</html>
