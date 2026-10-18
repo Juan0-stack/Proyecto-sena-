@@ -3,6 +3,7 @@
 
     var REDUCE = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     var TIENE_GSAP = typeof window.gsap !== 'undefined';
+    var MOTION = (window.Motion && window.Motion.animado) ? window.Motion : null;
     var DURACION = { micro: 0.18, transicion: 0.18, entrada: 0.2, modal: 0.24, salidaModal: 0.18, stagger: 0.04 };
     var EASE = { entrada: 'power2.out', salida: 'power2.out' };
     var BODY = document.body;
@@ -18,7 +19,13 @@
         } catch (error) { /* El panel sigue funcionando si el almacenamiento está bloqueado. */ }
 
         document.documentElement.classList.remove('transicion-login-entrada');
-        if (!esEntradaLogin || REDUCE || !TIENE_GSAP) return;
+        if (!esEntradaLogin) return;
+        if (MOTION) {
+            ENTRADA_DESDE_LOGIN = true;
+            MOTION.animateIn([BODY], { y: 6, duration: 420, stagger: 0 });
+            return;
+        }
+        if (REDUCE || !TIENE_GSAP) return;
 
         ENTRADA_DESDE_LOGIN = true;
         gsap.set(BODY, { autoAlpha: 0, y: 6 });
@@ -40,12 +47,27 @@
     }
 
     function animarEntrada(elementos, opciones) {
-        if (REDUCE || !TIENE_GSAP || !elementos || !elementos.length) return;
         opciones = opciones || {};
+        if (elementos && elementos.length && MOTION) {
+            MOTION.animateIn(elementos, {
+                y: opciones.y === undefined ? 12 : opciones.y,
+                duration: (opciones.duration || DURACION.entrada) * 1000,
+                stagger: (opciones.stagger === undefined ? DURACION.stagger : opciones.stagger) * 1000
+            });
+            return;
+        }
+        if (REDUCE || !TIENE_GSAP || !elementos || !elementos.length) return;
         gsap.fromTo(elementos,
             { autoAlpha: 0, y: opciones.y === undefined ? 12 : opciones.y },
             { autoAlpha: 1, y: 0, duration: opciones.duration || DURACION.entrada,
                 ease: EASE.entrada, stagger: opciones.stagger === undefined ? DURACION.stagger : opciones.stagger });
+    }
+
+    function scrollContenidoTop() {
+        if (MOTION) { MOTION.scrollTop(true); return; }
+        var cont = document.getElementById('contenido');
+        if (cont) cont.scrollTop = 0;
+        window.scrollTo({ top: 0 });
     }
 
     function dos(n) { return n < 10 ? '0' + n : '' + n; }
@@ -59,6 +81,58 @@
         var p = isoFecha.split('-');
         return p[2] + '/' + p[1] + '/' + p[0];
     }
+
+    function fmtFechaLarga(isoFecha) {
+        if (!isoFecha) return '';
+        var p = String(isoFecha).split('-');
+        if (p.length < 3) return String(isoFecha);
+        var mes = MESES[parseInt(p[1], 10) - 1] || '';
+        return parseInt(p[2], 10) + ' de ' + mes + ' de ' + p[0];
+    }
+
+    function fmtHoraCorta(valor) {
+        return String(valor || '').slice(0, 5);
+    }
+
+    var MESES_ABREV = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+    function miles(n) {
+        n = Math.round(Number(n) || 0);
+        try { return new Intl.NumberFormat('es-CO').format(n); } catch (e) { return String(n); }
+    }
+
+    function sinAcentos(texto) {
+        return String(texto == null ? '' : texto)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function lunesDe(fecha) {
+        var d = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+        d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+        return d;
+    }
+
+    function fmtDiaMes(d) {
+        return d.getDate() + ' ' + MESES_ABREV[d.getMonth()];
+    }
+
+    function fmtHoraCelda(h) {
+        var suf = h < 12 ? 'a.m.' : 'p.m.';
+        var hh = h % 12;
+        if (hh === 0) hh = 12;
+        return hh + ':00 ' + suf;
+    }
+
+    function tiposUnicosEspacios() {
+        var set = {};
+        estado.espacios.forEach(function (e) { if (e.tipo) set[e.tipo.trim()] = true; });
+        return Object.keys(set).sort();
+    }
+
+    var COLORES_DIST = { eventos: '#4C8DDB', solicitudes: '#C9A96E', maestros: '#7FCBA0', usuarios: '#B98BD6' };
+    var COLORES_ESTADO = { aprobada: '#7FCBA0', pendiente: '#E0B65C', rechazada: '#E58A93' };
 
     function api(url, metodo, cuerpo) {
         var opciones = { method: metodo || 'GET', headers: { 'Content-Type': 'application/json' } };
@@ -77,7 +151,12 @@
         el.className = 'toast' + (tipo === 'error' ? ' toast--error' : ' toast--ok');
         el.textContent = mensaje;
         document.body.appendChild(el);
-        if (!REDUCE && TIENE_GSAP) {
+        if (MOTION) {
+            MOTION.animateIn([el], { y: 12, duration: 220, stagger: 0 });
+            setTimeout(function () {
+                MOTION.animateOut([el], { y: 8, duration: 220, complete: function () { el.remove(); } });
+            }, 2600);
+        } else if (!REDUCE && TIENE_GSAP) {
             gsap.fromTo(el, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: DURACION.entrada, ease: EASE.entrada });
             gsap.to(el, { autoAlpha: 0, y: 8, duration: DURACION.transicion, delay: 2.6, ease: EASE.salida, onComplete: function () { el.remove(); } });
         } else {
@@ -96,6 +175,12 @@
         usuarios: [],
         docentes: [],
         solicitudes: [],
+        semanaBase: null,
+        semanaOp: [],
+        semanaTipo: '',
+        solBusqueda: '',
+        solTipo: '',
+        usuFiltroRol: 'Docente',
         espacioEditandoId: null,
         usuarioEditandoId: null,
         eventoEditandoId: null,
@@ -114,6 +199,12 @@
         var overlay = document.getElementById(id);
         if (!overlay) return;
         overlay.classList.add('modal-overlay--abierto');
+        if (MOTION) stopScrollSiAplica();
+        if (MOTION) {
+            MOTION.animateIn([overlay], { y: 0, duration: 200, stagger: 0 });
+            MOTION.animateIn([$('.modal', overlay)], { y: 10, scale: 0.96, duration: 260, stagger: 0 });
+            return;
+        }
         if (!REDUCE && TIENE_GSAP) {
             gsap.set(overlay, { autoAlpha: 1 });
             gsap.fromTo($('.modal', overlay),
@@ -122,13 +213,27 @@
         }
     }
 
+    function stopScrollSiAplica() {
+        if (MOTION) MOTION.stopScroll();
+    }
+
+    function startScrollSiAplica() {
+        if (MOTION && !$('.modal-overlay.modal-overlay--abierto')) MOTION.startScroll();
+    }
+
     function cerrarModal(id) {
         var overlay = document.getElementById(id);
         if (!overlay || !overlay.classList.contains('modal-overlay--abierto')) return;
         var terminar = function () {
             overlay.classList.remove('modal-overlay--abierto');
             if (TIENE_GSAP) gsap.set(overlay, { clearProps: 'all' });
+            else if (MOTION) { overlay.style.opacity = ''; }
+            startScrollSiAplica();
         };
+        if (MOTION) {
+            MOTION.animateOut([overlay], { y: 8, duration: 200, complete: terminar });
+            return;
+        }
         if (!REDUCE && TIENE_GSAP) {
             gsap.to($('.modal', overlay), { autoAlpha: 0, scale: 0.97, duration: DURACION.salidaModal, ease: EASE.salida });
             gsap.to(overlay, { autoAlpha: 0, duration: DURACION.salidaModal, ease: EASE.salida, onComplete: terminar });
@@ -170,57 +275,153 @@
     /* ================= PESTAÑAS ================= */
 
     function initMenu() {
+        /* --- Docente/Estudiante: menú horizontal con hamburguesa --- */
         var hamburguesa = $('#hamburguesa');
         var lista = $('.nav__lista');
-        if (hamburguesa && lista) {
+        if (hamburguesa && lista && !document.getElementById('sidebar')) {
             hamburguesa.addEventListener('click', function () { lista.classList.toggle('abierto'); });
             $$('.nav__enlace', lista).forEach(function (e) {
                 e.addEventListener('click', function () { lista.classList.remove('abierto'); });
             });
         }
-    }
 
-    var vistaEnTransicion = false;
-    var vistaPendiente = null;
+        /* --- Gestión de Calidad: barra lateral colapsable + menú de usuario --- */
+        var sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            var CLAVE = 'isailo-panel-colapsado';
+            var colapsada = false;
+            try { colapsada = localStorage.getItem(CLAVE) === '1'; } catch (e) { colapsada = false; }
+            if (colapsada) BODY.classList.add('sidebar-colapsada');
 
-    function activarVista(id) {
-        var actual = $('.vista--activa');
-        var nueva = document.getElementById(id);
-        if (!nueva || nueva === actual) return;
-        if (vistaEnTransicion) { vistaPendiente = id; return; }
-
-        $$('.nav__enlace[data-vista]').forEach(function (e) {
-            e.classList.toggle('nav__enlace--activo', e.getAttribute('data-vista') === id);
-        });
-
-        if (!actual || REDUCE || !TIENE_GSAP) {
-            if (actual) actual.classList.remove('vista--activa');
-            nueva.classList.add('vista--activa');
-            window.scrollTo({ top: 0 });
-            return;
-        }
-        vistaEnTransicion = true;
-        gsap.to(actual, { autoAlpha: 0, y: -4, duration: DURACION.transicion, ease: EASE.salida,
-            onComplete: function () {
-                actual.classList.remove('vista--activa');
-                gsap.set(actual, { clearProps: 'all' });
-                nueva.classList.add('vista--activa');
-                gsap.fromTo(nueva, { autoAlpha: 0, y: 5 }, {
-                    autoAlpha: 1, y: 0, duration: DURACION.entrada, ease: EASE.entrada,
-                    onComplete: function () {
-                        gsap.set(nueva, { clearProps: 'all' });
-                        vistaEnTransicion = false;
-                        window.scrollTo({ top: 0 });
-                        if (vistaPendiente && vistaPendiente !== nueva.id) {
-                            var pendiente = vistaPendiente;
-                            vistaPendiente = null;
-                            activarVista(pendiente);
-                        } else vistaPendiente = null;
-                    }
+            var botonColapsar = $('#sidebarToggle');
+            if (botonColapsar) {
+                botonColapsar.setAttribute('aria-expanded', colapsada ? 'false' : 'true');
+                botonColapsar.addEventListener('click', function () {
+                    var ahora = BODY.classList.toggle('sidebar-colapsada');
+                    botonColapsar.setAttribute('aria-expanded', ahora ? 'false' : 'true');
+                    botonColapsar.setAttribute('aria-label', ahora ? 'Expandir menú' : 'Colapsar menú');
+                    botonColapsar.title = ahora ? 'Expandir menú' : 'Colapsar menú';
+                    try { localStorage.setItem(CLAVE, ahora ? '1' : '0'); } catch (e) { /* sin almacenamiento */ }
                 });
             }
-        });
+
+            function cerrarSidebarMovil() { BODY.classList.remove('sidebar-abierta'); var b = $('#sidebarAbrir'); if (b) b.setAttribute('aria-expanded', 'false'); }
+            var abrir = $('#sidebarAbrir');
+            if (abrir) {
+                abrir.addEventListener('click', function () {
+                    var abierta = BODY.classList.toggle('sidebar-abierta');
+                    abrir.setAttribute('aria-expanded', abierta ? 'true' : 'false');
+                });
+            }
+            var velo = $('#sidebarVelo');
+            if (velo) velo.addEventListener('click', cerrarSidebarMovil);
+            $$('.nav__enlace', sidebar).forEach(function (e) {
+                e.addEventListener('click', cerrarSidebarMovil);
+            });
+
+            /* Menú desplegable de usuario */
+            var botonUsu = $('#usuarioBoton');
+            var menuUsu = $('#usuarioMenu');
+            if (botonUsu && menuUsu) {
+                var alternar = function (mostrar) {
+                    menuUsu.hidden = !mostrar;
+                    botonUsu.setAttribute('aria-expanded', mostrar ? 'true' : 'false');
+                };
+                botonUsu.addEventListener('click', function (ev) {
+                    ev.stopPropagation();
+                    alternar(menuUsu.hidden);
+                });
+                document.addEventListener('click', function (ev) {
+                    if (!menuUsu.hidden && !ev.target.closest('#usuarioMenu') && !ev.target.closest('#usuarioBoton')) alternar(false);
+                });
+                document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') alternar(false); });
+            }
+        }
     }
+
+    /* ------------------------------------------------------------------
+       showSection(id) — ÚNICA función de entrada a una sección/pestaña.
+       La usan el menú lateral, los atajos (data-ir), las tarjetas y el
+       botón "Volver al inicio". Garantías (spec §2):
+         - Se pinta la sección nueva ANTES de animar: nunca queda una
+           pantalla vacía.
+         - Nunca se queda a medias: estado final fijado + red de 800 ms.
+         - Clic rápido: la última petición gana y arranca de inmediato.
+         - El estado (colapsado/expandido) de la barra lateral no se toca.
+       ------------------------------------------------------------------ */
+    var vistaActualId = null;
+
+    function limpiarEstilos(v) {
+        if (!v) return;
+        v.style.opacity = '';
+        v.style.transform = '';
+        v.style.willChange = '';
+        v.style.visibility = '';
+    }
+
+    function actualizarMenu(id) {
+        var enlaces = $$('.nav__enlace[data-vista]');
+        var activo = null;
+        enlaces.forEach(function (e) {
+            var coincide = e.getAttribute('data-vista') === id;
+            e.classList.toggle('nav__enlace--activo', coincide);
+            if (coincide) activo = e;
+        });
+        if (MOTION) MOTION.moveIndicator(activo);
+        return activo;
+    }
+
+    function showSection(id) {
+        var nueva = document.getElementById(id);
+        if (!nueva) return null;
+
+        /* La última petición gana: invalida cualquier transición en curso. */
+        if (MOTION && MOTION.cancelarTransicion) MOTION.cancelarTransicion();
+
+        /* Saliente = la sección que se estaba mostrando. */
+        var anterior = vistaActualId ? document.getElementById(vistaActualId) : null;
+        if (anterior === nueva) anterior = null;
+
+        /* Cualquier otra sección que quedara marcada como activa se limpia,
+           para no tener dos secciones visibles a la vez. */
+        $$('.vista').forEach(function (v) {
+            if (v !== nueva && v !== anterior && v.classList.contains('vista--activa')) {
+                v.classList.remove('vista--activa');
+                limpiarEstilos(v);
+            }
+        });
+
+        vistaActualId = id;
+        actualizarMenu(id);
+
+        /* ¿Ya está visible y no hay saliente? Solo refrescar. */
+        if (!anterior && nueva.classList.contains('vista--activa')) {
+            if (MOTION) MOTION.revealIn(nueva);
+            scrollContenidoTop();
+            return nueva;
+        }
+
+        /* Sin animación disponible: cambio directo con estado final. */
+        if (!anterior || REDUCE || !MOTION) {
+            if (anterior) {
+                anterior.classList.remove('vista--activa');
+                limpiarEstilos(anterior);
+            }
+            nueva.classList.add('vista--activa');
+            if (MOTION) { MOTION.estadoFinalVista(nueva); MOTION.revealIn(nueva); }
+            scrollContenidoTop();
+            return nueva;
+        }
+
+        /* Fundido cruzado. Al terminar, subimos el scroll. */
+        MOTION.transitionTo(anterior, nueva, { done: function () { scrollContenidoTop(); } });
+        return nueva;
+    }
+
+    /* Alias histórico: el resto del código puede seguir llamando activarVista. */
+    function activarVista(id) { return showSection(id); }
+
+    if (typeof window !== 'undefined') window.showSection = showSection;
 
     function initTabs() {
         $$('.nav__enlace[data-vista]').forEach(function (enl) {
@@ -232,6 +433,19 @@
     }
 
     function entradaInicial() {
+        if (MOTION) {
+            var sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                var perfil = $('.app-sidebar__perfil');
+                if (perfil) MOTION.revealIn(sidebar);
+                animarEntrada($$('.app-sidebar .nav__enlace'), { y: 10, duration: 0.4, stagger: 0.05 });
+                var cabecera = $('#header');
+                if (cabecera) animarEntrada([cabecera], { y: -8, duration: 0.4, stagger: 0 });
+            }
+            var activa = $('.vista--activa');
+            if (activa) MOTION.revealIn(activa);
+            return;
+        }
         if (REDUCE || !TIENE_GSAP || ENTRADA_DESDE_LOGIN) return;
         var hijos = $$('.vista--activa > *');
         animarEntrada(hijos, { y: 14, duration: 0.32, stagger: 0.05 });
@@ -271,22 +485,32 @@
             if (res.ok) estado.espacios = res.espacios || [];
             pintarFiltroTipos();
             pintarEspacios();
-            if (ROL !== 'Estudiante') pintarCalOperativo();
+            if (ROL !== 'Estudiante') {
+                pintarCalOperativo();
+                pintarChipsCalendario();
+            }
+            pintarUsuarios();
         });
     }
 
     function pintarFiltroTipos() {
-        var sel = $('#filtroTipo');
-        if (!sel) return;
         var tipos = {};
-        estado.espacios.forEach(function (e) { if (e.tipo) tipos[e.tipo] = true; });
-        var valor = sel.value;
-        sel.innerHTML = '<option value="">Todos los tipos</option>' +
-            Object.keys(tipos).sort().map(function (t) {
+        estado.espacios.forEach(function (e) { if (e.tipo) tipos[e.tipo.trim()] = true; });
+        var lista = Object.keys(tipos).sort();
+        [
+            ['#filtroTipo', 'Todos los tipos'],
+            ['#solFiltroTipo', 'Todos los tipos'],
+            ['#calFiltroTipo', 'Todos los tipos de salón']
+        ].forEach(function (par) {
+            var sel = $(par[0]);
+            if (!sel) return;
+            var valor = sel.value;
+            sel.innerHTML = '<option value="">' + par[1] + '</option>' + lista.map(function (t) {
                 return '<option value="' + esc(t) + '">' + esc(t) + '</option>';
             }).join('');
-        sel.value = valor;
-        if (sel.selectedIndex === -1) sel.value = '';
+            sel.value = valor;
+            if (sel.selectedIndex === -1) sel.value = '';
+        });
     }
 
     function espaciosFiltrados() {
@@ -453,10 +677,16 @@
 
     function refrescarDespuesDeCambio() {
         var promesas = [];
-        if (ROL !== 'Estudiante') promesas.push(cargarSolicitudes());
-        promesas.push(cargarOcupacionOperativa());
-        if (ROL === 'Administrador') promesas.push(cargarResumen(), cargarPanel());
-        if (ROL === 'Docente') promesas.push(cargarPanel());
+        /* TODO (spec §2): en el panel de Gestión de Calidad las pantallas de
+           Calendario y Verificar solicitudes quedan vacías hasta la conexión;
+           por eso no se vuelven a enlazar cargarSolicitudes() ni cargarSemana(). */
+        if (ROL !== 'Administrador') {
+            if (ROL !== 'Estudiante') promesas.push(cargarSolicitudes());
+            promesas.push(cargarOcupacionOperativa(), cargarSemana());
+        } else {
+            promesas.push(cargarOcupacionOperativa());
+        }
+        promesas.push(cargarPanel());
         return Promise.all(promesas).then(function () {
             pintarEspacios();
             pintarCalOperativo();
@@ -561,8 +791,25 @@
     function cargarSolicitudes() {
         return api('/api/solicitudes').then(function (res) {
             estado.solicitudes = res.ok ? (res.solicitudes || []) : [];
+            pintarBadgeSolicitudes();
             pintarEspacios();
+            pintarSolicitudes();
         });
+    }
+
+    function pintarBadgeSolicitudes() {
+        var globo = document.getElementById('badgeSolicitudes');
+        var pendientes = estado.solicitudes.filter(function (s) {
+            return s.estado === 'pendiente' && s.puede_autorizar;
+        }).length;
+        if (globo) {
+            globo.textContent = pendientes;
+            globo.hidden = pendientes === 0;
+        }
+        var globoSol = document.getElementById('solPendientesGlobo');
+        if (globoSol) globoSol.textContent = estado.solicitudes.filter(function (s) { return s.estado === 'pendiente'; }).length;
+        var globoHist = document.getElementById('solHistorialGlobo');
+        if (globoHist) globoHist.textContent = estado.solicitudes.length;
     }
 
     /* ---- Modal de solicitud ---- */
@@ -714,7 +961,7 @@
     function cargarOcupacionOperativa() {
         var mesStr = estado.opAnio + '-' + dos(estado.opMes + 1);
         return api('/api/ocupacion?mes=' + mesStr).then(function (res) {
-            estado.ocupOp = res.ok ? (res.bloques || []) : [];
+            estado.ocupOp = res.ok ? (res.ocupacion || res.bloques || []) : [];
             pintarCalOperativo();
         });
     }
@@ -899,7 +1146,7 @@
             if (!res.ok) { setError('#errorModalEvento', res.error || 'No se pudo guardar.'); return; }
             cerrarModal('modalEvento');
             toast('Evento guardado.');
-            cargarEventos();
+            cargarEventos().then(cargarPanel);
         });
     }
 
@@ -931,14 +1178,26 @@
     }
 
     function pintarUsuarios() {
+        pintarRoles();
         var tbody = $('#tablaUsuarios tbody');
         if (!tbody) return;
-        tbody.innerHTML = estado.usuarios.map(function (u) {
+
+        var lista = estado.usuarios.filter(function (u) {
+            return !estado.usuFiltroRol || u.nombre_rol === estado.usuFiltroRol;
+        });
+
+        if (!lista.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="tabla-vacia">No hay usuarios para este filtro.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = lista.map(function (u) {
             var activo = u.estado === 'Activo';
             var esPropio = u.id_usuario === ID_USUARIO;
             var pill = activo
                 ? '<span class="estado-sol estado-sol--aprobada">Activo</span>'
                 : '<span class="estado-sol estado-sol--rechazada">Inactivo</span>';
+            var cargo = espaciosDeUsuario(u.id_usuario);
             var acciones = '<span class="tabla__acciones">' +
                 '<button class="btn-icono" title="Editar" data-accion="usu-editar" data-id="' + u.id_usuario + '"><i class="fas fa-pen"></i></button>' +
                 (esPropio ? '' :
@@ -950,12 +1209,39 @@
                 '<td><strong>' + esc(u.nombre + (u.apellido ? ' ' + u.apellido : '')) + '</strong></td>' +
                 '<td>' + esc(u.correo) + '</td>' +
                 '<td>' + esc(u.nombre_rol || '—') + '</td>' +
+                '<td>' + (cargo ? esc(cargo) : '<span class="texto-tenue">Sin asignar</span>') + '</td>' +
                 '<td>' + pill + '</td>' +
-                '<td>' + (u.ultimo_acceso ? esc(u.ultimo_acceso.replace('T', ' ').slice(0, 16)) : 'Nunca') + '</td>' +
                 '<td class="tabla__col-acciones">' + acciones + '</td>' +
             '</tr>';
         }).join('');
         animarEntrada($$('tr', tbody), { y: 6, duration: DURACION.entrada, stagger: 0.025 });
+    }
+
+    function espaciosDeUsuario(idUsuario) {
+        return estado.espacios.filter(function (e) {
+            return e.id_usuario_encargado === idUsuario;
+        }).map(function (e) { return e.nombre; }).join(', ');
+    }
+
+    function pintarRoles() {
+        var cont = document.getElementById('rolesGrid');
+        if (!cont) return;
+        var definidos = [
+            { clave: 'Administrador', icono: 'fa-user-shield', desc: 'Gestiona espacios, eventos y usuarios; aprueba solicitudes y configura el sistema.' },
+            { clave: 'Docente', icono: 'fa-chalkboard-user', desc: 'Solicita espacios y autoriza las solicitudes de los espacios que tiene a cargo.' },
+            { clave: 'Estudiante', icono: 'fa-graduation-cap', desc: 'Consulta la disponibilidad de espacios y los eventos institucionales.' }
+        ];
+        cont.innerHTML = definidos.map(function (r) {
+            var total = estado.usuarios.filter(function (u) { return u.nombre_rol === r.clave; }).length;
+            return '<article class="rol-card" data-reveal="up">' +
+                '<span class="rol-card__icono"><i class="fas ' + r.icono + '"></i></span>' +
+                '<h3 class="rol-card__nombre">' + r.clave + '</h3>' +
+                '<p class="rol-card__desc">' + r.desc + '</p>' +
+                '<span class="rol-card__pie"><b>' + total + '</b> usuario' + (total === 1 ? '' : 's') + '</span>' +
+            '</article>';
+        }).join('');
+        if (MOTION) MOTION.revealIn(cont);
+        else animarEntrada($$('.rol-card', cont), { y: 10, duration: DURACION.entrada, stagger: 0.05 });
     }
 
     function abrirModalUsuario(usuario) {
@@ -975,8 +1261,31 @@
         var rolSel = $('#usuRol');
         if (usuario && usuario.id_rol_map) rolSel.value = String(usuario.id_rol_map);
         else rolSel.value = '1';
+        pintarEspacioCargo(usuario);
         setError('#errorModalUsuario', '');
         abrirModal('modalUsuario');
+    }
+
+    function pintarEspacioCargo(usuario) {
+        var campo = $('#campoEspacioCargo');
+        var sel = $('#usuEspacioCargo');
+        if (!campo || !sel) return;
+        var rolSel = $('#usuRol');
+        var esDocente = rolSel && String(rolSel.value) === '2';
+        campo.hidden = !esDocente;
+        if (!esDocente) { sel.value = ''; return; }
+
+        sel.innerHTML = '<option value="">Sin espacio</option>';
+        (estado.espacios || []).forEach(function (e) {
+            var encargado = e.encargado_nombre || e.encargado || '';
+            var ocupado = !!encargado && (!usuario || e.id_usuario_encargado !== usuario.id_usuario);
+            var op = document.createElement('option');
+            op.value = String(e.id_espacio);
+            op.textContent = ocupado ? (e.nombre + ' — ocupado por ' + encargado) : e.nombre;
+            if (ocupado) op.disabled = true;
+            sel.appendChild(op);
+        });
+        if (usuario && usuario.espacio_cargo_id) sel.value = String(usuario.espacio_cargo_id);
     }
 
     function guardarUsuario(ev) {
@@ -992,13 +1301,19 @@
             return;
         }
 
+        var rolSel = $('#usuRol').value;
         var cuerpo = {
             nombre: $('#usuNombre').value.trim(),
             apellido: $('#usuApellido').value.trim(),
             correo: $('#usuCorreo').value.trim(),
             password: pass,
-            rol: $('#usuRol').value
+            rol: rolSel
         };
+        /* Espec. §6: el campo "Espacio a cargo" solo existe para el rol Docente. */
+        if (String(rolSel) === '2') {
+            var idEsp = $('#usuEspacioCargo') ? $('#usuEspacioCargo').value : '';
+            if (idEsp) cuerpo.id_espacio = idEsp;
+        }
 
         var peticion = estado.usuarioEditandoId
             ? api('/api/clientes/' + estado.usuarioEditandoId, 'PUT', cuerpo)
@@ -1015,19 +1330,19 @@
 
     /* ================= RESUMENES ================= */
 
+    function ponerKpi(sel, valor) {
+        var el = $(sel);
+        if (!el) return;
+        var n = Number(valor);
+        if (isNaN(n)) { el.textContent = valor == null ? '—' : valor; return; }
+        if (MOTION) MOTION.countUp(el, n);
+        else el.textContent = n;
+    }
+
     function cargarResumen() {
-        return api('/api/resumen').then(function (res) {
-            if (!res.ok) return;
-            var r = res.resumen;
-            setText('#statEspacios', r.espacios);
-            setText('#statDisponibles', r.espacios_disponibles);
-            setText('#statPendientes', r.solicitudes_pendientes);
-            setText('#statUsuarios', r.usuarios_activos);
-            setText('#statEventos', r.eventos);
-            animarEntrada($$('#panel .stats-grid .stat-card'), { y: 10, duration: DURACION.entrada, stagger: DURACION.stagger });
-            var pendientes = $('#statPendientes');
-            if (pendientes) pendientes.closest('.stat-card').classList.toggle('stat-card--urgente', Number(r.solicitudes_pendientes) > 0);
-        });
+        /* El home se alimenta de /api/panel (fuente única). Delegamos para
+           que cualquier refresco tras un cambio mantenga todo coherente. */
+        return cargarPanel();
     }
 
     function setText(sel, valor) {
@@ -1112,12 +1427,187 @@
         });
     }
 
+    function tendenciaHTML(bloque) {
+        var pct = Number((bloque || {}).variacion) || 0;
+        var clase, flecha;
+        if (pct > 0) { clase = 'tendencia--sube'; flecha = 'fa-arrow-trend-up'; }
+        else if (pct < 0) { clase = 'tendencia--baja'; flecha = 'fa-arrow-trend-down'; }
+        else { clase = 'tendencia--plano'; flecha = 'fa-minus'; }
+        var signo = pct > 0 ? '+' : '';
+        return { clase: clase, html: '<i class="fas ' + flecha + '"></i> ' + signo + pct + '% vs. mes anterior' };
+    }
+
+    function pintarTendencia(id, bloque) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var info = tendenciaHTML(bloque);
+        el.className = 'kpi-card__tend ' + info.clase;
+        el.innerHTML = info.html;
+        el.hidden = false;
+    }
+
+    /* --- Gráfica de líneas (doble serie: eventos y solicitudes) --- */
+    function rutaSVG(serie, clave, x, y) {
+        var d = '';
+        serie.forEach(function (p, i) {
+            d += (i ? ' L ' : 'M ') + x(i).toFixed(1) + ' ' + y(p[clave]).toFixed(1);
+        });
+        return d;
+    }
+
+    function pintarSerie(serie) {
+        var cont = document.getElementById('graficaSerie');
+        if (!cont) return;
+        serie = serie || [];
+        if (!serie.length) {
+            cont.innerHTML = '<p class="tarjeta-vacia">Sin actividad en los últimos 7 días.</p>';
+            return;
+        }
+
+        var W = 660, H = 250, padL = 42, padR = 18, padT = 20, padB = 36;
+        var ancho = W - padL - padR;
+        var alto = H - padT - padB;
+        var n = serie.length;
+
+        var max = 1;
+        serie.forEach(function (p) { max = Math.max(max, p.eventos || 0, p.solicitudes || 0); });
+        max = Math.max(1, Math.ceil(max * 1.2));
+
+        function x(i) { return padL + (n <= 1 ? ancho / 2 : (ancho * i) / (n - 1)); }
+        function y(v) { return padT + alto - (alto * (v || 0)) / max; }
+
+        var rejilla = '';
+        var pasos = 4;
+        for (var g = 0; g <= pasos; g++) {
+            var val = Math.round((max * g) / pasos);
+            var yy = y(val);
+            rejilla += '<line x1="' + padL + '" y1="' + yy.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + yy.toFixed(1) + '" class="serie-grid"></line>';
+            rejilla += '<text x="' + (padL - 9) + '" y="' + (yy + 3.5).toFixed(1) + '" class="serie-eje-y" text-anchor="end">' + val + '</text>';
+        }
+
+        var etiquetas = serie.map(function (p, i) {
+            return '<text x="' + x(i).toFixed(1) + '" y="' + (H - 12) + '" class="serie-eje-x" text-anchor="middle">' +
+                esc(p.etiqueta) + ' ' + esc(p.dia) + '</text>';
+        }).join('');
+
+        var puntosEv = serie.map(function (p, i) {
+            return '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(p.eventos).toFixed(1) + '" r="3.4" class="serie-punto serie-punto--eventos"></circle>';
+        }).join('');
+        var puntosSol = serie.map(function (p, i) {
+            return '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(p.solicitudes).toFixed(1) + '" r="3.4" class="serie-punto serie-punto--solicitudes"></circle>';
+        }).join('');
+
+        var dSol = rutaSVG(serie, 'solicitudes', x, y);
+        var areaSol = dSol + ' L ' + x(n - 1).toFixed(1) + ' ' + (padT + alto).toFixed(1) +
+            ' L ' + x(0).toFixed(1) + ' ' + (padT + alto).toFixed(1) + ' Z';
+
+        cont.innerHTML =
+            '<svg class="serie-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Actividad de los últimos 7 días">' +
+                rejilla +
+                '<path class="serie-area" d="' + areaSol + '"></path>' +
+                '<path class="serie-linea serie-linea--eventos" d="' + rutaSVG(serie, 'eventos', x, y) + '"></path>' +
+                '<path class="serie-linea serie-linea--solicitudes" d="' + dSol + '"></path>' +
+                puntosEv + puntosSol + etiquetas +
+            '</svg>';
+
+        if (MOTION && MOTION.drawLine) {
+            $$('.serie-linea--solicitudes, .serie-linea--eventos', cont).forEach(function (p, i) {
+                MOTION.drawLine(p, { duration: 1100, delay: i * 170 });
+            });
+        }
+        animarEntrada($$('.serie-punto', cont), { y: 0, duration: 0.45, stagger: 0.02 });
+    }
+
+    /* --- Dona genérica (distribución / estados) --- */
+    function pintarDona(sel, items, colores, opciones) {
+        var cont = $(sel);
+        if (!cont) return;
+        opciones = opciones || {};
+        items = (items || []).filter(function (it) { return (it.total || 0) > 0; });
+        var total = items.reduce(function (a, it) { return a + (it.total || 0); }, 0);
+
+        if (!total) {
+            cont.innerHTML = '<p class="tarjeta-vacia">Sin datos para mostrar.</p>';
+            return;
+        }
+
+        var R = 68, grosor = 17, C = 2 * Math.PI * R, cx = 90, cy = 90;
+        var acumulado = 0;
+        var segmentos = items.map(function (it) {
+            var frac = (it.total || 0) / total;
+            acumulado += frac;
+            return { it: it, fin: Math.min(1, acumulado) };
+        });
+
+        /* De mayor a menor cobertura: el más grande al fondo; los pequeños,
+           dibujados después, recortan los tramos. */
+        var orden = segmentos.slice().sort(function (a, b) { return b.fin - a.fin; });
+        var circulos = orden.map(function (seg) {
+            var color = colores[seg.it.clave] || colores[seg.it.estado] || 'var(--oro)';
+            var offset = C * (1 - seg.fin);
+            return '<circle class="dona__seg" cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" ' +
+                'stroke="' + color + '" stroke-width="' + grosor + '" ' +
+                'data-len="' + C.toFixed(2) + '" data-offset="' + offset.toFixed(2) + '"></circle>';
+        }).join('');
+
+        var leyenda = items.map(function (it) {
+            var color = colores[it.clave] || colores[it.estado] || 'var(--oro)';
+            var pct = it.porcentaje != null ? it.porcentaje : Math.round((it.total || 0) / total * 100);
+            return '<li class="dona__item">' +
+                '<i class="dona__punto" style="--c:' + color + '"></i>' +
+                '<span class="dona__etq">' + esc(it.etiqueta) + '</span>' +
+                '<span class="dona__val">' + miles(it.total) + '</span>' +
+                '<span class="dona__pct">' + pct + '%</span>' +
+            '</li>';
+        }).join('');
+
+        cont.innerHTML =
+            '<div class="dona__lienzo">' +
+                '<svg viewBox="0 0 180 180" class="dona__svg" role="img">' +
+                    '<g transform="rotate(-90 ' + cx + ' ' + cy + ')">' + circulos + '</g>' +
+                '</svg>' +
+                '<div class="dona__centro">' +
+                    '<span class="dona__total">' + miles(opciones.total != null ? opciones.total : total) + '</span>' +
+                    '<span class="dona__centro-etq">' + esc(opciones.centro || 'Total') + '</span>' +
+                '</div>' +
+            '</div>' +
+            '<ul class="dona__leyenda">' + leyenda + '</ul>';
+
+        if (MOTION && MOTION.sweepDonut) {
+            $$('.dona__seg', cont).forEach(function (c, i) {
+                MOTION.sweepDonut(c, { duration: 900, delay: i * 130 });
+            });
+        }
+    }
+
+    function pintarActividad(feed) {
+        var act = document.getElementById('actividadLista');
+        if (!act) return;
+        if (!feed.length) {
+            act.innerHTML = '<p class="tarjeta-vacia">Aún no hay actividad registrada.</p>';
+            return;
+        }
+        act.innerHTML = feed.map(function (it) {
+            var icono = it.tipo === 'evento' ? 'fa-star' : 'fa-paper-plane';
+            return '<div class="actividad-item">' +
+                '<span class="actividad-item__icono"><i class="fas ' + icono + '"></i></span>' +
+                '<div class="actividad-item__cuerpo">' +
+                    '<p class="actividad-item__texto">' + esc(it.texto) + '</p>' +
+                    (it.detalle ? '<p class="actividad-item__detalle">' + esc(it.detalle) + '</p>' : '') +
+                '</div>' +
+                '<span class="actividad-item__tiempo">' + esc(tiempoRelativo(it.tiempo)) + '</span>' +
+            '</div>';
+        }).join('');
+        animarEntrada($$('.actividad-item', act), { y: 10, duration: DURACION.entrada, stagger: 0.03 });
+    }
+
     function pintarPanelAdmin() {
-        var d = estado.panelDatos;
-        var alerta = $('#alertaVencidas');
+        var d = estado.panelDatos || {};
+
+        var alerta = document.getElementById('alertaVencidas');
         if (alerta) {
             if (d.vencidas_total > 0) {
-                $('#alertaVencidasTexto').textContent =
+                document.getElementById('alertaVencidasTexto').textContent =
                     d.vencidas_total + ' solicitud' + (d.vencidas_total === 1 ? '' : 'es') +
                     ' con más de 24 h esperando revisión.';
                 alerta.hidden = false;
@@ -1127,57 +1617,33 @@
             }
         }
 
-        var fecha = $('#hoyFecha');
-        if (fecha) fecha.textContent = fmtFecha(d.hoy.fecha);
-        var hoy = $('#hoyContenido');
-        if (hoy) {
-            var html = '';
-            var aprobadas = d.hoy.aprobadas || [];
-            var eventos = d.hoy.eventos || [];
-            if (!aprobadas.length && !eventos.length) {
-                html = '<p class="panel-vacio"><i class="fas fa-coffee"></i> Sin actividades programadas para hoy.</p>';
-            } else {
-                aprobadas.forEach(function (b) {
-                    html += '<div class="hoy-item">' +
-                        '<span class="hoy-item__hora">' + esc(String(b.hora_inicio).slice(0, 5)) + '–' +
-                            esc(String(b.hora_fin).slice(0, 5)) + '</span>' +
-                        '<span class="hoy-item__texto"><i class="fas fa-door-open"></i> ' +
-                            esc(b.nombre_actividad) + ' · ' + esc(b.espacio_nombre) + '</span>' +
-                    '</div>';
-                });
-                eventos.forEach(function (ev) {
-                    html += '<div class="hoy-item">' +
-                        '<span class="hoy-item__hora">Hoy</span>' +
-                        '<span class="hoy-item__texto"><i class="fas fa-star" style="color:' + esc(ev.color) + '"></i> ' +
-                            esc(ev.nombre) + '</span>' +
-                    '</div>';
-                });
-            }
-            hoy.innerHTML = html;
-            animarEntrada($$('.hoy-item', hoy), { y: 8, duration: DURACION.entrada });
+        var fecha = document.getElementById('homeFecha');
+        if (fecha && d.hoy && d.hoy.fecha) fecha.textContent = fmtFechaLarga(d.hoy.fecha);
+
+        var r = d.resumen || {};
+        var t = d.tendencia || {};
+        ponerKpi('#kpiEventos', r.eventos);
+        ponerKpi('#kpiSolicitudes', r.solicitudes_pendientes);
+        ponerKpi('#kpiMaestros', (t.maestros || {}).total);
+        ponerKpi('#kpiUsuarios', (t.usuarios || {}).total);
+
+        pintarTendencia('tendEventos', t.eventos);
+        pintarTendencia('tendSolicitudes', t.solicitudes);
+        pintarTendencia('tendMaestros', t.maestros);
+        pintarTendencia('tendUsuarios', t.usuarios);
+
+        var cardSol = document.getElementById('kpiSolicitudes');
+        if (cardSol && cardSol.closest('.kpi-card')) {
+            cardSol.closest('.kpi-card').classList.toggle('kpi-card--urgente', Number(r.solicitudes_pendientes) > 0);
         }
 
-        var act = $('#actividadLista');
-        if (act) {
-            var feed = d.actividad || [];
-            if (!feed.length) {
-                act.innerHTML = '<p class="panel-vacio">Aún no hay actividad registrada.</p>';
-            } else {
-                act.innerHTML = feed.map(function (it) {
-                    var icono = it.tipo === 'evento' ? 'fa-star' : 'fa-paper-plane';
-                    var pill = it.estado ? badgeSol(it.estado) : '';
-                    return '<div class="actividad-item">' +
-                        '<span class="actividad-item__icono"><i class="fas ' + icono + '"></i></span>' +
-                        '<div class="actividad-item__cuerpo">' +
-                            '<p class="actividad-item__texto">' + esc(it.texto) + ' ' + pill + '</p>' +
-                            (it.detalle ? '<p class="actividad-item__detalle">' + esc(it.detalle) + '</p>' : '') +
-                        '</div>' +
-                        '<span class="actividad-item__tiempo">' + esc(tiempoRelativo(it.tiempo)) + '</span>' +
-                    '</div>';
-                }).join('');
-                animarEntrada($$('.actividad-item', act), { y: 10, duration: DURACION.entrada });
-            }
-        }
+        pintarSerie(d.serie_semana || []);
+
+        var dist = d.distribucion || {};
+        pintarDona('#graficaDistribucion', dist.items || [], COLORES_DIST, { centro: 'Total', total: dist.total });
+        pintarDona('#graficaDona', d.solicitudes_por_estado || [], COLORES_ESTADO, { centro: 'Solicitudes' });
+
+        pintarActividad(d.actividad || []);
     }
 
     function pintarPanelDocente() {
@@ -1270,6 +1736,172 @@
         animarEntrada($$('.primer-evento__card', cont), { y: 12, duration: 0.34, stagger: 0 });
     }
 
+    /* ================= CALENDARIO SEMANAL (mockup) ================= */
+
+    function pintarChipsCalendario() {
+        var cont = document.getElementById('calChips');
+        if (!cont) return;
+        var tipos = tiposUnicosEspacios();
+        var html = '<button type="button" class="cal-filtro-chip' + (!estado.semanaTipo ? ' cal-filtro-chip--activo' : '') +
+            '" data-tipo="">Todos</button>';
+        tipos.forEach(function (tp) {
+            html += '<button type="button" class="cal-filtro-chip' + (estado.semanaTipo === tp ? ' cal-filtro-chip--activo' : '') +
+                '" data-tipo="' + esc(tp) + '">' + esc(tp) + '</button>';
+        });
+        cont.innerHTML = html;
+    }
+
+    function cargarSemana() {
+        if (!document.getElementById('calSemana')) return Promise.resolve();
+        if (!estado.semanaBase) estado.semanaBase = lunesDe(new Date());
+        var base = estado.semanaBase;
+        var meses = {};
+        for (var i = 0; i < 5; i++) {
+            var dd = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i);
+            meses[dd.getFullYear() + '-' + dos(dd.getMonth() + 1)] = true;
+        }
+        var consultas = Object.keys(meses).map(function (m) {
+            return api('/api/ocupacion?mes=' + m);
+        });
+        return Promise.all(consultas).then(function (resultados) {
+            var acumulado = [];
+            resultados.forEach(function (res) {
+                if (res && res.ok) acumulado = acumulado.concat(res.ocupacion || res.bloques || []);
+            });
+            estado.semanaOp = acumulado;
+            pintarSemana();
+        });
+    }
+
+    function cambiarSemana(delta) {
+        var base = estado.semanaBase || lunesDe(new Date());
+        estado.semanaBase = new Date(base.getFullYear(), base.getMonth(), base.getDate() + delta * 7);
+        cargarSemana();
+    }
+
+    function pintarSemana() {
+        var cont = document.getElementById('calSemana');
+        if (!cont) return;
+        var base = estado.semanaBase || lunesDe(new Date());
+        var dias = [];
+        for (var i = 0; i < 5; i++) dias.push(new Date(base.getFullYear(), base.getMonth(), base.getDate() + i));
+
+        var titulo = document.getElementById('semanaTitulo');
+        if (titulo) titulo.textContent = fmtDiaMes(dias[0]) + ' – ' + fmtDiaMes(dias[4]);
+
+        var bloques = estado.semanaOp.filter(function (b) {
+            return !estado.semanaTipo || b.espacio_tipo === estado.semanaTipo;
+        });
+
+        var mapa = {};
+        bloques.forEach(function (b) {
+            var hh = parseInt(String(b.hora_inicio).slice(0, 2), 10);
+            var clave = b.fecha_uso + '#' + hh;
+            (mapa[clave] = mapa[clave] || []).push(b);
+        });
+
+        var hoy = hoyISO();
+        var cab = '<div class="cal-semana__celda cal-semana__celda--hora cal-semana__celda--cab">Hora</div>';
+        dias.forEach(function (dd) {
+            var f = dd.getFullYear() + '-' + dos(dd.getMonth() + 1) + '-' + dos(dd.getDate());
+            cab += '<div class="cal-semana__celda cal-semana__celda--cab' + (f === hoy ? ' cal-semana__celda--hoy' : '') + '">' +
+                '<span class="cal-semana__dia">' + DIAS[(dd.getDay() + 6) % 7] + '</span>' +
+                '<span class="cal-semana__fecha">' + fmtDiaMes(dd) + '</span>' +
+            '</div>';
+        });
+
+        var cuerpo = '';
+        for (var h = 7; h <= 19; h++) {
+            cuerpo += '<div class="cal-semana__celda cal-semana__celda--hora">' + fmtHoraCelda(h) + '</div>';
+            dias.forEach(function (dd) {
+                var f = dd.getFullYear() + '-' + dos(dd.getMonth() + 1) + '-' + dos(dd.getDate());
+                var items = mapa[f + '#' + h] || [];
+                var contenido = items.map(function (b) {
+                    var rango = fmtHoraCorta(b.hora_inicio) + '–' + fmtHoraCorta(b.hora_fin);
+                    return '<div class="cal-bloque" title="' + esc(b.nombre_actividad + ' · ' + b.espacio_nombre + ' (' + rango + ')') + '">' +
+                        '<span class="cal-bloque__nombre">' + esc(b.nombre_actividad) + '</span>' +
+                        '<span class="cal-bloque__meta">' + esc(rango) + ' · ' + esc(b.espacio_nombre) + '</span>' +
+                    '</div>';
+                }).join('');
+                cuerpo += '<div class="cal-semana__celda cal-semana__celda--slot' + (f === hoy ? ' cal-semana__celda--hoy' : '') + '">' +
+                    contenido + '</div>';
+            });
+        }
+
+        cont.innerHTML = '<div class="cal-semana__grid">' + cab + cuerpo + '</div>' +
+            (bloques.length ? '' : '<p class="cal-semana__vacio">No hay actividades aprobadas en esta semana.</p>');
+
+        animarEntrada($$('.cal-bloque', cont), { y: 8, duration: DURACION.entrada, stagger: 0.02 });
+    }
+
+    /* ================= SOLICITUDES (mockup) ================= */
+
+    function coincideSolicitud(s, q) {
+        if (estado.solTipo && s.espacio_tipo !== estado.solTipo) return false;
+        if (!q) return true;
+        var texto = sinAcentos([
+            s.nombre_actividad, s.solicitante, s.espacio_nombre, s.espacio_tipo, s.fecha_uso
+        ].join(' '));
+        return texto.indexOf(q) >= 0;
+    }
+
+    function tarjetaSolicitud(s, historial) {
+        var rango = fmtHoraCorta(s.hora_inicio) + ' – ' + fmtHoraCorta(s.hora_fin);
+        var acciones = '';
+        if (!historial) {
+            acciones = '<span class="sol-card__acciones">' +
+                '<button type="button" class="btn-admin btn-admin--success btn-mini" data-accion="sol-aprobar" data-id="' + s.id_solicitud + '">Aceptar</button>' +
+                '<button type="button" class="btn-admin btn-admin--danger btn-mini" data-accion="sol-rechazar" data-id="' + s.id_solicitud + '">Rechazar</button>' +
+            '</span>';
+        } else {
+            acciones = badgeSol(s.estado);
+        }
+        return '<article class="sol-card' + (historial ? ' sol-card--historial' : '') + '">' +
+            '<span class="sol-card__tipo">' + esc(s.espacio_tipo || 'Espacio') + '</span>' +
+            '<h4 class="sol-card__titulo">' + esc(s.nombre_actividad) + '</h4>' +
+            '<p class="sol-card__linea"><i class="fas fa-user"></i> Solicitante: ' + esc(s.solicitante) + '</p>' +
+            '<p class="sol-card__linea"><i class="fas fa-door-open"></i> Espacio: ' + esc(s.espacio_nombre) + '</p>' +
+            '<p class="sol-card__linea"><i class="fas fa-calendar-day"></i> Fecha: ' + esc(fmtFechaLarga(s.fecha_uso)) + ' · ' + esc(rango) + '</p>' +
+            '<div class="sol-card__pie">' +
+                '<span class="sol-card__hace">' + esc(tiempoRelativo(s.fecha_solicitud)) + '</span>' +
+                acciones +
+            '</div>' +
+        '</article>';
+    }
+
+    function pintarSolicitudes() {
+        if (ROL !== 'Administrador') return;
+        var contPend = document.getElementById('solPendientes');
+        var contHist = document.getElementById('solHistorial');
+        if (!contPend && !contHist) return;
+
+        var q = sinAcentos(estado.solBusqueda || '').trim();
+
+        var pendientes = estado.solicitudes.filter(function (s) {
+            return s.estado === 'pendiente' && coincideSolicitud(s, q);
+        });
+        var historial = estado.solicitudes.slice().sort(function (a, b) {
+            return String(b.fecha_solicitud || '').localeCompare(String(a.fecha_solicitud || ''));
+        }).filter(function (s) { return coincideSolicitud(s, q); });
+
+        if (contPend) {
+            contPend.innerHTML = pendientes.length
+                ? pendientes.map(function (s) { return tarjetaSolicitud(s, false); }).join('')
+                : '<p class="tarjeta-vacia">No hay solicitudes pendientes con este criterio.</p>';
+        }
+        if (contHist) {
+            contHist.innerHTML = historial.length
+                ? historial.map(function (s) { return tarjetaSolicitud(s, true); }).join('')
+                : '<p class="tarjeta-vacia">Sin resultados en el historial.</p>';
+        }
+        var globoP = document.getElementById('solPendientesGlobo');
+        if (globoP) globoP.textContent = estado.solicitudes.filter(function (s) { return s.estado === 'pendiente'; }).length;
+        var globoH = document.getElementById('solHistorialGlobo');
+        if (globoH) globoH.textContent = estado.solicitudes.length;
+
+        animarEntrada($$('.sol-card', contPend || document), { y: 10, duration: DURACION.entrada, stagger: 0.03 });
+    }
+
     /* ================= ACCIONES DELEGADAS ================= */
 
     function initAcciones() {
@@ -1287,6 +1919,19 @@
             var ir = ev.target.closest('[data-ir]');
             if (ir) { ev.preventDefault(); irAVista(ir.getAttribute('data-ir')); }
         });
+
+        /* Atajo principal (espec. §6): botón "+ Nuevo usuario" en el encabezado,
+           en Gestión maestros y en los "Atajos de gestión". */
+        document.addEventListener('click', function (ev) {
+            var nuevo = ev.target.closest('[data-nuevo-usuario]');
+            if (!nuevo) return;
+            if (typeof abrirModalUsuario === 'function') abrirModalUsuario(null);
+        });
+
+        var rolSel = $('#usuRol');
+        if (rolSel) {
+            rolSel.addEventListener('change', function () { pintarEspacioCargo(null); });
+        }
 
         var cargo = $('#misEspaciosCargo');
         if (cargo) {
@@ -1390,6 +2035,18 @@
                             });
                         });
                 }
+            });
+        }
+
+        var solPendientes = document.getElementById('solPendientes');
+        if (solPendientes) {
+            solPendientes.addEventListener('click', function (ev) {
+                var btn = ev.target.closest('[data-accion]');
+                if (!btn) return;
+                var accion = btn.getAttribute('data-accion');
+                var id = parseInt(btn.getAttribute('data-id'), 10);
+                if (accion === 'sol-aprobar') decidirSolicitud(id, 'aprobada');
+                else if (accion === 'sol-rechazar') decidirSolicitud(id, 'rechazada');
             });
         }
     }
@@ -1519,25 +2176,167 @@
         if (campApr) campApr.addEventListener('click', function () { decidirDesdeCampana('aprobada'); });
         var campRec = $('#campanaRechazar');
         if (campRec) campRec.addEventListener('click', function () { decidirDesdeCampana('rechazada'); });
+
+        /* --- Calendario semanal --- */
+        var semAnt = $('#btnSemanaAnterior'), semSig = $('#btnSemanaSiguiente');
+        if (semAnt) semAnt.addEventListener('click', function () { cambiarSemana(-1); });
+        if (semSig) semSig.addEventListener('click', function () { cambiarSemana(1); });
+        var semHoy = $('#btnSemanaHoy');
+        if (semHoy) semHoy.addEventListener('click', function () {
+            estado.semanaBase = lunesDe(new Date());
+            cargarSemana();
+        });
+        var calFiltro = $('#calFiltroTipo');
+        if (calFiltro) calFiltro.addEventListener('change', function () {
+            estado.semanaTipo = this.value;
+            pintarChipsCalendario();
+            pintarSemana();
+        });
+        var calChips = $('#calChips');
+        if (calChips) calChips.addEventListener('click', function (ev) {
+            var chip = ev.target.closest('.cal-filtro-chip');
+            if (!chip) return;
+            estado.semanaTipo = chip.getAttribute('data-tipo') || '';
+            var sel = $('#calFiltroTipo');
+            if (sel) sel.value = estado.semanaTipo;
+            pintarChipsCalendario();
+            pintarSemana();
+        });
+
+        /* --- Verificar solicitudes --- */
+        var solBuscar = $('#solBuscar');
+        if (solBuscar) solBuscar.addEventListener('input', function () {
+            estado.solBusqueda = this.value;
+            pintarSolicitudes();
+        });
+        var solFiltro = $('#solFiltroTipo');
+        if (solFiltro) solFiltro.addEventListener('change', function () {
+            estado.solTipo = this.value;
+            pintarSolicitudes();
+        });
+
+        /* --- Filtros de rol en Gestión maestros --- */
+        var filtrosRol = document.getElementById('filtrosRol');
+        if (filtrosRol) {
+            filtrosRol.addEventListener('click', function (ev) {
+                var btn = ev.target.closest('.filtro-rol');
+                if (!btn) return;
+                estado.usuFiltroRol = btn.getAttribute('data-rol-filtro') || '';
+                $$('.filtro-rol', filtrosRol).forEach(function (b) {
+                    var act = b === btn;
+                    b.classList.toggle('filtro-rol--activo', act);
+                    b.setAttribute('aria-selected', act ? 'true' : 'false');
+                });
+                pintarUsuarios();
+            });
+        }
     }
 
     /* ================= ARRANQUE ================= */
 
     document.addEventListener('DOMContentLoaded', function () {
-        completarEntradaLogin();
-        initMenu();
-        initTabs();
-        initModales();
-        initBotones();
-        initAcciones();
+        /* Sección visible inicial (la que trae `vista--activa` la plantilla). */
+        var inicial = $('.vista--activa');
+        vistaActualId = inicial ? inicial.id : null;
 
-        var cargas = [cargarEspacios(), cargarEventos(), cargarPanel()];
-        if (ROL !== 'Estudiante') cargas.push(cargarSolicitudes());
-        if (ROL === 'Administrador') cargas.push(cargarResumen(), cargarUsuarios(), cargarDocentes());
+        /* Red de seguridad desde el primer instante: pase lo que pase, la
+           sección activa termina visible. Evita la pantalla en negro. */
+        setTimeout(function () {
+            var activa = $('.vista--activa');
+            if (MOTION && activa) MOTION.estadoFinalVista(activa);
+            try { posicionarIndicadorInicial(); } catch (e) { }
+        }, 1500);
 
+        /* Cada inicialización se protege por separado: si una falla, el resto
+           del panel sigue funcionando y la sección se revela igual. */
+        function seguro(fn, etiqueta) {
+            try { fn(); } catch (error) {
+                try { console.error('[panel] Falló ' + etiqueta + ':', error); } catch (e) { }
+            }
+        }
+
+        seguro(completarEntradaLogin, 'completarEntradaLogin');
+        seguro(initMenu, 'initMenu');
+        seguro(initTabs, 'initTabs');
+        seguro(initModales, 'initModales');
+        seguro(initBotones, 'initBotones');
+        seguro(initAcciones, 'initAcciones');
+        seguro(iniciarScroll, 'iniciarScroll');
+
+        var cargas = [cargarEspacios(), cargarPanel()];
+
+        /* TODO (spec §2): Calendario, Verificar solicitudes y Editar eventos se
+           muestran como pantallas vacías hasta que el equipo de trabajo conecte
+           la agenda. El código de estas funciones se conserva sin enlazar:
+           cargarSemana(), cargarSolicitudes() y cargarEventos() no se llaman. */
+        seguro(function () {
+            if (ROL !== 'Administrador') {
+                cargas.push(cargarEventos(), cargarSemana());
+                if (ROL !== 'Estudiante') cargas.push(cargarSolicitudes(), cargarOcupacionOperativa());
+            } else {
+                cargas.push(cargarOcupacionOperativa());
+            }
+            if (ROL === 'Administrador') cargas.push(cargarUsuarios(), cargarDocentes());
+        }, 'carga por rol');
+
+        /* El panel SIEMPRE debe terminar visible. Si algo falla al pintar los
+           datos, mostramos un aviso con botón "Reintentar" y, pase lo que pase,
+           dejamos la sección activa en su estado final. */
         Promise.all(cargas).then(function () {
             if (ROL === 'Docente') pintarStatsMaestro();
-            entradaInicial();
+        }).catch(function (error) {
+            try { console.error('[panel] Error al cargar los datos:', error); } catch (e) { }
+            mostrarErrorCarga();
+        }).then(function () {
+            try { posicionarIndicadorInicial(); } catch (e) { }
+            try { entradaInicial(); } catch (e) { }
         });
     });
+
+    /* Aviso de error de carga con botón para reintentar (spec §2). */
+    function mostrarErrorCarga() {
+        var contenedor = document.querySelector('.dashboard') || document.getElementById('contenido');
+        if (!contenedor || contenedor.querySelector('.error-carga')) return;
+        var caja = document.createElement('div');
+        caja.className = 'error-carga';
+        caja.setAttribute('role', 'alert');
+        caja.innerHTML =
+            '<i class="fas fa-triangle-exclamation" aria-hidden="true"></i>' +
+            '<div class="error-carga__texto">' +
+            '<strong>No se pudieron cargar los datos.</strong>' +
+            '<span>Revisa la conexión con el servidor e inténtalo de nuevo.</span>' +
+            '</div>' +
+            '<button type="button" class="boton boton--fantasma" data-reintentar-carga>' +
+            '<i class="fas fa-rotate-right" aria-hidden="true"></i> Reintentar</button>';
+        caja.querySelector('[data-reintentar-carga]').addEventListener('click', function () {
+            caja.remove();
+            Promise.all([cargarEspacios(), cargarPanel()]).then(function () {
+                if (ROL === 'Docente') pintarStatsMaestro();
+            }).catch(function (error) {
+                try { console.error('[panel] Error al cargar los datos:', error); } catch (e) { }
+                mostrarErrorCarga();
+            });
+        });
+        contenedor.insertBefore(caja, contenedor.firstChild);
+    }
+
+    function iniciarScroll() {
+        if (!MOTION) return;
+        var contenido = document.getElementById('contenido');
+        if (contenido) {
+            MOTION.initScroll({ wrapper: contenido, content: contenido.querySelector('.dashboard') || contenido });
+        }
+    }
+
+    function posicionarIndicadorInicial() {
+        if (!MOTION) return;
+        var activo = $('.nav__enlace[data-vista].nav__enlace--activo');
+        /* Si la plantilla no marcó ningún ítem activo, activamos el que
+           corresponde a la sección visible (normalmente el inicio). */
+        if (!activo && vistaActualId) {
+            activo = $('.nav__enlace[data-vista="' + vistaActualId + '"]');
+            if (activo) activo.classList.add('nav__enlace--activo');
+        }
+        MOTION.moveIndicator(activo, { immediate: true });
+    }
 })();

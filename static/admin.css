@@ -210,7 +210,7 @@ ul {
 
 .admin-login__subtitulo {
     font-size: 15px;
-    color: rgba(245,232,204,0.4);
+    color: rgba(245,232,204,0.72);
     margin-bottom: 30px;
 }
 
@@ -248,7 +248,7 @@ ul {
 }
 
 .admin-login__input::placeholder {
-    color: rgba(230,215,184,0.25);
+    color: rgba(230,215,184,0.72);
 }
 
 .admin-login__error {
@@ -297,7 +297,7 @@ ul {
     gap: 8px;
     margin-top: 24px;
     font-size: 14px;
-    color: rgba(230,215,184,0.35);
+    color: rgba(230,215,184,0.72);
     transition: 0.3s;
 }
 
@@ -374,7 +374,7 @@ ul {
 
 .panel-hero__subtitulo {
     font-size: 18px;
-    color: rgba(245,232,204,0.4);
+    color: rgba(245,232,204,0.72);
     line-height: 1.7;
     margin-bottom: 24px;
 }
@@ -405,7 +405,7 @@ ul {
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: rgba(230,215,184,0.5);
+    color: rgba(230,215,184,0.72);
     background: rgba(139,30,30,0.15);
     border: 1px solid rgba(139,30,30,0.25);
     padding: 5px 14px;
@@ -476,7 +476,7 @@ ul {
 
 .modulo__card p {
     font-size: 15px;
-    color: rgba(245,232,204,0.45);
+    color: rgba(245,232,204,0.72);
     line-height: 1.7;
 }
 
@@ -486,7 +486,7 @@ ul {
     align-items: center;
     gap: 6px;
     font-size: 13px;
-    color: rgba(230,215,184,0.3);
+    color: rgba(230,215,184,0.72);
     background: rgba(139,30,30,0.08);
     border: 1px dashed rgba(139,30,30,0.25);
     padding: 8px 16px;
@@ -542,7 +542,9 @@ ul {
 }
 
 .btn-admin--success {
-    background: #2D8B4E;
+    /* Verde ligeramente más oscuro que el original (#2D8B4E) para que el texto
+       y los iconos blancos alcancen contraste AA (>=4.5:1). */
+    background: #2A8449;
     color: #fff;
     box-shadow: 0 4px 16px rgba(45,139,78,0.25);
 }
@@ -672,7 +674,7 @@ ul {
 }
 
 .espacio-card--destacada:hover {
-    border-color: rgba(230,215,184,0.35);
+    border-color: rgba(230,215,184,0.72);
     box-shadow: 0 14px 44px rgba(230,215,184,0.10);
 }
 
@@ -693,7 +695,7 @@ ul {
 
 .espacio-card__texto-adicional {
     font-size: 13px;
-    color: rgba(245,232,204,0.4);
+    color: rgba(245,232,204,0.72);
     line-height: 1.6;
 }
 
@@ -738,7 +740,7 @@ ul {
 
 .usuario-stat__label {
     font-size: 13px;
-    color: rgba(245,232,204,0.45);
+    color: rgba(245,232,204,0.72);
     margin-top: 4px;
 }
 
@@ -795,13 +797,13 @@ ul {
 .stat-card__label {
     font-size: 14px;
     font-weight: 500;
-    color: rgba(245,232,204,0.45);
+    color: rgba(245,232,204,0.72);
     margin-top: 8px;
 }
 
 .stat-card__sub {
     font-size: 12px;
-    color: rgba(230,215,184,0.25);
+    color: rgba(230,215,184,0.72);
     margin-top: 4px;
 }
 
@@ -845,7 +847,7 @@ ul {
 
 .footer__enlace {
     font-size: 14px;
-    color: rgba(245,232,204,0.3);
+    color: rgba(245,232,204,0.72);
     transition: 0.3s;
 }
 
@@ -855,7 +857,7 @@ ul {
 
 .footer__derechos {
     font-size: 13px;
-    color: rgba(245,232,204,0.15);
+    color: rgba(245,232,204,0.72);
 }
 
 /* RESPONSIVE */
@@ -995,8 +997,23 @@ ul {
     display: block;
 }
 
+/*
+   Entrada desde el login. Antes esta regla usaba `visibility: hidden`, lo que
+   dejaba la página ENTERA invisible si el JS que quita la clase fallaba.
+   Ahora es una animación que se completa sola: aunque la clase nunca se
+   elimine, el body termina visible (opacidad 1) al acabar la animación.
+*/
 html.transicion-login-entrada body {
-    visibility: hidden;
+    animation: isailoEntradaLogin 420ms ease-out both;
+}
+
+@keyframes isailoEntradaLogin {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.transicion-login-entrada body { animation: none; }
 }
 
 .modulo__encabezado--fila {
@@ -1056,7 +1073,7 @@ html.transicion-login-entrada body {
 .form-campo input:focus,
 .form-campo select:focus,
 .form-campo textarea:focus {
-    border-color: rgba(230, 215, 184, 0.38);
+    border-color: rgba(230, 215, 184, 0.72);
     box-shadow: 0 0 0 3px rgba(139, 30, 30, 0.18);
 }
 
@@ -1088,7 +1105,7 @@ html.transicion-login-entrada body {
 
 .espacio-fila:hover {
     transform: translateY(-2px) scale(1.008);
-    border-color: rgba(230, 215, 184, 0.2);
+    border-color: rgba(230, 215, 184, 0.72);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
 }
 
@@ -1291,7 +1308,7 @@ html.transicion-login-entrada body {
 
 .solicitud-item__info small {
     display: block;
-    color: rgba(230, 215, 184, 0.55);
+    color: rgba(230, 215, 184, 0.72);
     font-size: 0.78rem;
     margin-top: 2px;
 }
@@ -1322,7 +1339,7 @@ html.transicion-login-entrada body {
 
 .acordeon-vacia {
     text-align: center;
-    color: rgba(230, 215, 184, 0.55);
+    color: rgba(230, 215, 184, 0.72);
     font-size: 0.95rem;
     padding: 36px 0;
 }
@@ -1465,14 +1482,14 @@ html.transicion-login-entrada body {
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(230, 215, 184, 0.55);
+    color: rgba(230, 215, 184, 0.72);
     padding-bottom: 6px;
 }
 
 .cal-vacio {
     grid-column: 1 / -1;
     text-align: center;
-    color: rgba(230, 215, 184, 0.45);
+    color: rgba(230, 215, 184, 0.72);
     font-size: 0.88rem;
     padding: 18px 0 6px;
 }
@@ -1533,7 +1550,7 @@ html.transicion-login-entrada body {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: rgba(230, 215, 184, 0.45);
+    color: rgba(230, 215, 184, 0.72);
     padding-bottom: 2px;
 }
 
@@ -1621,7 +1638,7 @@ html.transicion-login-entrada body {
 
 .mini-cal__ayuda {
     font-size: 0.76rem;
-    color: rgba(230, 215, 184, 0.55);
+    color: rgba(230, 215, 184, 0.72);
     margin-top: 10px;
     text-align: center;
 }
@@ -1802,7 +1819,7 @@ html.transicion-login-entrada body {
 
 .campana-item__detalle i {
     width: 18px;
-    color: rgba(230, 215, 184, 0.55);
+    color: rgba(230, 215, 184, 0.72);
 }
 
 .campana-item__desc {
@@ -1813,7 +1830,7 @@ html.transicion-login-entrada body {
 }
 
 .campana-item__recibida {
-    color: rgba(230, 215, 184, 0.45);
+    color: rgba(230, 215, 184, 0.72);
     font-size: 0.78rem;
     margin-top: 8px;
     padding-top: 8px;
@@ -1831,14 +1848,14 @@ html.transicion-login-entrada body {
     flex-direction: column;
     gap: 8px;
     text-align: center;
-    color: rgba(230, 215, 184, 0.55);
+    color: rgba(230, 215, 184, 0.72);
     font-size: 0.92rem;
     padding: 34px 0;
 }
 
 .campana-vacia i {
     font-size: 26px;
-    color: rgba(230, 215, 184, 0.25);
+    color: rgba(230, 215, 184, 0.72);
 }
 
 .campana-pie {
@@ -1945,7 +1962,7 @@ html.transicion-login-entrada body {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.07em;
-    color: rgba(230, 215, 184, 0.55);
+    color: rgba(230, 215, 184, 0.72);
     padding: 14px 16px;
     border-bottom: 1px solid rgba(230, 215, 184, 0.12);
 }
@@ -2001,7 +2018,7 @@ html.transicion-login-entrada body {
 
 .tabla-vacia {
     text-align: center;
-    color: rgba(230, 215, 184, 0.5);
+    color: rgba(230, 215, 184, 0.72);
     padding: 20px;
     font-size: 0.9rem;
 }
@@ -2063,7 +2080,7 @@ html.transicion-login-entrada body {
         rgba(13, 5, 5, 0.5);
     display: grid;
     place-items: center;
-    color: rgba(230, 215, 184, 0.35);
+    color: rgba(230, 215, 184, 0.72);
     font-size: 2rem;
 }
 
@@ -2128,12 +2145,12 @@ html.transicion-login-entrada body {
 }
 
 .toast--error {
-    border-color: rgba(207, 102, 121, 0.5);
+    border-color: rgba(207, 102, 121, 0.72);
     color: #F0CDD3;
 }
 
 .toast--ok {
-    border-color: rgba(76, 175, 80, 0.45);
+    border-color: rgba(76, 175, 80, 0.72);
 }
 
 /* ============ PANELES POR ROL ============ */
@@ -2150,7 +2167,7 @@ html.transicion-login-entrada body {
     top: 14px;
     right: 16px;
     font-size: 0.8rem;
-    color: rgba(230, 215, 184, 0.3);
+    color: rgba(230, 215, 184, 0.72);
     transition: color 0.25s ease, transform 0.25s ease;
 }
 
@@ -2190,7 +2207,7 @@ html.transicion-login-entrada body {
 
 .alerta-vencidas__flecha {
     margin-left: auto;
-    color: rgba(230, 215, 184, 0.4);
+    color: rgba(230, 215, 184, 0.72);
 }
 
 .panel-bloques {
@@ -2245,18 +2262,18 @@ html.transicion-login-entrada body {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: rgba(230, 215, 184, 0.55);
+    color: rgba(230, 215, 184, 0.72);
     font-size: 0.92rem;
     padding: 18px 0;
 }
 
 .panel-vacio i {
     font-size: 1.2rem;
-    color: rgba(230, 215, 184, 0.25);
+    color: rgba(230, 215, 184, 0.72);
 }
 
 .panel-vacio-texto {
-    color: rgba(230, 215, 184, 0.45);
+    color: rgba(230, 215, 184, 0.72);
     font-size: 0.85rem;
     margin-bottom: 12px;
 }
@@ -2331,7 +2348,7 @@ html.transicion-login-entrada body {
 
 .actividad-item__detalle {
     font-size: 0.8rem;
-    color: rgba(230, 215, 184, 0.5);
+    color: rgba(230, 215, 184, 0.72);
     margin-top: 2px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2340,7 +2357,7 @@ html.transicion-login-entrada body {
 
 .actividad-item__tiempo {
     font-size: 0.75rem;
-    color: rgba(230, 215, 184, 0.45);
+    color: rgba(230, 215, 184, 0.72);
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -2423,7 +2440,7 @@ html.transicion-login-entrada body {
 
 .cargo-solicitud__info small {
     display: block;
-    color: rgba(230, 215, 184, 0.5);
+    color: rgba(230, 215, 184, 0.72);
     font-size: 0.76rem;
     margin-top: 2px;
 }
@@ -2446,7 +2463,7 @@ html.transicion-login-entrada body {
 
 .primer-evento__card--vacio i {
     font-size: 30px;
-    color: rgba(230, 215, 184, 0.3);
+    color: rgba(230, 215, 184, 0.72);
     margin-bottom: 10px;
 }
 
@@ -2458,7 +2475,7 @@ html.transicion-login-entrada body {
 }
 
 .primer-evento__card--vacio p {
-    color: rgba(230, 215, 184, 0.55);
+    color: rgba(230, 215, 184, 0.72);
     font-size: 0.9rem;
 }
 
@@ -2588,7 +2605,7 @@ html.transicion-login-entrada body {
 
 .panel-bloque:hover,
 .cargo-espacio:hover {
-    border-color: rgba(230, 215, 184, 0.16);
+    border-color: rgba(230, 215, 184, 0.72);
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
 }
 

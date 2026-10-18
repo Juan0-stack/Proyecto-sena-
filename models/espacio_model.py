@@ -66,6 +66,29 @@ class EspacioModel:
             conn.close()
 
     @staticmethod
+    def asignar_encargado(id_espacio, id_usuario):
+        """Asigna (o libera si id_usuario es None) el encargado de un espacio.
+        Se usa desde la creación de un usuario con 'Espacio a cargo' (espec. §6)."""
+        conn = get_connection()
+        if not conn:
+            return False
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE espacios SET id_usuario_encargado = %s WHERE id_espacio = %s",
+                (id_usuario, id_espacio)
+            )
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f'Error al asignar encargado del espacio: {e}')
+            conn.rollback()
+            return False
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
     def eliminar(id_espacio):
         conn = get_connection()
         if not conn:

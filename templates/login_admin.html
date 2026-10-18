@@ -3,68 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMINISTRACIÓN ISAILO MAPS — Iniciar Sesión </title>
-
-    <!-- 
-
-    <link rel="stylesheet" href="../static/logincss.css?v=8">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>ISAILO MAPS — Acceso administrativo</title>
+    <link rel="stylesheet" href="../static/css/tokens.css?v=1">
+    <link rel="stylesheet" href="../static/css/logo.css?v=1">
+    <link rel="stylesheet" href="../static/css/login.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    -->
+    <link rel="icon" href="../static/vendor/logo.png" type="image/png">
+    <script>
+        document.documentElement.classList.add('js', 'login-anim');
+        /* Red de seguridad: aunque login.js no cargue, la tarjeta se muestra. */
+        setTimeout(function () { document.documentElement.classList.remove('login-anim'); }, 2000);
+        try { if (sessionStorage.getItem('isailo-login-transition') === '1') document.documentElement.classList.add('transicion-login-entrada'); } catch (error) { }
+    </script>
 </head>
 <body>
+    {% import 'partials/logo.html' as logo %}
+    <div class="login-decor login-decor--1"></div>
+    <div class="login-decor login-decor--2"></div>
+    <div class="login-decor login-decor--3"></div>
+    <div class="login-decor login-decor--4"></div>
+    <div class="login-decor login-decor--5"></div>
 
-    <div class="login-a_caja" id="login-a_caja">
+    <main class="login-layout" id="loginCard"
+          data-steps=".login-brand, .login-hero__title, .login-hero__text, .login-hero__feature, .login-hero__footer, .login-card__header, .form-field, .login-submit, .login-links, .login-note">
+        <section class="login-hero">
+            <div class="login-hero__top">
+                <div class="login-brand login-brand--hero">
+                    {{ logo.marca(size=54, texto=False) }}
+                    <span class="login-brand__name">ISAILO MAPS</span>
+                    <span class="login-brand__sub">Instituto San Ignacio de Loyola</span>
+                </div>
+                <h1 class="login-hero__title">Acceso administrativo</h1>
+                <p class="login-hero__text">Administra los espacios, las solicitudes, los eventos y los usuarios del Instituto San Ignacio de Loyola.</p>
+            </div>
+            <ul class="login-hero__features">
+                <li class="login-hero__feature">
+                    <span class="login-hero__icon"><i class="fas fa-calendar-days"></i></span>
+                    <span>Espacios y calendario</span>
+                </li>
+                <li class="login-hero__feature">
+                    <span class="login-hero__icon"><i class="fas fa-clipboard-check"></i></span>
+                    <span>Verificación de solicitudes</span>
+                </li>
+                <li class="login-hero__feature">
+                    <span class="login-hero__icon"><i class="fas fa-users-gear"></i></span>
+                    <span>Usuarios y roles</span>
+                </li>
+            </ul>
+            <div class="login-hero__footer">Instituto San Ignacio de Loyola</div>
+        </section>
+        <section class="login-card">
+            <header class="login-card__header">
+                <div class="login-brand login-brand--card">
+                    {{ logo.marca(size=38, texto=False) }}
+                    <span class="login-card__label">Acceso administrativo</span>
+                </div>
+                <h2 class="login-card__title">Iniciar sesión</h2>
+                <p class="login-card__text">Ingresa con tus credenciales de administrador.</p>
+            </header>
+            <form class="login-form" id="formLogin" autocomplete="off" data-admin-only="1">
+                <input type="hidden" name="admin_only" value="1">
+                <div class="form-field">
+                    <label class="form-label" for="usuario">Usuario o correo</label>
+                    <div class="form-input__wrap">
+                        <i class="fas fa-user-shield form-input__icon" aria-hidden="true"></i>
+                        <input class="form-input form-input--icon-left" id="usuario" name="correo" type="text" placeholder="admin" autocomplete="username" required>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="password">Contraseña</label>
+                    <div class="form-input__wrap form-input__wrap--password">
+                        <i class="fas fa-lock form-input__icon" aria-hidden="true"></i>
+                        <input class="form-input form-input--icon-left" id="password" name="password" type="password" placeholder="Tu contraseña" autocomplete="current-password" required>
+                        <button type="button" class="form-password-toggle" id="togglePassword"
+                                aria-label="Mostrar contraseña" aria-pressed="false" title="Mostrar contraseña">
+                            <i class="fas fa-eye-slash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="login-error" id="loginError" hidden>
+                    <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                    <span id="loginErrorText"></span>
+                </div>
+                <button class="login-submit" type="submit" data-texto="Ingresar al panel">
+                    <span>Ingresar al panel</span>
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </button>
+            </form>
+            <div class="login-links">
+                <a class="login-link" href="/login">¿Eres docente o estudiante? Ingresa al acceso general</a>
+            </div>
+            <div class="login-note">Solo para personal</div>
+        </section>
+    </main>
 
-        <div class="logina-a-logo">
-            <img src="../static/" alt="ISAILO MAPS logo admin" class="logina-a-logo" id="login-a-logo">
-            <div>ISAILO MAPS</div>
-            <div>Instituto San Ignacio de Loyola</div>
-        </div>
-
-        <h1>ADMINISTRACIÓN Inicio de Sesión</h1>
-        <p>Ingresa tu usuario y contraseña</p>
-<!--
-        <div class="login-error" id="loginError">
-            <i class="fas fa-exclamation-circle"></i>
-            <span id="loginErrorText">Credenciales incorrectas. Intenta nuevamente.</span>
-        </div>
--->
-        <form id="login-a_formulario">
-
-    
-                <label class="login-a-label" for="mail-a_login">
-                    <i></i>Correo
-                </label>
-                <input
-                    class="login-a-input"
-                    type="mail"
-                    id="mail-a_login"
-                    placeholder="usuario@isailo.edu.co"
-                >
-     
-
-                <label class="login-a-label" for="contra-a_login">
-                    <i></i> Contraseña
-                </label>
-                    <input
-                        class="login-a-input"
-                        type="password"
-                        id="contra-a_login"
-                        placeholder="••••••••"
-                    >
-                    <button type="button" class="mostrar-a-contra" id="mostrar-a_contra" aria-label="Mostrar contraseña">
-                        <i></i> <!-- que mrd hace esto?? es el icono??-->
-                    </button>
-
-            <button type="submit" class="login-a-btn" id="login-a_btn">
-                Ingresar <i class="fas fa-arrow-right"></i> <!-- icono -->
-            </button>
-        </form>
-
-            <a href="/index" class="volver_index_login-a">
-                <i class="fas fa-arrow-left"></i> Volver al inicio
-            </a>
-     </div>
+    <script src="../static/vendor/anime.umd.min.js"></script>
+    <script src="../static/js/login.js?v=1"></script>
 </body>
 </html>

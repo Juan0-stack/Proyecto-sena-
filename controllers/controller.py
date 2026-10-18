@@ -59,6 +59,12 @@ class ClienteController:
         if not nuevo_id:
             return {'ok': False, 'error': 'No se pudo crear el usuario. Verifica la conexión a la base de datos.'}
 
+        # Asignar "Espacio a cargo" si el rol es Docente y se indicó un espacio (espec. §6)
+        if id_rol == 2:
+            id_espacio = datos.get('id_espacio') or datos.get('espacio')
+            if id_espacio:
+                EspacioModel.asignar_encargado(int(id_espacio), nuevo_id)
+
         return {'ok': True, 'id': nuevo_id}
 
     @staticmethod
@@ -103,11 +109,12 @@ class ClienteController:
 
     @staticmethod
     def iniciar_sesion(datos):
-        correo = (datos.get('correo') or datos.get('user') or '').strip()
+        correo = (datos.get('correo') or datos.get('user') or datos.get('usuario') or '').strip()
         password = (datos.get('password') or datos.get('pass') or '').strip()
+        admin_only = datos.get('admin_only')
 
         if not correo or not password:
-            return {'ok': False, 'error': 'Ingresa tu usuario y contraseña.'}
+            return {'ok': False, 'error': 'Ingresa tu usuario o correo y contraseña.'}
 
         usuario = ClienteModel.verificar_credenciales(correo, password)
         if not usuario:
@@ -116,6 +123,14 @@ class ClienteController:
         if usuario.get('estado') != 'Activo':
             return {'ok': False, 'error': 'Tu cuenta está deshabilitada. Contacta al administrador.'}
 
+        rol = usuario.get('nombre_rol')
+        try:
+            if admin_only or str(admin_only).lower() in ('1', 'true', 'on'):
+                if rol != 'Administrador':
+                    return {'ok': False, 'error': 'Esta cuenta no tiene acceso administrativo'}
+        except Exception:
+            pass
+
         nombre_completo = f"{usuario['nombre']} {usuario.get('apellido') or ''}".strip()
 
         session.clear()
@@ -123,11 +138,10 @@ class ClienteController:
         session['nombre'] = nombre_completo
         session['correo'] = usuario['correo']
         session['id_rol'] = usuario.get('id_rol')
-        session['nombre_rol'] = usuario.get('nombre_rol')
+        session['nombre_rol'] = rol
 
         ClienteModel.actualizar_acceso(usuario['id_usuario'])
 
-        rol = usuario.get('nombre_rol')
         return {
             'ok': True,
             'cliente': {
@@ -356,6 +370,153 @@ def _proximos_eventos():
     ]
 
 
+# ---------------------------------------------------------------------------
+# Métricas de solo lectura para el panel de Gestión de Calidad (home).
+# Todas se calculan en memoria a partir de listados existentes: no crean
+# tablas, columnas ni modifican datos. Son claves nuevas y aditivas.
+# ---------------------------------------------------------------------------
+
+def _variacion(actual, anterior):
+    """% de cambio frente al periodo anterior (0 si no hay base)."""
+    if anterior:
+        return round((actual - anterior) / anterior * 100, 1)
+    return 100.0 if actual else 0.0
+
+
+def _solicitudes_por_estado(solicitudes):
+    """Conteo y porcentaje por estado. Solo los estados reales de la BD
+    (aprobada / pendiente / rechazada): no se inventa 'En revisión'."""
+    definidos = [
+        ('aprobada', 'Aprobadas'),
+        ('pendiente', 'Pendientes'),
+        ('rechazada', 'Rechazadas')
+    ]
+    conteo = {clave: 0 for clave, _ in definidos}
+    for s in solicitudes:
+        if s.get('estado') in conteo:
+            conteo[s['estado']] += 1
+    total = sum(conteo.values())
+    return [
+        {
+            'estado': clave,
+            'etiqueta': etiqueta,
+            'total': conteo[clave],
+            'porcentaje': round(conteo[clave] / total * 100, 1) if total else 0.0
+        }
+        for clave, etiqueta in definidos
+    ]
+
+
+def _serie_semana(solicitudes, eventos):
+    """Actividad de los últimos 7 días (incluye hoy): solicitudes creadas y
+    eventos que inician ese día. Alimenta la gráfica de doble serie."""
+    etiquetas = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+    hoy = datetime.date.today()
+
+    def conteo_por_dia(registros, campo):
+        mapa = {}
+        for r in registros:
+            clave = (r.get(campo) or '')[:10]
+            if clave:
+                mapa[clave] = mapa.get(clave, 0) + 1
+        return mapa
+
+    sol_dia = conteo_por_dia(solicitudes, 'fecha_solicitud')
+    ev_dia = conteo_por_dia(eventos, 'fecha_inicio')
+
+    serie = []
+    for i in range(6, -1, -1):
+        dia = hoy - datetime.timedelta(days=i)
+        clave = dia.isoformat()
+        serie.append({
+            'fecha': clave,
+            'etiqueta': etiquetas[dia.weekday()],
+            'dia': dia.day,
+            'solicitudes': sol_dia.get(clave, 0),
+            'eventos': ev_dia.get(clave, 0)
+        })
+    return serie
+
+
+def _por_tipo(solicitudes):
+    """Reparto de solicitudes por tipo de espacio (máx. 6 tipos)."""
+    conteo = {}
+    for s in solicitudes:
+        tipo = (s.get('espacio_tipo') or '').strip() or 'Sin tipo'
+        conteo[tipo] = conteo.get(tipo, 0) + 1
+    total = sum(conteo.values())
+    items = [
+        {
+            'tipo': tipo,
+            'total': n,
+            'porcentaje': round(n / total * 100, 1) if total else 0.0
+        }
+        for tipo, n in conteo.items()
+    ]
+    items.sort(key=lambda x: x['total'], reverse=True)
+    return items[:6]
+
+
+def _tendencia(solicitudes, eventos, usuarios):
+    """Totales y variación mes en curso vs. mes anterior.
+
+    Devuelve un bloque por entidad con: total, mes (altas del mes en curso),
+    anterior (altas del mes previo) y variacion (%)."""
+    hoy = datetime.date.today()
+    mes_actual = hoy.strftime('%Y-%m')
+    mes_anterior = (hoy.replace(day=1) - datetime.timedelta(days=1)).strftime('%Y-%m')
+
+    def bloque(registros, campo):
+        actual = 0
+        anterior = 0
+        for r in registros:
+            clave = (r.get(campo) or '')[:7]
+            if clave == mes_actual:
+                actual += 1
+            elif clave == mes_anterior:
+                anterior += 1
+        return {
+            'total': len(registros),
+            'mes': actual,
+            'anterior': anterior,
+            'variacion': _variacion(actual, anterior)
+        }
+
+    maestros = [u for u in usuarios if (u.get('nombre_rol') or '') == 'Docente']
+
+    return {
+        'mes': mes_actual,
+        'mes_anterior': mes_anterior,
+        'solicitudes': bloque(solicitudes, 'fecha_solicitud'),
+        'eventos': bloque(eventos, 'fecha_creacion'),
+        'maestros': bloque(maestros, 'fecha_registro'),
+        'usuarios': bloque(usuarios, 'fecha_registro')
+    }
+
+
+def _distribucion(eventos_total, solicitudes_total, maestros_total, usuarios_total):
+    """Composición del sistema para la dona central del home."""
+    categorias = [
+        ('eventos', 'Eventos', eventos_total),
+        ('solicitudes', 'Solicitudes', solicitudes_total),
+        ('maestros', 'Maestros', maestros_total),
+        ('usuarios', 'Usuarios', usuarios_total)
+    ]
+    total = sum(n for _, _, n in categorias)
+    return {
+        'total': total,
+        'items': [
+            {
+                'clave': clave,
+                'etiqueta': etiqueta,
+                'total': n,
+                'porcentaje': round(n / total * 100, 1) if total else 0.0
+            }
+            for clave, etiqueta, n in categorias
+        ]
+    }
+
+
 class PanelController:
 
     @staticmethod
@@ -371,8 +532,10 @@ class PanelController:
             'eventos': EventoModel.contar()
         }
 
+        solicitudes = SolicitudModel.listar_todas()
+
         pendientes_por_espacio = {}
-        for s in SolicitudModel.listar_todas():
+        for s in solicitudes:
             if s['estado'] != 'pendiente':
                 continue
             item = pendientes_por_espacio.get(s['id_espacio'])
@@ -393,14 +556,18 @@ class PanelController:
         vencidas_total = sum(x['vencidas'] for x in pendientes_por_espacio.values())
 
         aprobadas_hoy = SolicitudModel.ocupacion(hoy, hoy)
+        eventos = EventoModel.listar()
         eventos_hoy = []
-        for ev in EventoModel.listar():
+        for ev in eventos:
             if ev['fecha_inicio'] <= hoy and (not ev.get('fecha_fin') or ev['fecha_fin'] >= hoy):
                 eventos_hoy.append({
                     'id_evento': ev['id_evento'],
                     'nombre': ev['nombre'],
                     'color': ev['color']
                 })
+
+        usuarios_lista = ClienteModel.listar()
+        tendencia = _tendencia(solicitudes, eventos, usuarios_lista)
 
         return {
             'resumen': resumen,
@@ -412,7 +579,18 @@ class PanelController:
                 'aprobadas': aprobadas_hoy,
                 'eventos': eventos_hoy
             },
-            'proximos_eventos': _proximos_eventos()
+            'proximos_eventos': _proximos_eventos(),
+            # --- Claves nuevas (solo lectura) para el home de Gestión de Calidad ---
+            'solicitudes_por_estado': _solicitudes_por_estado(solicitudes),
+            'serie_semana': _serie_semana(solicitudes, eventos),
+            'por_tipo': _por_tipo(solicitudes),
+            'tendencia': tendencia,
+            'distribucion': _distribucion(
+                resumen['eventos'],
+                len(solicitudes),
+                tendencia['maestros']['total'],
+                tendencia['usuarios']['total']
+            )
         }
 
     @staticmethod
