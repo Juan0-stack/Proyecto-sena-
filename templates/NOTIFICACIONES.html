@@ -1,130 +1,733 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>ISAILO MAPS — Notificaciones</title>
-    <style>
 
-        *{
+    <style>
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        body{
+
+        body {
             display: flex;
-            height: 100vh;
-            overflow: auto;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            color: #292929;
         }
-        /*ASIDE*/
-        aside{
-            width: 250px;
-            padding: 2rem;
-            background-color: rgb(159, 4, 4);
-            
+
+        /* BARRA LATERAL */
+        aside {
+            flex: 0 0 250px;
+            padding: 2rem 1.5rem;
+            background: rgb(159, 4, 4);
         }
-        .container-user-actions-aside{
+
+        .container-user-actions-aside {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: rgb(255, 0, 0);
+            background: red;
             padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
         }
-        .usuario{
-    
-            background-color: rgb(157, 2, 2);
+
+        .usuario {
             width: 60px;
             height: 60px;
             margin-bottom: 1rem;
-            box-sizing: content-box;
-
-
-        }
-        aside h3{
-            overflow-wrap: break-word;/*si hay overflow rompe palabras*/
-        }
-        aside div a{
-            display: block;
-            border: 3px solid gold;
-            border-radius: 10px;
-            background-color: cadetblue;
-            padding: 15px;
-            margin-bottom: 6px;
-            margin-top: 6px;
-            color:gold;
-        
-            text-decoration: none;  
         }
 
-        .usuario img{
+        .usuario img {
             width: 60px;
             height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
         }
-        .log_out{
-            background-color: darkred;
+
+        .log_out {
+            margin-top: 8px;
+            padding: 5px 12px;
+            background: darkred;
             border: 4px solid gold;
-            border-radius: 16px ;
-
+            border-radius: 16px;
+            cursor: pointer;
         }
 
+        .herramientas a {
+            display: block;
+            padding: 15px;
+            margin: 6px 0;
+            border: 3px solid gold;
+            border-radius: 10px;
+            background: cadetblue;
+            color: gold;
+            text-decoration: none;
+        }
 
+        .herramientas a:hover {
+            background: #477f82;
+        }
 
-        /*DENTRO DEL MAPA*/
-        main{
-            height: 100vh;
+        /* CONTENIDO PRINCIPAL */
+        main {
             flex: 1;
-            background-color: crimson;
+            min-width: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
-        .header_nav{
+
+        .header_nav {
+            min-height: 3rem;
             display: flex;
-            height: 3rem;
-
-            justify-content: start;
             align-items: center;
-            
-            padding: 10px;
-            padding-left: 25px;
-
-            background-color: chartreuse;
+            padding: 10px 25px;
+            background: chartreuse;
         }
-       
-        
 
+        .contenido-notificaciones {
+            padding: 28px;
+        }
+
+        .encabezado {
+            margin-bottom: 24px;
+        }
+
+        .encabezado h1 {
+            margin-bottom: 8px;
+        }
+
+        .encabezado p {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* DOS COLUMNAS DE NOTIFICACIONES */
+        .columnas-notificaciones {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+            align-items: start;
+        }
+
+        .panel-notificaciones {
+            min-width: 0;
+            padding: 18px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px #0000000d;
+        }
+
+        .cabecera-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .contador {
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #eeeeee;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        /* TARJETAS */
+        .tarjeta-notificacion {
+            margin-bottom: 14px;
+            padding: 16px;
+            border: 1px solid #d8d8d8;
+            border-left: 5px solid #b8860b;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .tarjeta-notificacion.propia {
+            border-left-color: #287a8a;
+        }
+
+        .cabecera-tarjeta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .cabecera-tarjeta h3 {
+            margin-bottom: 6px;
+            font-size: 17px;
+        }
+
+        .actividad {
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .estado {
+            display: inline-block;
+            padding: 6px 9px;
+            border-radius: 5px;
+            background: #fff1c9;
+            color: #785500;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .estado.aceptada {
+            background: #d9f2df;
+            color: #216b35;
+        }
+
+        .estado.rechazada {
+            background: #f9dddd;
+            color: #922b2b;
+        }
+
+        .estado.pendiente {
+            background: #fff1c9;
+            color: #785500;
+        }
+
+        .resumen {
+            display: grid;
+            gap: 7px;
+            margin-bottom: 14px;
+            color: #444;
+            font-size: 14px;
+        }
+
+        .acciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .boton {
+            padding: 9px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .boton:hover {
+            filter: brightness(0.94);
+        }
+
+        .boton-detalle {
+            background: #e9e9e9;
+            color: #222;
+        }
+
+        .boton-aceptar {
+            background: #287a43;
+            color: white;
+        }
+
+        .boton-rechazar {
+            background: #a52222;
+            color: white;
+        }
+
+        .boton-confirmar {
+            background: #333;
+            color: white;
+        }
+
+        /* DETALLE EXPANDIDO */
+        .detalle {
+            margin-top: 15px;
+            padding-top: 14px;
+            border-top: 1px solid #ddd;
+        }
+
+        .detalle[hidden] {
+            display: none;
+        }
+
+        .detalle h4 {
+            margin-bottom: 12px;
+        }
+
+        .datos-detalle {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 11px;
+        }
+
+        .dato {
+            overflow-wrap: anywhere;
+            line-height: 1.4;
+        }
+
+        .dato strong {
+            display: block;
+            margin-bottom: 3px;
+            color: #555;
+            font-size: 12px;
+        }
+
+        .form-rechazo {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 7px;
+            background: #f7f7f7;
+        }
+
+        .form-rechazo[hidden] {
+            display: none;
+        }
+
+        .form-rechazo label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: bold;
+        }
+
+        .form-rechazo textarea {
+            width: 100%;
+            min-height: 75px;
+            padding: 9px;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+            resize: vertical;
+            font: inherit;
+        }
+
+        .mensaje-vacio {
+            padding: 20px 10px;
+            color: #777;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .aviso-prototipo {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 7px;
+            background: #fff5d6;
+            color: #725718;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 900px) {
+            .columnas-notificaciones {
+                grid-template-columns: 1fr;
+            }
+
+            aside {
+                flex-basis: 190px;
+                padding: 1rem;
+            }
+
+            .contenido-notificaciones {
+                padding: 18px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            body {
+                flex-direction: column;
+            }
+
+            aside {
+                flex-basis: auto;
+            }
+
+            .columnas-notificaciones {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
-            
 </head>
+
 <body>
-       <aside>
-            <div class="container-user-actions-aside">
-                <div class="usuario">
-                    <img class="perfil-usuario" src="../static/profile_picture.png">
+    <aside>
+        <div class="container-user-actions-aside">
+            <div class="usuario">
+                <img
+                    class="perfil-usuario"
+                    src="../static/profile_picture.png"
+                    alt="Foto de perfil"
+                >
+            </div>
+
+            <h3>Bienvenido, usuario</h3>
+
+            <button class="log_out" type="button">
+                <h2>Cerrar sesión</h2>
+            </button>
+        </div>
+
+        <div class="herramientas">
+            <a href="./NOTIFICACIONES.html"><h3>Notificaciones</h3></a>
+            <a href="./HOME(MAPA).html"><h3>Mapa</h3></a>
+            <a href="./CALENDARIO.html"><h3>Calendario</h3></a>
+            <a href="./SOLICITUDES.html"><h3>Solicitudes y reservas</h3></a>
+        </div>
+    </aside>
+
+    <main>
+        <nav class="header_nav">Herramientas</nav>
+
+        <section class="contenido-notificaciones">
+            <header class="encabezado">
+                <h1>Notificaciones</h1>
+                <p>
+                    Administra las solicitudes de los espacios que tienes
+                    a cargo y consulta las respuestas a tus propias solicitudes.
+                </p>
+            </header>
+
+            <div class="columnas-notificaciones">
+
+                <!-- SOLICITUDES RECIBIDAS -->
+                <section class="panel-notificaciones">
+                    <div class="cabecera-panel">
+                        <h2>Solicitudes recibidas</h2>
+                        <span class="contador" id="contador-recibidas">0</span>
+                    </div>
+
+                    <div id="lista-recibidas"></div>
+                </section>
+
+                <!-- SOLICITUDES PROPIAS -->
+                <section class="panel-notificaciones">
+                    <div class="cabecera-panel">
+                        <h2>Mis solicitudes</h2>
+                        <span class="contador" id="contador-propias">0</span>
+                    </div>
+
+                    <div id="lista-propias"></div>
+                </section>
+            </div>
+
+            <p class="aviso-prototipo">
+                Prototipo de demostración: Benitez, vincula esto a la base de datos, la pagina esta como una reina de belleza.
+            </p>
+        </section>
+    </main>
+
+    <script>
+       
+       //Estos son de mentiritas, despues quitas estos datos para poner la funcion real con la base de datos
+
+        const solicitudesRecibidas = [
+            {
+                id_solicitud: "SOL-001",
+                fecha_solicitud: "2026-10-14 08:30",
+                fecha_uso: "2026-10-22",
+                hora_inicio: "09:00",
+                hora_fin: "11:00",
+                cantidad_personas: 67,
+                nombre_actividad: "Práctica de laboratorio",
+                descripcion_actividad:
+                    "Desarrollo de los robots para Botoñito.",
+                estado: "Pendiente",
+                id_usuario: "aca va el id del profe",
+                id_espacio: "aca va el id del laboratorio de fisica",
+                solicitante: "Lomas Turbas",
+                motivo_rechazo: ""
+            },
+            {
+                id_solicitud: "SOL-002",
+                fecha_solicitud: "2026-10-16 14:10",
+                fecha_uso: "2026-10-25",
+                hora_inicio: "13:00",
+                hora_fin: "15:00",
+                cantidad_personas: 18,
+                nombre_actividad: "Baile basar",
+                descripcion_actividad:
+                    "Ensayo grupal para una actividad institucional.",
+                estado: "Pendiente",
+                id_usuario: "aca va el id del profe",
+                id_espacio: "aca va el id del salon de actos",
+                solicitante: "Harley Quinn",
+                motivo_rechazo: ""
+            }
+        ];
+
+        const solicitudesPropias = [
+            {
+                id_solicitud: "SOL-003",
+                fecha_solicitud: "2026-10-18 10:15",
+                fecha_uso: "2026-10-27",
+                hora_inicio: "08:00",
+                hora_fin: "10:00",
+                cantidad_personas: 30,
+                nombre_actividad: "Reunión académica",
+                descripcion_actividad:
+                    "Reunión de coordinación entre docentes.",
+                estado: "Aceptada",
+                id_usuario: "aca va el id del profe",
+                id_espacio: "aca va el id del auditorio",
+                motivo_rechazo: ""
+            },
+            {
+                id_solicitud: "SOL-004",
+                fecha_solicitud: "2026-10-17 09:20",
+                fecha_uso: "2026-10-24",
+                hora_inicio: "11:00",
+                hora_fin: "12:00",
+                cantidad_personas: 15,
+                nombre_actividad: "Asesoría de proyecto",
+                descripcion_actividad:
+                    "Encuentro para revisar los avances del proyecto stem.",
+                estado: "Rechazada",
+                id_usuario: "aca va el id del profe",
+                id_espacio: "aca va el id del laboratorio de quimica",
+                motivo_rechazo: "El espacio no está disponible en ese horario."
+            }
+        ];
+
+        const listaRecibidas = document.getElementById("lista-recibidas");
+        const listaPropias = document.getElementById("lista-propias");
+
+        // Evita interpretar los datos de texto como HTML.
+        function escaparHTML(valor) {
+            return String(valor ?? "").replace(/[&<>"']/g, caracter => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[caracter]);
+        }
+
+        function crearDetalle(solicitud) {
+            const campos = [
+                ["Fecha de solicitud", solicitud.fecha_solicitud],
+                ["Fecha de uso", solicitud.fecha_uso],
+                ["Hora de inicio", solicitud.hora_inicio],
+                ["Hora de fin", solicitud.hora_fin],
+                ["Cantidad de personas", solicitud.cantidad_personas],
+                ["Nombre de la actividad", solicitud.nombre_actividad],
+                ["Descripción", solicitud.descripcion_actividad],
+                ["Estado", solicitud.estado],
+                ["ID de solicitud", solicitud.id_solicitud],
+                ["ID de usuario", solicitud.id_usuario],
+                ["ID de espacio", solicitud.id_espacio]
+            ];
+
+            if (solicitud.motivo_rechazo) {
+                campos.push(["Motivo de rechazo", solicitud.motivo_rechazo]);
+            }
+
+            return campos.map(([titulo, valor]) => `
+                <div class="dato">
+                    <strong>${escaparHTML(titulo)}</strong>
+                    <span>${escaparHTML(valor || "No especificado")}</span>
                 </div>
-                <h3>Bienvenido, usuario</h3>
-                <button class="log_out"><h2>Cerrar sesión</h2></button>
+            `).join("");
+        }
 
-            </div>
-            <div class="herramientas">
-                <a href="./NOTIFICACIONES.html"><h3>Notificaciones</h3></a>
-                <a href="./HOME(MAPA).html"><h3>Mapa</h3></a>
-                <a href="./CALENDARIO.html"><h3>Calendario</h3></a>
-                <a href="./SOLICITUDES.html"><h3>Solicitudes y reservas</h3></a>
-            </div>
-        </aside>
+        function crearTarjeta(solicitud, esRecibida) {
+            const tarjeta = document.createElement("article");
+            tarjeta.className = "tarjeta-notificacion" +
+                (esRecibida ? "" : " propia");
 
-        <main>
-            <nav class="header_nav">
-                Herramientas
-            </nav>
-            <h1>Notificaciones</h1>
-            
-                
-<!--JS-->
+            const estadoClase = solicitud.estado.toLowerCase();
 
-<script>
-    
-</script>
+            // Construye el contenido de la tarjeta y se introduce el html en el article
+            //${esRecibida ? `: determina si la tarjeta corresponde a una 
+            // solicitud que alguien le envió al profesor o a una solicitud que el profesor realizó.
+
+            tarjeta.innerHTML = `
+                <div class="cabecera-tarjeta">
+                    <div>
+                        <h3>${escaparHTML(solicitud.nombre_actividad)}</h3>
+                        <p class="actividad">
+                            Espacio: ${escaparHTML(solicitud.id_espacio)}
+                        </p>
+                        ${esRecibida ? `
+                            <p class="actividad">
+                                Solicitante: ${escaparHTML(solicitud.solicitante)}
+                            </p>
+                        ` : ""}
+                    </div>
+
+                    <span class="estado ${escaparHTML(estadoClase)}">
+                        ${escaparHTML(solicitud.estado)}
+                    </span>
+                </div>
+
+                <div class="resumen">
+                    <p><strong>Fecha de uso:</strong>
+                        ${escaparHTML(solicitud.fecha_uso)}</p>
+                    <p><strong>Horario:</strong>
+                        ${escaparHTML(solicitud.hora_inicio)} –
+                        ${escaparHTML(solicitud.hora_fin)}</p>
+                    <p><strong>Personas:</strong>
+                        ${escaparHTML(solicitud.cantidad_personas)}</p>
+                </div>
+
+                <div class="acciones">
+                    <button type="button" class="boton boton-detalle">
+                        Ver detalles
+                    </button>
+
+                    ${esRecibida && solicitud.estado === "Pendiente" ? `
+                        <button type="button" class="boton boton-aceptar">
+                            Aceptar
+                        </button>
+                        <button type="button" class="boton boton-rechazar">
+                            Rechazar
+                        </button>
+                    ` : ""}
+                </div>
+
+                <div class="detalle" hidden>
+                    <h4>Detalles de la solicitud</h4>
+                    <div class="datos-detalle">
+                        ${crearDetalle(solicitud)}
+                    </div>
+                </div>
+
+                <div class="form-rechazo" hidden>
+                    <label>Motivo del rechazo (opcional)</label>
+                    <textarea
+                        class="motivo"
+                        placeholder="Explica el motivo, si lo consideras necesario."
+                    ></textarea>
+
+                    <div class="acciones">
+                        <button type="button"
+                                class="boton boton-confirmar">
+                            Confirmar rechazo
+                        </button>
+                        <button type="button"
+                                class="boton boton-detalle cancelar-rechazo">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            const detalle = tarjeta.querySelector(".detalle");
+            const botonDetalle = tarjeta.querySelector(".boton-detalle");
+
+            botonDetalle.addEventListener("click", () => {
+                detalle.hidden = !detalle.hidden;
+                botonDetalle.textContent = detalle.hidden
+                    ? "Ver detalles"
+                    : "Ocultar detalles";
+            });
+
+            if (esRecibida && solicitud.estado === "Pendiente") {
+                tarjeta.querySelector(".boton-aceptar")
+                    .addEventListener("click", () => {
+                        solicitud.estado = "Aceptada";
+                        renderizarNotificaciones();
+
+                        alert(
+                            "Aceptación de prueba. No se guardó en la base de datos."
+                        );
+                    });
+
+                const formularioRechazo =
+                    tarjeta.querySelector(".form-rechazo");
+
+                tarjeta.querySelector(".boton-rechazar")
+                    .addEventListener("click", () => {
+                        formularioRechazo.hidden =
+                            !formularioRechazo.hidden;
+                    });
+
+                tarjeta.querySelector(".cancelar-rechazo")
+                    .addEventListener("click", () => {
+                        formularioRechazo.hidden = true;
+                    });
+
+                tarjeta.querySelector(".boton-confirmar")
+                    .addEventListener("click", () => {
+                        const motivo =
+                            tarjeta.querySelector(".motivo").value.trim();
+
+                        solicitud.estado = "Rechazada";
+                        solicitud.motivo_rechazo = motivo;
+
+                        renderizarNotificaciones();
+
+                        alert(
+                            "Rechazo de prueba. No se guardó en la base de datos."
+                        );
+                    });
+            }
+
+            return tarjeta;
+        }
+
+        function renderizarNotificaciones() {
+            // Recibidas: solicitudes pendientes más antiguas primero.
+            const recibidasOrdenadas = [...solicitudesRecibidas].sort((a, b) => {
+                if (a.estado === "Pendiente" && b.estado !== "Pendiente") {
+                    return -1;
+                }
+
+                if (a.estado !== "Pendiente" && b.estado === "Pendiente") {
+                    return 1;
+                }
+
+                return a.fecha_solicitud.localeCompare(b.fecha_solicitud);
+            });
+
+            // Propias: respuestas más recientes primero.
+            const propiasOrdenadas = [...solicitudesPropias].sort((a, b) =>
+                b.fecha_solicitud.localeCompare(a.fecha_solicitud)
+            );
+
+            listaRecibidas.replaceChildren();
+            listaPropias.replaceChildren();
+
+            recibidasOrdenadas.forEach(solicitud => {
+                listaRecibidas.appendChild(
+                    crearTarjeta(solicitud, true)
+                );
+            });
+
+            propiasOrdenadas.forEach(solicitud => {
+                listaPropias.appendChild(
+                    crearTarjeta(solicitud, false)
+                );
+            });
+
+            document.getElementById("contador-recibidas").textContent =
+                solicitudesRecibidas.filter(
+                    solicitud => solicitud.estado === "Pendiente"
+                ).length + " pendientes";
+
+            document.getElementById("contador-propias").textContent =
+                solicitudesPropias.length + " registros";
+
+            if (!recibidasOrdenadas.length) {
+                listaRecibidas.innerHTML =
+                    '<p class="mensaje-vacio">No tienes solicitudes recibidas.</p>';
+            }
+
+            if (!propiasOrdenadas.length) {
+                listaPropias.innerHTML =
+                    '<p class="mensaje-vacio">Todavía no tienes solicitudes propias.</p>';
+            }
+        }
+
+        renderizarNotificaciones();
+    </script>
 </body>
 </html>
