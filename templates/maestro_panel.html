@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../static/css/logo.css?v=1">
     <link rel="stylesheet" href="../static/vendor/lenis.css">
     <link rel="stylesheet" href="../static/css/calidad.css?v=3">
+    <link rel="stylesheet" href="../static/css/maestro-mapa.css?v=5">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="../static/vendor/logo.png" type="image/png">
@@ -21,15 +22,17 @@
         try { if (sessionStorage.getItem('isailo-login-transition') === '1') document.documentElement.classList.add('transicion-login-entrada'); } catch (error) { }
     </script>
 </head>
-<body class="calidad" data-rol="Docente" data-usuario-id="{{ session['id_usuario'] }}">
+<body class="calidad" data-rol="Docente" data-usuario-id="{{ session['id_usuario'] }}" data-modo="{{ modo_docente }}">
 
-    {% set rol_etiqueta = 'Docente · Encargado/a' if tiene_espacio else 'Docente' %}
+    {% set modo_encargado = tiene_espacio and modo_docente == 'encargado' %}
+    {% set rol_etiqueta = 'Docente · Encargado/a' if modo_encargado else 'Docente' %}
     {% set menu = [
         {'vista': 'panel',      'etiqueta': 'Panel de control', 'icono': 'fa-solid fa-gauge-high'},
         {'vista': 'mapa',       'etiqueta': 'Mapa',             'icono': 'fa-solid fa-map-location-dot'},
-        {'vista': 'calendario', 'etiqueta': 'Calendario',       'icono': 'fa-regular fa-calendar-days'}
+        {'vista': 'calendario', 'etiqueta': 'Calendario',       'icono': 'fa-regular fa-calendar-days'},
+        {'vista': 'notificaciones', 'etiqueta': 'Notificaciones', 'icono': 'fa-regular fa-bell', 'badge_salida': 'badgeNotificaciones'}
     ] %}
-    {% if tiene_espacio %}
+    {% if modo_encargado %}
         {% set _ = menu.append({'vista': 'eventos', 'etiqueta': 'Gestión de eventos', 'icono': 'fa-regular fa-pen-to-square'}) %}
         {% set _ = menu.append({'vista': 'solicitudes', 'etiqueta': 'Verificar solicitudes', 'icono': 'fa-solid fa-hourglass-half', 'badge_salida': 'badgeSolicitudes'}) %}
     {% endif %}
@@ -44,9 +47,9 @@
             <section class="modulo vista vista--activa" id="panel">
                 <header class="home-cab" data-reveal="up">
                     <div class="home-cab__texto">
-                        <span class="etiqueta-seccion">{{ 'Docente · Encargado/a' if tiene_espacio else 'Docente' }}</span>
-                        <h1 class="home-cab__titulo">{{ 'Espacio a cargo' if tiene_espacio else ('Hola, ' ~ session['nombre']) }}</h1>
-                        {% if tiene_espacio and espacio %}
+                        <span class="etiqueta-seccion">{{ 'Docente · Encargado/a' if modo_encargado else 'Docente' }}</span>
+                        <h1 class="home-cab__titulo">{{ 'Espacio a cargo' if modo_encargado else ('Hola, ' ~ session['nombre']) }}</h1>
+                        {% if modo_encargado and espacio %}
                         <p class="home-cab__sub">
                             {{ espacio.nombre }} · {{ espacio.tipo|default('Espacio', true) }}
                             {%- if espacio.capacidad %} · Capacidad {{ espacio.capacidad }} personas{% endif %}
@@ -66,7 +69,7 @@
                     </div>
                 </header>
 
-                {% if tiene_espacio %}
+                {% if modo_encargado %}
                     {# Selector de espacio si el docente tiene más de uno (el primero por defecto). #}
                     {% if datos.mis_espacios|length > 1 %}
                     <div class="chip-selector" data-reveal="up" role="tablist" aria-label="Espacios a cargo">
@@ -177,18 +180,36 @@
 
             <!-- ============ MAPA ============ -->
             <section class="modulo vista" id="mapa">
-                {% include 'partials/volver_inicio.html' %}
                 <div class="seccion-cab">
                     <div class="seccion-cab__texto">
-                        <h2 class="seccion-titulo">Mapa</h2>
-                        <p class="seccion-sub">Ubicación de los espacios del instituto.</p>
+                        <span class="etiqueta-seccion">Explora la institución</span>
+                        <h2 class="seccion-titulo">Mapa y espacios</h2>
+                        <p class="seccion-sub">{{ 'Consulta el plano y tus espacios a cargo.' if modo_encargado else 'Explora los planos y consulta los espacios disponibles.' }}</p>
                     </div>
                 </div>
-                <div class="vacio-estado">
-                    <span class="vacio-estado__icono"><i class="fa-solid fa-map-location-dot"></i></span>
-                    <p class="vacio-estado__titulo">Próximamente</p>
-                    <p class="vacio-estado__texto">El mapa interactivo estará disponible próximamente.</p>
+                <div class="maestro-mapa">
+                    <div class="maestro-mapa__plano">
+                        <div class="maestro-mapa__titulo">
+                            <div><span class="etiqueta-seccion">Mapa interactivo</span><h3>Instituto San Ignacio de Loyola</h3></div>
+                            <span class="maestro-mapa__estado"><i class="fa-solid fa-circle"></i> Planos por sección</span>
+                        </div>
+                        <iframe id="mapaFuncional" title="Mapa interactivo de la institución" src="/maestro/mapa-funcional" loading="eager"></iframe>
+                    </div>
+                    <aside class="maestro-mapa__panel" aria-label="Información de espacios">
+                        <label class="maestro-mapa__busqueda" for="buscarEspacioMapa"><i class="fa-solid fa-magnifying-glass"></i><input id="buscarEspacioMapa" type="search" placeholder="Buscar espacios…"></label>
+                        <div class="maestro-mapa__lista-cab"><h3>{{ 'Espacios a cargo' if modo_encargado else 'Espacios disponibles' }}</h3><span id="totalEspaciosMapa">Cargando…</span></div>
+                        <div class="maestro-mapa__lista" id="listaEspaciosMapa" aria-live="polite"><p class="maestro-mapa__vacio">Cargando espacios de la base de datos…</p></div>
+                        <div class="maestro-mapa__detalle" id="detalleEspacioMapa" aria-live="polite">
+                            <span class="etiqueta-seccion">Espacio seleccionado</span>
+                            <h3 id="nombreEspacioMapa">Elige un espacio</h3>
+                            <p id="estadoEspacioMapa">Su estado y encargado aparecerán aquí.</p>
+                            <p id="encargadoEspacioMapa"></p>
+                            {% if not modo_encargado %}<button type="button" class="btn-admin btn-admin--primario" id="solicitarEspacioMapa" data-accion="solicitar" hidden><i class="fa-solid fa-calendar-plus"></i> Solicitar</button>{% endif %}
+                        </div>
+                    </aside>
                 </div>
+                <p class="maestro-mapa__nota"><i class="fa-solid fa-circle-info"></i> Algunos espacios no tienen una zona individual en el plano; puedes encontrarlos en el listado.</p>
+                {% if not modo_encargado %}<button type="button" class="btn-admin btn-admin--outline maestro-mapa__recorrido" disabled title="Disponible próximamente"><i class="fa-solid fa-vr-cardboard"></i> Recorrido virtual · próximamente</button>{% endif %}
             </section>
 
             <!-- ============ CALENDARIO ============ -->
@@ -196,18 +217,26 @@
                 {% include 'partials/volver_inicio.html' %}
                 <div class="seccion-cab">
                     <div class="seccion-cab__texto">
-                        <h2 class="seccion-titulo">Calendario</h2>
-                        <p class="seccion-sub">Reservas y eventos por día.</p>
+                        <span class="seccion-pastilla">Agenda</span>
+                        <h2 class="seccion-titulo"><span class="seccion-titulo__icono"><i class="fa-regular fa-calendar-days"></i></span>Calendario de espacios</h2>
+                        <p class="seccion-sub">{{ 'Disponibilidad de tus espacios a cargo.' if modo_encargado else 'Consulta los espacios ocupados de la institución.' }}</p>
                     </div>
+                    <div class="cal-toolbar" id="calFiltros"><label class="campo-select" for="calFiltroTipo"><i class="fa-solid fa-filter" aria-hidden="true"></i><select id="calFiltroTipo" class="input-min" aria-label="Filtrar por tipo de espacio"><option value="">Todos los tipos</option></select></label></div>
                 </div>
-                <div class="vacio-estado">
-                    <span class="vacio-estado__icono"><i class="fa-regular fa-calendar-days"></i></span>
-                    <p class="vacio-estado__titulo">Próximamente</p>
-                    <p class="vacio-estado__texto">La agenda estará disponible próximamente.</p>
+                <div class="cal-barra">
+                    <div class="cal-barra__nav"><button type="button" id="btnSemanaAnterior" class="btn-nav" aria-label="Semana anterior"><i class="fas fa-chevron-left"></i></button><span id="semanaTitulo" class="cal-barra__titulo">—</span><button type="button" id="btnSemanaSiguiente" class="btn-nav" aria-label="Semana siguiente"><i class="fas fa-chevron-right"></i></button><button type="button" id="btnSemanaHoy" class="btn-hoy">Hoy</button></div>
+                    <div class="cal-chips" id="calChips"></div>
                 </div>
+                <div id="calSemana" class="cal-semana"><div class="vacio-estado"><span class="vacio-estado__icono"><i class="fa-regular fa-calendar-days"></i></span><p class="vacio-estado__titulo">Cargando disponibilidad</p></div></div>
             </section>
 
-            {% if tiene_espacio %}
+            <section class="modulo vista" id="notificaciones">
+                {% include 'partials/volver_inicio.html' %}
+                <div class="seccion-cab"><div class="seccion-cab__texto"><span class="seccion-pastilla">Avisos</span><h2 class="seccion-titulo"><span class="seccion-titulo__icono"><i class="fa-regular fa-bell"></i></span>{{ 'Solicitudes recibidas' if modo_encargado else 'Mis solicitudes' }}</h2><p class="seccion-sub">{{ 'Revisa y responde las solicitudes dirigidas a tus espacios.' if modo_encargado else 'Consulta el estado de tus solicitudes.' }}</p></div></div>
+                <iframe class="notificaciones-docente" id="notificacionesHtml" title="Notificaciones del docente" src="{{ '/static/notificaciones/NOTIFICACIONES_RECIBIDAS.html' if modo_encargado else '/static/notificaciones/NOTIFICACIONES_PROPIAS.html' }}" loading="lazy" aria-label="Lista de notificaciones"></iframe>
+            </section>
+
+            {% if modo_encargado %}
             <!-- ============ GESTIÓN DE EVENTOS ============ -->
             <section class="modulo vista" id="eventos">
                 {% include 'partials/volver_inicio.html' %}
@@ -217,11 +246,10 @@
                         <p class="seccion-sub">Crea y organiza los eventos de tu espacio.</p>
                     </div>
                 </div>
-                <div class="vacio-estado">
-                    <span class="vacio-estado__icono"><i class="fa-regular fa-pen-to-square"></i></span>
-                    <p class="vacio-estado__titulo">Próximamente</p>
-                    <p class="vacio-estado__texto">La edición de eventos estará disponible próximamente.</p>
-                </div>
+                <button type="button" id="btnNuevoEvento" class="btn-admin btn-admin--primario"><i class="fas fa-plus"></i> Nuevo evento</button>
+                <div class="cal-pared__nav"><button id="btnAnioAnterior" class="btn-nav" aria-label="Año anterior"><i class="fas fa-chevron-left"></i></button><span id="anioActual" class="cal-pared__anio"></span><button id="btnAnioSiguiente" class="btn-nav" aria-label="Año siguiente"><i class="fas fa-chevron-right"></i></button><button type="button" id="btnCalHoy" class="btn-hoy">Hoy</button></div>
+                <div class="cal-pared" id="calPared"></div>
+                <div class="tabla-wrap modulo__card"><table class="tabla" id="tablaEventos"><thead><tr><th>Evento</th><th>Tipo</th><th>Espacios</th><th>Fechas</th><th>Color</th><th class="tabla__col-acciones">Acciones</th></tr></thead><tbody></tbody></table><p class="tabla-vacia" id="tablaEventosVacia" hidden>No hay eventos publicados todavía.</p></div>
             </section>
 
             <!-- ============ VERIFICAR SOLICITUDES ============ -->
@@ -258,6 +286,55 @@
         </div>
     </main>
 
+    {% if modo_encargado %}
+    <div class="modal-overlay" id="modalEvento" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" data-lenis-prevent>
+            <button type="button" class="modal__cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+            <span class="etiqueta-seccion">Agenda</span><h3 id="tituloModalEvento">Nuevo evento</h3>
+            <form id="formEvento" autocomplete="off">
+                <div class="form-grid">
+                    <div class="form-campo form-campo--par"><label for="evTipo">Tipo de evento</label><select id="evTipo" required><option value="Institucional">Institucional</option><option value="Cultural">Cultural</option><option value="Académico">Académico</option><option value="Deportivo">Deportivo</option></select></div>
+                    <div class="form-campo form-campo--par"><label for="evEspacios">Espacios a cargo</label><select id="evEspacios" multiple size="4" aria-label="Espacios asignados al docente"></select></div>
+                    <div class="form-campo form-campo--ancho"><label for="evNombre">Nombre del evento</label><input id="evNombre" type="text" maxlength="100" required placeholder="Nombre del evento"></div>
+                    <div class="form-campo form-campo--par"><label for="evInicio">Fecha inicio</label><input id="evInicio" type="date" required></div>
+                    <div class="form-campo form-campo--par"><label for="evFin">Fecha fin (opcional)</label><input id="evFin" type="date"></div>
+                    <div class="form-campo form-campo--ancho"><label>Color</label><div class="swatches" id="evColores"><label class="swatch"><input type="radio" name="evColor" value="#8B1E1E" checked><span style="--c:#8B1E1E"></span></label><label class="swatch"><input type="radio" name="evColor" value="#D4A843"><span style="--c:#D4A843"></span></label><label class="swatch"><input type="radio" name="evColor" value="#4CAF50"><span style="--c:#4CAF50"></span></label><label class="swatch"><input type="radio" name="evColor" value="#CF6679"><span style="--c:#CF6679"></span></label><label class="swatch"><input type="radio" name="evColor" value="#E6D7B8"><span style="--c:#E6D7B8"></span></label></div></div>
+                    <div class="form-campo form-campo--ancho"><label for="evDescripcion">Descripción (opcional)</label><textarea id="evDescripcion" rows="2" maxlength="255"></textarea></div>
+                </div>
+                <p class="form-error" id="errorModalEvento" hidden></p>
+                <div class="modal__acciones"><button type="button" class="btn-admin btn-admin--outline" data-cerrar>Cancelar</button><button type="submit" class="btn-admin btn-admin--primario">Guardar</button></div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="modal-overlay" id="modalSolicitud" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" data-lenis-prevent>
+            <button type="button" class="modal__cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+            <span class="etiqueta-seccion">Solicitud</span>
+            <h3>Solicitar espacio</h3>
+            <div class="solicitud-info" id="solInfo"></div>
+            <form id="formSolicitud" autocomplete="off">
+                <div class="form-grid">
+                    <div class="form-campo"><label for="solFecha">Fecha</label><input id="solFecha" type="date" required></div>
+                    <div class="form-campo form-campo--par"><label for="solInicio">Hora inicio</label><input id="solInicio" type="time" required></div>
+                    <div class="form-campo form-campo--par"><label for="solFin">Hora fin</label><input id="solFin" type="time" required></div>
+                    <div class="form-campo form-campo--ancho"><label for="solActividad">Actividad</label><input id="solActividad" type="text" maxlength="100" required placeholder="¿Para qué necesitas el espacio?"></div>
+                    <div class="form-campo form-campo--ancho"><label for="solDescripcion">Descripción (opcional)</label><textarea id="solDescripcion" rows="2" maxlength="255"></textarea></div>
+                </div>
+                <p class="solicitud-aviso" id="solAviso" hidden><i class="fas fa-circle-exclamation"></i><strong>Fecha no disponible.</strong><span id="solAvisoTexto"></span></p>
+                <div class="mini-cal" id="miniCal" hidden>
+                    <div class="mini-cal__cab"><button type="button" id="miniAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button><span id="miniTitulo"></span><button type="button" id="miniSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button></div>
+                    <div class="mini-cal__dias mini-cal__dias--cab" id="miniCabecera"></div><div class="mini-cal__dias" id="miniDias"></div>
+                    <p class="mini-cal__ayuda" id="miniHoras" aria-live="polite">Selecciona un día para consultar sus horas ocupadas.</p>
+                    <p class="mini-cal__ayuda">Elige un día libre para reprogramar tu solicitud.</p>
+                </div>
+                <p class="form-error" id="errorModalSolicitud" hidden></p>
+                <div class="modal__acciones"><button type="button" class="btn-admin btn-admin--outline" data-cerrar>Cancelar</button><button type="submit" class="btn-admin btn-admin--primario">Enviar solicitud</button></div>
+            </form>
+        </div>
+    </div>
+
     <!-- ================= LIBRERÍAS (vendorizadas, sin build) ================= -->
     <script src="../static/vendor/anime.umd.min.js"></script>
     <script src="../static/vendor/lenis.min.js"></script>
@@ -266,7 +343,7 @@
         if (!(window.Motion && window.Motion.animado)) { document.documentElement.classList.remove('js'); }
         setTimeout(function () { document.documentElement.classList.remove('transicion-login-entrada'); }, 1200);
     </script>
-    <script src="../static/panel.js?v=12"></script>
+    <script src="../static/panel.js?v=17"></script>
     <script>
         (function () {
             try {

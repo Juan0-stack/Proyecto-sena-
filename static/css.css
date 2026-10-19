@@ -928,8 +928,16 @@ footer {
 .cal-publico__evento-card p { margin: 0; color: #bfb2a0; line-height: 1.5; }
 .cal-publico__estado { margin: 0; padding: 22px; border: 1px solid rgba(201,169,110,.14); border-radius: 13px; color: #d8cdbd; text-align: center; }
 .cal-publico__panel--vacio { min-height: 320px; }
+.mapa-publico__contenido { display: grid; gap: 18px; }
+.mapa-publico__titulo { display: flex; align-items: end; justify-content: space-between; gap: 16px; }
+.mapa-publico__titulo h3 { margin: 5px 0 0; color: #f5ead8; font: 700 clamp(1.5rem, 2.5vw, 2rem)/1.2 var(--fuente-titulo, 'Playfair Display', Georgia, serif); }
+.mapa-publico__titulo p { margin: 0 0 3px; color: #cfc3b2; }
+.mapa-publico__visor { display: block; width: 100%; height: clamp(520px, 72vh, 820px); border: 1px solid rgba(201,169,110,.2); border-radius: 15px; background: #0c0708; box-shadow: 0 14px 36px rgba(0,0,0,.24); }
+.recorrido-publico { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 20px; border: 1px solid rgba(201,169,110,.16); border-radius: 14px; background: rgba(255,255,255,.018); }
+.recorrido-publico p { margin: 5px 0 0; color: #cfc3b2; }
+.recorrido-publico .btn-hoy:disabled { opacity: .78; cursor: not-allowed; }
 @media (max-width: 760px) { .cal-publico__panel-cabecera { align-items: flex-start; flex-direction: column; } .cal-publico__eventos-lista { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .calendario-publico { padding: 66px 18px; } .cal-publico__atajos { grid-template-columns: 1fr; } .cal-publico__atajo { min-height: 76px; } .cal-publico__barra { width: 100%; gap: 7px; } .cal-publico__anio { min-width: 0; flex: 1; font-size: .95rem; } .cal-publico__meses { padding: 10px; } .cal-publico__dias { gap: 4px; } .cal-publico__dia { min-height: 38px; } }
+@media (max-width: 600px) { .calendario-publico { padding: 66px 18px; } .cal-publico__atajos { grid-template-columns: 1fr; } .cal-publico__atajo { min-height: 76px; } .cal-publico__barra { width: 100%; gap: 7px; } .cal-publico__anio { min-width: 0; flex: 1; font-size: .95rem; } .cal-publico__meses { padding: 10px; } .cal-publico__dias { gap: 4px; } .cal-publico__dia { min-height: 38px; } .mapa-publico__titulo,.recorrido-publico { align-items: flex-start; flex-direction: column; } .mapa-publico__visor { height: 68vh; min-height: 440px; } }
 
 .mapa-publico {
     padding: 100px 60px;
@@ -956,11 +964,16 @@ footer {
 .mapa-publico__contenido {
     width: min(1180px, 100%);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 280px;
+    grid-template-columns: minmax(0, 1fr) minmax(230px, 280px);
+    grid-template-areas: "visor titulo" "visor recorrido";
     gap: 24px;
     align-items: stretch;
     margin: 0 auto;
 }
+
+.mapa-publico__titulo { grid-area: titulo; display: block; align-self: start; }
+.mapa-publico__visor { grid-area: visor; height: clamp(480px, 68vh, 760px); min-width: 0; }
+.recorrido-publico { grid-area: recorrido; align-self: end; align-items: flex-start; flex-direction: column; }
 
 .mapa-publico__marco {
     position: relative;
@@ -1041,7 +1054,10 @@ footer {
 @media (max-width: 760px) {
     .navbar { padding: 14px 22px; }
     .mapa-publico { padding: 76px 22px; }
-    .mapa-publico__contenido { grid-template-columns: 1fr; }
+    .mapa-publico__contenido { grid-template-columns: 1fr; grid-template-areas: "titulo" "visor" "recorrido"; }
+    .mapa-publico__titulo { display: flex; }
+    .mapa-publico__visor { height: 68vh; min-height: 440px; }
+    .recorrido-publico { align-items: center; flex-direction: row; }
     .mapa-publico__marco,
     #mapa-container { min-height: 280px; }
     .mapa-publico__atajos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }

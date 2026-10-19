@@ -1,0 +1,31 @@
+/* Mapa docente: integra los planos existentes con la información real de espacios. */
+.maestro-mapa{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(290px,.75fr);gap:18px;align-items:stretch}
+.maestro-mapa__plano,.maestro-mapa__panel{min-width:0;overflow:hidden;border:1px solid var(--linea-fuerte);border-radius:var(--radio-lg);background:linear-gradient(145deg,rgba(26,16,18,.98),rgba(17,10,11,.98));box-shadow:var(--sombra-suave)}
+.maestro-mapa__titulo{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--linea)}
+.maestro-mapa__titulo h3,.maestro-mapa__lista-cab h3,.maestro-mapa__detalle h3{margin:4px 0 0;color:var(--texto);font:700 20px var(--fuente-titulo)}
+.maestro-mapa__estado{color:var(--texto-2);font-size:12px;white-space:nowrap}.maestro-mapa__estado i{color:var(--ok);font-size:9px;margin-right:5px}
+#mapaFuncional{display:block;width:100%;height:min(70vh,760px);min-height:520px;border:0;background:#100b0c}
+.maestro-mapa__panel{display:flex;flex-direction:column;padding:16px;max-height:850px}
+.maestro-mapa__busqueda{display:flex;align-items:center;gap:10px;padding:0 12px;border:1px solid var(--linea-fuerte);border-radius:11px;background:var(--bg-panel);color:var(--oro)}
+.maestro-mapa__busqueda input{width:100%;min-width:0;padding:11px 0;border:0;outline:0;background:transparent;color:var(--texto);font:inherit}.maestro-mapa__busqueda input::placeholder{color:var(--placeholder)}
+.maestro-mapa__lista-cab{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:17px 2px 10px}.maestro-mapa__lista-cab h3{font-size:18px;margin:0}.maestro-mapa__lista-cab span{color:var(--texto-3);font-size:12px}
+.maestro-mapa__lista{display:grid;gap:7px;overflow:auto;min-height:90px;max-height:360px;padding:2px 3px 10px}
+.maestro-mapa__item{display:flex;justify-content:space-between;align-items:center;gap:9px;width:100%;padding:10px 12px;border:1px solid var(--linea);border-radius:11px;background:rgba(255,255,255,.018);color:var(--texto);text-align:left;cursor:pointer;transition:background .18s,border-color .18s}
+.maestro-mapa__item:hover,.maestro-mapa__item.is-selected{border-color:var(--oro);background:rgba(201,169,110,.1)}.maestro-mapa__item-nombre{font-weight:650}.maestro-mapa__item-tipo{display:block;margin-top:2px;color:var(--texto-3);font-size:12px}
+.maestro-mapa__punto{width:9px;height:9px;flex:none;border-radius:50%;background:var(--ok)}.maestro-mapa__punto--mantenimiento{background:var(--error)}.maestro-mapa__punto--ocupado{background:var(--alerta)}
+.maestro-mapa__vacio{margin:0;padding:15px;color:var(--texto-2);font-size:13px}
+.maestro-mapa__detalle{margin-top:auto;padding:15px;border:1px solid var(--linea-fuerte);border-radius:13px;background:rgba(201,169,110,.055)}.maestro-mapa__detalle h3{font-size:19px}.maestro-mapa__detalle p{margin:6px 0;color:var(--texto-2);font-size:13px}.maestro-mapa__detalle .btn-admin{margin-top:9px}
+.maestro-mapa__nota{display:flex;gap:8px;align-items:flex-start;margin:12px 2px 0;color:var(--texto-3);font-size:12px}.maestro-mapa__nota i{margin-top:2px;color:var(--oro)}
+.maestro-mapa__volver{margin-top:14px}
+.maestro-mapa__recorrido{display:inline-flex;align-items:center;gap:8px;margin-top:12px;text-decoration:none}
+.notificaciones-docente{display:block;width:100%;min-height:65vh;border:1px solid var(--linea-fuerte);border-radius:var(--radio-lg);background:#0c0708;opacity:0;transition:opacity .2s ease}
+.notificaciones-docente--lista{opacity:1}
+.recorrido-publico{max-width:700px;margin:auto;padding:30px;border:1px solid var(--linea-fuerte);border-radius:var(--radio-lg);background:linear-gradient(145deg,rgba(26,16,18,.98),rgba(17,10,11,.98));color:var(--texto)}
+.recorrido-publico h3{margin:9px 0;color:var(--oro-claro);font:700 25px var(--fuente-titulo)}
+.recorrido-publico p{color:var(--texto-2)}.recorrido-publico .btn-hoy{display:inline-flex;align-items:center;gap:8px;margin-top:10px;text-decoration:none}
+.selector-modo-docente{display:flex;gap:3px;padding:3px;border:1px solid var(--linea-fuerte);border-radius:999px;background:var(--bg-panel)}
+.selector-modo-docente button{padding:7px 11px;border:0;border-radius:999px;background:transparent;color:var(--texto-2);font:600 12px var(--fuente-cuerpo);cursor:pointer}
+.selector-modo-docente button.activo{background:var(--oro);color:#160f0e}
+@media(max-width:1050px){.maestro-mapa{grid-template-columns:1fr}.maestro-mapa__panel{max-height:none}.maestro-mapa__lista{grid-template-columns:repeat(2,minmax(0,1fr));max-height:280px}}
+@media(max-width:600px){.maestro-mapa__titulo{align-items:flex-start;flex-direction:column;padding:15px}.maestro-mapa__titulo h3{font-size:17px}#mapaFuncional{height:62vh;min-height:430px}.maestro-mapa__panel{padding:12px}.maestro-mapa__lista{grid-template-columns:1fr;max-height:240px}}
+

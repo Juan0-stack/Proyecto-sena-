@@ -3,8 +3,10 @@ from datetime import date, timedelta
 from flask import Blueprint, jsonify, request, session
 
 from controllers.controller import SolicitudController
+from models.espacio_model import EspacioModel
 from models.solicitud_model import SolicitudModel
 from utils.auth import login_required, role_required
+from utils.modo_docente import modo_actual
 
 solicitudes_bp = Blueprint('solicitudes', __name__)
 
@@ -12,6 +14,8 @@ solicitudes_bp = Blueprint('solicitudes', __name__)
 @solicitudes_bp.route('/api/solicitudes', methods=['POST'])
 @role_required('Docente', api=True)
 def crear_solicitud():
+    if modo_actual() != 'docente':
+        return jsonify({'ok': False, 'error': 'El modo Encargado no puede solicitar espacios.'}), 403
     datos = request.get_json(silent=True) or {}
     return jsonify(SolicitudController.crear(datos))
 
@@ -26,8 +30,10 @@ def listar_solicitudes():
         id_usuario = session.get('id_usuario')
         mis_ids = [e.get('id_espacio') for e in EspacioModel.listar_por_encargado(id_usuario)]
         datos = SolicitudController.listar_para_sesion()
-        if mis_ids:
-            datos = [d for d in datos if d.get('id_espacio') in mis_ids]
+        if modo_actual() == 'encargado' and mis_ids:
+            datos = [d for d in datos if d.get('id_espacio') in mis_ids and d.get('id_usuario') != id_usuario]
+        elif modo_actual() == 'docente':
+            datos = [d for d in datos if d.get('id_usuario') == id_usuario]
         else:
             datos = []
         return jsonify({'ok': True, 'solicitudes': datos})
@@ -64,14 +70,10 @@ def ocupacion_mes():
         hasta = date(anio, num + 1, 1) - timedelta(days=1)
     rol = session.get('nombre_rol')
     if rol == 'Docente':
-        id_usuario = session.get('id_usuario')
-        mis_ids = [e.get('id_espacio') for e in EspacioModel.listar_por_encargado(id_usuario)]
-        if mis_ids:
-            # Para docente, filtrar por sus espacios
-            filas = SolicitudModel.ocupacion(desde, hasta, tipo=tipo or None)
+        filas = SolicitudModel.ocupacion(desde, hasta, tipo=tipo or None)
+        if modo_actual() == 'encargado':
+            mis_ids = {e.get('id_espacio') for e in EspacioModel.listar_por_encargado(session.get('id_usuario'))}
             filas = [f for f in filas if f.get('id_espacio') in mis_ids]
-        else:
-            filas = []
     else:
         filas = SolicitudModel.ocupacion(desde, hasta, tipo=tipo or None)
     return jsonify({'ok': True, 'ocupacion': filas})

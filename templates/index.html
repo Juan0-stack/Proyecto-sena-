@@ -6,7 +6,7 @@
     <title>ISAILO MAPS</title>
     <link rel="stylesheet" href="../static/css/tokens.css">
     <link rel="stylesheet" href="../static/css/logo.css?v=1">
-    <link rel="stylesheet" href="../static/css.css?v=9">
+    <link rel="stylesheet" href="../static/css.css?v=11">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="../static/vendor/logo.png" type="image/png">
@@ -94,7 +94,25 @@
             </div>
             <div class="cal-publico__agenda" id="calPublicoEventos" aria-live="polite"></div>
         </div>
-        <div class="cal-publico__panel cal-publico__panel--vacio" id="espaciosPublicos" role="tabpanel" aria-labelledby="tabEspacios" hidden></div>
+        <div class="cal-publico__panel cal-publico__panel--vacio" id="espaciosPublicos" role="tabpanel" aria-labelledby="tabEspacios" hidden>
+            <div class="mapa-publico__contenido">
+                <div class="mapa-publico__titulo">
+                    <div><span class="etiqueta">Explora la institución</span><h3>Mapa institucional</h3></div>
+                    <p>Selecciona un edificio para consultar sus pisos y espacios.</p>
+                </div>
+                <iframe
+                    class="mapa-publico__visor"
+                    src="/mapa-publico"
+                    title="Mapa interactivo de consulta del Instituto San Ignacio de Loyola"
+                    loading="lazy"
+                    referrerpolicy="same-origin"
+                ></iframe>
+                <div class="recorrido-publico">
+                    <div><span class="etiqueta">Exploración virtual</span><p>El recorrido virtual estará disponible próximamente.</p></div>
+                    <button type="button" class="btn-hoy" disabled title="Disponible próximamente"><i class="fa-solid fa-vr-cardboard" aria-hidden="true"></i> Recorrido virtual</button>
+                </div>
+            </div>
+        </div>
     </section>
 
     <section class="about" id="nosotros">

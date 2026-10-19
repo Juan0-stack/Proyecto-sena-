@@ -4,6 +4,8 @@ from flask import session
 
 from models.espacio_model import EspacioModel
 from models.solicitud_model import SolicitudModel
+from utils.espacios_mapa import clave_espacio
+from utils.modo_docente import modo_actual
 
 
 class SolicitudController:
@@ -43,6 +45,8 @@ class SolicitudController:
 
     @staticmethod
     def crear(datos):
+        if modo_actual() == 'encargado':
+            return {'ok': False, 'error': 'Cambia al modo Docente para solicitar un espacio.'}
         fecha_uso, hora_inicio, hora_fin, nombre_actividad, descripcion, error = \
             SolicitudController._validar(datos)
 
@@ -57,6 +61,8 @@ class SolicitudController:
         espacio = EspacioModel.obtener(id_espacio)
         if not espacio:
             return {'ok': False, 'error': 'El espacio no existe.'}
+        if not clave_espacio(espacio.get('nombre')):
+            return {'ok': False, 'error': 'Este espacio no está habilitado para solicitudes.'}
         if espacio['estado'] == 'Mantenimiento':
             return {'ok': False, 'error': 'El espacio está en mantenimiento y no acepta solicitudes.'}
 
@@ -142,6 +148,7 @@ class SolicitudController:
         es_admin = rol in ('Administrador', 'Gestión de Calidad')
         es_encargado = (
             rol == 'Docente'
+            and modo_actual() == 'encargado'
             and solicitud.get('id_usuario_encargado') == id_usuario
         )
 

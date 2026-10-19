@@ -20,6 +20,12 @@
     </a>
 
     <div class="app-header__usuario">
+        {% if session.get('nombre_rol') == 'Docente' and tiene_espacio|default(false) %}
+        <div class="selector-modo-docente" role="group" aria-label="Modo de trabajo docente">
+            <button type="button" data-cambiar-modo="encargado" class="{% if modo_docente == 'encargado' %}activo{% endif %}" aria-pressed="{{ 'true' if modo_docente == 'encargado' else 'false' }}">Encargado</button>
+            <button type="button" data-cambiar-modo="docente" class="{% if modo_docente == 'docente' %}activo{% endif %}" aria-pressed="{{ 'true' if modo_docente == 'docente' else 'false' }}">Docente</button>
+        </div>
+        {% endif %}
         <span class="app-header__saludo">
             Bienvenido/a, <strong>{{ session['nombre'] }}</strong>
         </span>

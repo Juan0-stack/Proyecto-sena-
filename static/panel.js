@@ -8,6 +8,7 @@
     var EASE = { entrada: 'power2.out', salida: 'power2.out' };
     var BODY = document.body;
     var ROL = BODY.getAttribute('data-rol') || '';
+    var MODO_DOCENTE = BODY.getAttribute('data-modo') || 'docente';
     var ID_USUARIO = parseInt(BODY.getAttribute('data-usuario-id') || '0', 10);
     /* Dos roles administrativos (spec §4): el Administrador conserva todo el
        poder; Gestión de Calidad tiene menos. */
@@ -172,6 +173,8 @@
 
     var estado = {
         espacios: [],
+        mapaEspacios: [],
+        mapaEspacioSeleccionado: null,
         filtroTipo: '',
         opMes: new Date().getMonth(),
         opAnio: new Date().getFullYear(),
@@ -411,6 +414,21 @@
         vistaActualId = id;
         actualizarMenu(id);
 
+        /* El mapa se muestra sin transición para que sus medidas e imagen no
+           queden a medio dibujar si se cambia de pestaña rápidamente. */
+        if (id === 'mapa') {
+            if (anterior) {
+                anterior.classList.remove('vista--activa');
+                limpiarEstilos(anterior);
+            }
+            nueva.classList.add('vista--activa');
+            limpiarEstilos(nueva);
+            if (MOTION) MOTION.estadoFinalVista(nueva);
+            scrollContenidoTop();
+            setTimeout(sincronizarTamanoMapa, 360);
+            return nueva;
+        }
+
         /* ¿Ya está visible y no hay saliente? Solo refrescar. */
         if (!anterior && nueva.classList.contains('vista--activa')) {
             if (MOTION) MOTION.revealIn(nueva);
@@ -508,6 +526,97 @@
         });
     }
 
+    function cargarEspaciosMapa() {
+        var contenedor = document.getElementById('listaEspaciosMapa');
+        if (!contenedor) return Promise.resolve();
+        return api('/api/mapa/espacios').then(function (res) {
+            estado.mapaEspacios = res.ok ? (res.espacios || []) : [];
+            pintarEspaciosMapa();
+            enviarZonasPermitidasMapa();
+            if (!res.ok) {
+                contenedor.innerHTML = '<p class="maestro-mapa__vacio">No se pudieron cargar los espacios.</p>';
+            }
+        });
+    }
+
+    function pintarEspaciosMapa() {
+        var lista = document.getElementById('listaEspaciosMapa');
+        if (!lista) return;
+        var busqueda = sinAcentos((document.getElementById('buscarEspacioMapa') || {}).value || '').toLowerCase().trim();
+        var espacios = estado.mapaEspacios.filter(function (espacio) {
+            return sinAcentos(espacio.nombre || '').toLowerCase().indexOf(busqueda) >= 0;
+        });
+        var total = document.getElementById('totalEspaciosMapa');
+        if (total) total.textContent = espacios.length + (espacios.length === 1 ? ' espacio' : ' espacios');
+        if (!espacios.length) {
+            lista.innerHTML = '<p class="maestro-mapa__vacio">' + (estado.mapaEspacios.length ? 'No hay espacios con ese nombre.' : 'Aún no hay espacios registrados.') + '</p>';
+            return;
+        }
+        lista.innerHTML = espacios.map(function (espacio) {
+            var seleccionado = Number(espacio.id_espacio) === Number(estado.mapaEspacioSeleccionado);
+            var estadoCss = espacio.estado === 'Mantenimiento' ? 'mantenimiento' : (espacio.estado === 'Ocupado' ? 'ocupado' : '');
+            return '<button type="button" class="maestro-mapa__item' + (seleccionado ? ' is-selected' : '') + '" data-mapa-espacio="' + espacio.id_espacio + '" aria-pressed="' + (seleccionado ? 'true' : 'false') + '">' +
+                '<span><span class="maestro-mapa__item-nombre">' + esc(espacio.nombre) + '</span><span class="maestro-mapa__item-tipo">' + esc(espacio.tipo || 'Espacio') + '</span></span>' +
+                '<i class="maestro-mapa__punto' + (estadoCss ? ' maestro-mapa__punto--' + estadoCss : '') + '" title="' + esc(espacio.estado || 'Disponible') + '"></i></button>';
+        }).join('');
+        if (estado.mapaEspacioSeleccionado) seleccionarEspacioMapa(estado.mapaEspacioSeleccionado, false);
+        else seleccionarEspacioMapa(espacios[0].id_espacio, false);
+    }
+
+    function seleccionarEspacioMapa(idEspacio, volverAPintar) {
+        var espacio = null;
+        estado.mapaEspacios.forEach(function (item) {
+            if (Number(item.id_espacio) === Number(idEspacio)) espacio = item;
+        });
+        if (!espacio) return;
+        estado.mapaEspacioSeleccionado = Number(espacio.id_espacio);
+        document.getElementById('nombreEspacioMapa').textContent = espacio.nombre;
+        document.getElementById('estadoEspacioMapa').textContent = 'Estado: ' + (espacio.estado || 'Disponible');
+        document.getElementById('encargadoEspacioMapa').textContent = 'Encargado: ' + ((espacio.encargado_nombre || '').trim() || 'Sin encargado');
+        var solicitar = document.getElementById('solicitarEspacioMapa');
+        if (solicitar) {
+            solicitar.dataset.id = espacio.id_espacio;
+            solicitar.hidden = espacio.estado === 'Mantenimiento' || MODO_DOCENTE !== 'docente';
+        }
+        if (volverAPintar !== false) pintarEspaciosMapa();
+        else {
+            document.querySelectorAll('.maestro-mapa__item').forEach(function (boton) {
+                var activo = Number(boton.dataset.mapaEspacio) === Number(espacio.id_espacio);
+                boton.classList.toggle('is-selected', activo);
+                boton.setAttribute('aria-pressed', activo ? 'true' : 'false');
+            });
+        }
+    }
+
+    function seleccionarEspacioDesdeZona(identificador) {
+        var espacioEncontrado = null;
+        estado.mapaEspacios.forEach(function (espacio) {
+            if (espacio.zona_mapa === identificador) espacioEncontrado = espacio;
+        });
+        if (!espacioEncontrado) return false;
+        seleccionarEspacioMapa(espacioEncontrado.id_espacio);
+        return true;
+    }
+
+    function enviarZonasPermitidasMapa() {
+        var marco = document.getElementById('mapaFuncional');
+        if (!marco || !marco.contentWindow) return;
+        marco.contentWindow.postMessage({
+            tipo: 'filtrar-zonas-mapa',
+            zonas: estado.mapaEspacios.map(function (espacio) { return espacio.zona_mapa; }).filter(Boolean)
+        }, window.location.origin);
+    }
+
+    function sincronizarTamanoMapa() {
+        var marco = document.getElementById('mapaFuncional');
+        if (!marco || !marco.contentWindow) return;
+        window.requestAnimationFrame(function () {
+            window.requestAnimationFrame(function () {
+                marco.contentWindow.postMessage({ tipo: 'recalcular-mapa' }, window.location.origin);
+            });
+        });
+    }
+
     function pintarFiltroTipos() {
         var tipos = {};
         estado.espacios.forEach(function (e) { if (e.tipo) tipos[e.tipo.trim()] = true; });
@@ -543,7 +652,7 @@
                 botones += '<button class="btn-admin btn-admin--danger" data-accion="eliminar" data-id="' + e.id_espacio + '"><i class="fas fa-trash"></i> Eliminar</button>';
             }
         } else if (ROL === 'Docente') {
-            if (e.estado !== 'Mantenimiento') {
+            if (MODO_DOCENTE !== 'encargado' && e.estado !== 'Mantenimiento') {
                 botones += '<button class="btn-admin btn-admin--primario" data-accion="solicitar" data-id="' + e.id_espacio + '"><i class="fas fa-calendar-plus"></i> Solicitar</button>';
             }
             if (e.id_usuario_encargado === ID_USUARIO) {
@@ -809,7 +918,151 @@
             pintarBadgeSolicitudes();
             pintarEspacios();
             pintarSolicitudes();
+            pintarNotificaciones();
         });
+    }
+
+    function pintarNotificaciones() {
+        var marco = document.getElementById('notificacionesHtml');
+        if (!marco || !marco.contentDocument || marco.contentDocument.readyState !== 'complete') return;
+        var doc = marco.contentDocument;
+        var recibidas = MODO_DOCENTE === 'encargado';
+        var lista = doc.getElementById(recibidas ? 'lista-recibidas' : 'lista-propias');
+        var contador = doc.getElementById(recibidas ? 'contador-recibidas' : 'contador-propias');
+        if (!lista || !contador) return;
+        aplicarEstiloNotificaciones(doc);
+        var solicitudes = estado.solicitudes.slice().sort(function (a, b) {
+            return String(b.fecha_solicitud || '').localeCompare(String(a.fecha_solicitud || ''));
+        });
+        if (recibidas) solicitudes = solicitudes.filter(function (item) { return item.estado === 'pendiente' || item.estado === 'aprobada' || item.estado === 'rechazada'; });
+        if (!recibidas) solicitudes = solicitudes.filter(function (item) { return Number(item.id_usuario) === ID_USUARIO; });
+        lista.replaceChildren();
+        solicitudes.forEach(function (solicitud) {
+            lista.appendChild(crearTarjetaNotificacion(doc, solicitud, recibidas));
+        });
+        if (!solicitudes.length) {
+            var vacio = doc.createElement('p');
+            vacio.className = 'mensaje-vacio';
+            vacio.textContent = recibidas ? 'Aún no tienes solicitudes recibidas.' : 'Aún no tienes solicitudes propias.';
+            lista.appendChild(vacio);
+        }
+        contador.textContent = recibidas
+            ? solicitudes.filter(function (item) { return item.estado === 'pendiente'; }).length + ' pendientes'
+            : solicitudes.length + ' registros';
+        marco.classList.add('notificaciones-docente--lista');
+        var badge = document.getElementById('badgeNotificaciones');
+        if (badge) {
+            var pendientes = solicitudes.filter(function (item) { return item.estado === 'pendiente'; }).length;
+            badge.textContent = pendientes;
+            badge.hidden = pendientes === 0;
+        }
+    }
+
+    function aplicarEstiloNotificaciones(doc) {
+        if (doc.getElementById('estilo-integracion-notificaciones')) return;
+        var estilo = doc.createElement('style');
+        estilo.id = 'estilo-integracion-notificaciones';
+        estilo.textContent = 'body{display:block!important;min-height:0!important;margin:0;background:#0c0708!important;color:#F3EAD8!important;font-family:Inter,Arial,sans-serif!important}aside,.header_nav,.aviso-prototipo{display:none!important}main{display:block!important;width:100%!important;height:auto!important;min-height:0!important;background:transparent!important;padding:0!important}.contenido-notificaciones{max-width:none!important;margin:0!important;padding:4px!important;background:transparent!important}.encabezado{display:none!important}.panel-notificaciones{background:#130b0c!important;border:1px solid rgba(201,169,110,.3)!important;color:#F3EAD8!important}.cabecera-panel{color:#E0C48A!important}.contador{background:#7F1D2D!important;color:#F3EAD8!important}.tarjeta-notificacion{background:#1a1012!important;border:1px solid rgba(201,169,110,.2)!important;color:#F3EAD8!important}.tarjeta-notificacion h3,.tarjeta-notificacion strong{color:#F3EAD8!important}.tarjeta-notificacion p,.dato span{color:#CDC1AA!important}.estado{color:#F3EAD8!important}.mensaje-vacio{color:#CDC1AA!important}';
+        doc.head.appendChild(estilo);
+    }
+
+    function crearTarjetaNotificacion(doc, solicitud, recibida) {
+        var tarjeta = doc.createElement('article');
+        tarjeta.className = 'tarjeta-notificacion';
+        var estado = solicitud.estado || 'pendiente';
+        var cabecera = doc.createElement('div');
+        cabecera.className = 'cabecera-tarjeta';
+        var titulo = doc.createElement('div');
+        var nombre = doc.createElement('h3');
+        nombre.textContent = solicitud.nombre_actividad || 'Solicitud de espacio';
+        var espacio = doc.createElement('p');
+        espacio.className = 'actividad';
+        espacio.textContent = 'Espacio: ' + (solicitud.espacio_nombre || 'Sin nombre');
+        titulo.appendChild(nombre);
+        titulo.appendChild(espacio);
+        if (recibida) {
+            var solicitante = doc.createElement('p');
+            solicitante.className = 'actividad';
+            solicitante.textContent = 'Solicitante: ' + (solicitud.solicitante || 'Sin nombre');
+            titulo.appendChild(solicitante);
+        }
+        var etiqueta = doc.createElement('span');
+        etiqueta.className = 'estado ' + estado;
+        etiqueta.textContent = estado === 'aprobada' ? 'Aceptada' : (estado === 'rechazada' ? 'Rechazada' : 'Pendiente');
+        cabecera.appendChild(titulo);
+        cabecera.appendChild(etiqueta);
+        tarjeta.appendChild(cabecera);
+        var resumen = doc.createElement('div');
+        resumen.className = 'resumen';
+        resumen.appendChild(textoNotificacion(doc, 'Fecha de uso: ', fmtFechaLarga(String(solicitud.fecha_uso || ''))));
+        resumen.appendChild(textoNotificacion(doc, 'Horario: ', String(solicitud.hora_inicio || '').slice(0, 5) + ' – ' + String(solicitud.hora_fin || '').slice(0, 5)));
+        tarjeta.appendChild(resumen);
+        var acciones = doc.createElement('div');
+        acciones.className = 'acciones';
+        var detalle = doc.createElement('div');
+        detalle.className = 'detalle';
+        detalle.hidden = true;
+        var tituloDetalle = doc.createElement('h4');
+        tituloDetalle.textContent = 'Detalles de la solicitud';
+        detalle.appendChild(tituloDetalle);
+        var datos = doc.createElement('div');
+        datos.className = 'datos-detalle';
+        datos.appendChild(datoNotificacion(doc, 'Actividad', solicitud.nombre_actividad));
+        datos.appendChild(datoNotificacion(doc, 'Descripción', solicitud.descripcion));
+        datos.appendChild(datoNotificacion(doc, 'Fecha de solicitud', solicitud.fecha_solicitud));
+        detalle.appendChild(datos);
+        var btnDetalle = doc.createElement('button');
+        btnDetalle.type = 'button';
+        btnDetalle.className = 'boton boton-detalle';
+        btnDetalle.textContent = 'Ver detalles';
+        btnDetalle.addEventListener('click', function () {
+            detalle.hidden = !detalle.hidden;
+            btnDetalle.textContent = detalle.hidden ? 'Ver detalles' : 'Ocultar detalles';
+        });
+        acciones.appendChild(btnDetalle);
+        if (recibida && estado === 'pendiente' && solicitud.puede_autorizar) {
+            acciones.appendChild(botonDecisionNotificacion(doc, solicitud.id_solicitud, 'aprobada', 'Aceptar'));
+            acciones.appendChild(botonDecisionNotificacion(doc, solicitud.id_solicitud, 'rechazada', 'Rechazar'));
+        }
+        tarjeta.appendChild(acciones);
+        tarjeta.appendChild(detalle);
+        return tarjeta;
+    }
+
+    function textoNotificacion(doc, titulo, valor) {
+        var linea = doc.createElement('p');
+        var etiqueta = doc.createElement('strong');
+        etiqueta.textContent = titulo;
+        linea.appendChild(etiqueta);
+        linea.appendChild(doc.createTextNode(valor || 'No especificado'));
+        return linea;
+    }
+
+    function datoNotificacion(doc, titulo, valor) {
+        var dato = doc.createElement('div');
+        dato.className = 'dato';
+        var etiqueta = doc.createElement('strong');
+        etiqueta.textContent = titulo;
+        var texto = doc.createElement('span');
+        texto.textContent = valor || 'No especificado';
+        dato.appendChild(etiqueta);
+        dato.appendChild(texto);
+        return dato;
+    }
+
+    function botonDecisionNotificacion(doc, id, estado, texto) {
+        var boton = doc.createElement('button');
+        boton.type = 'button';
+        boton.className = 'boton ' + (estado === 'aprobada' ? 'boton-aceptar' : 'boton-rechazar');
+        boton.textContent = texto;
+        boton.addEventListener('click', function () {
+            api('/api/solicitudes/' + id + '/estado', 'PATCH', { estado: estado }).then(function (res) {
+                if (!res.ok) { toast(res.error || 'No se pudo actualizar la solicitud.', 'error'); return; }
+                toast(estado === 'aprobada' ? 'Solicitud aceptada.' : 'Solicitud rechazada.');
+                cargarSolicitudes();
+            });
+        });
+        return boton;
     }
 
     function pintarBadgeSolicitudes() {
@@ -832,6 +1085,7 @@
     function abrirModalSolicitud(idEspacio) {
         var espacio = null;
         estado.espacios.forEach(function (e) { if (e.id_espacio === idEspacio) espacio = e; });
+        estado.mapaEspacios.forEach(function (e) { if (Number(e.id_espacio) === Number(idEspacio)) espacio = e; });
         if (!espacio) return;
 
         estado.solEspacio = idEspacio;
@@ -848,13 +1102,14 @@
         $('#solFin').value = '09:00';
         ocultarAvisoSolicitud();
         setError('#errorModalSolicitud', '');
+        var inicio = hoyISO().split('-');
+        abrirMiniCal(parseInt(inicio[0], 10), parseInt(inicio[1], 10) - 1);
         abrirModal('modalSolicitud');
         validarDisponibilidad();
     }
 
     function ocultarAvisoSolicitud() {
         $('#solAviso').hidden = true;
-        $('#miniCal').hidden = true;
     }
 
     function setError(sel, texto) {
@@ -880,16 +1135,24 @@
                 });
                 if (cruces.length) {
                     var texto = cruces.map(function (b) {
-                        return b.nombre_actividad + ' (' + String(b.hora_inicio).slice(0, 5) + '–' + String(b.hora_fin).slice(0, 5) + ')';
+                        return String(b.hora_inicio).slice(0, 5) + '–' + String(b.hora_fin).slice(0, 5);
                     }).join(', ');
-                    $('#solAvisoTexto').textContent = ' Ese día hay actividades aprobadas: ' + texto + '. Elige otro horario u otra fecha:';
+                    $('#solAvisoTexto').textContent = ' Ese horario ya está ocupado (' + texto + '). Elige otro horario u otra fecha:';
                     $('#solAviso').hidden = false;
-                    var partes = fecha.split('-');
-                    abrirMiniCal(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1);
                 } else {
                     ocultarAvisoSolicitud();
                 }
+                mostrarHorasOcupadas(fecha, res.bloques || []);
             });
+    }
+
+    function mostrarHorasOcupadas(fecha, bloques) {
+        var salida = document.getElementById('miniHoras');
+        if (!salida) return;
+        var ocupados = bloques.filter(function (b) { return b.fecha_uso === fecha; });
+        salida.textContent = ocupados.length
+            ? 'Horas ocupadas: ' + ocupados.map(function (b) { return String(b.hora_inicio).slice(0, 5) + '–' + String(b.hora_fin).slice(0, 5); }).join(', ')
+            : 'Este día no tiene horarios ocupados.';
     }
 
     function abrirMiniCal(anio, mes) {
@@ -905,7 +1168,8 @@
             .then(function (res) {
                 var mapa = {};
                 (res.ok ? res.bloques : []).forEach(function (b) {
-                    mapa[b.fecha_uso] = true;
+                    if (!mapa[b.fecha_uso]) mapa[b.fecha_uso] = [];
+                    mapa[b.fecha_uso].push(String(b.hora_inicio).slice(0, 5) + '–' + String(b.hora_fin).slice(0, 5));
                 });
                 estado.miniOcupacion = mapa;
                 pintarMiniCal();
@@ -928,7 +1192,7 @@
             if (fecha < hoy) {
                 html += '<span class="cal-celda" style="opacity:.35">' + _dia + '</span>';
             } else if (estado.miniOcupacion[fecha]) {
-                html += '<span class="cal-celda cal-celda--ocupada" title="Ocupado">' + _dia + '</span>';
+                html += '<button type="button" class="cal-celda cal-celda--ocupada" data-fecha="' + fecha + '" title="Ocupado: ' + estado.miniOcupacion[fecha].join(', ') + '">' + _dia + '</button>';
             } else {
                 html += '<button type="button" class="cal-celda" data-fecha="' + fecha + '">' + _dia + '</button>';
             }
@@ -1911,6 +2175,18 @@
             if (typeof abrirModalUsuario === 'function') abrirModalUsuario(null);
         });
 
+        var marcoNotificaciones = document.getElementById('notificacionesHtml');
+        if (marcoNotificaciones) marcoNotificaciones.addEventListener('load', pintarNotificaciones);
+
+        document.querySelectorAll('[data-cambiar-modo]').forEach(function (boton) {
+            boton.addEventListener('click', function () {
+                api('/api/cambiar-modo', 'POST', { modo: boton.dataset.cambiarModo }).then(function (res) {
+                    if (!res.ok) { toast(res.error || 'No se pudo cambiar el modo.', 'error'); return; }
+                    window.location.href = '/maestro/panel';
+                });
+            });
+        });
+
         var rolSel = $('#usuRol');
         if (rolSel) {
             rolSel.addEventListener('change', function () { pintarEspacioCargo(null); });
@@ -1964,6 +2240,36 @@
                     abrirCampana(id);
                 } else if (accion === 'aprobar' || accion === 'rechazar') {
                     decidirSolicitud(id, accion === 'aprobar' ? 'aprobada' : 'rechazada');
+                }
+            });
+        }
+
+        var listaMapa = $('#listaEspaciosMapa');
+        if (listaMapa) {
+            listaMapa.addEventListener('click', function (ev) {
+                var boton = ev.target.closest('[data-mapa-espacio]');
+                if (boton) seleccionarEspacioMapa(boton.dataset.mapaEspacio);
+            });
+        }
+        var botonSolicitarMapa = $('#solicitarEspacioMapa');
+        if (botonSolicitarMapa && MODO_DOCENTE === 'docente') botonSolicitarMapa.addEventListener('click', function () {
+            abrirModalSolicitud(Number(botonSolicitarMapa.dataset.id));
+        });
+        var busquedaMapa = $('#buscarEspacioMapa');
+        if (busquedaMapa) busquedaMapa.addEventListener('input', pintarEspaciosMapa);
+
+        var mapaFuncional = $('#mapaFuncional');
+        if (mapaFuncional) {
+            mapaFuncional.addEventListener('load', function () {
+                enviarZonasPermitidasMapa();
+                sincronizarTamanoMapa();
+            });
+            window.addEventListener('message', function (evento) {
+                if (evento.origin !== window.location.origin || evento.source !== mapaFuncional.contentWindow) return;
+                if (evento.data && evento.data.tipo === 'seleccionar-espacio-mapa') {
+                    if (!seleccionarEspacioDesdeZona(evento.data.identificador)) {
+                        toast('Esta zona no tiene un espacio relacionado en la base de datos. Puedes elegirlo en el listado.');
+                    }
                 }
             });
         }
@@ -2130,7 +2436,11 @@
         if (miniDias) miniDias.addEventListener('click', function (ev) {
             var celda = ev.target.closest('button[data-fecha]');
             if (!celda) return;
-            $('#solFecha').value = celda.getAttribute('data-fecha');
+            var fechaSeleccionada = celda.getAttribute('data-fecha');
+            $('#solFecha').value = fechaSeleccionada;
+            var horas = estado.miniOcupacion[fechaSeleccionada] || [];
+            var salidaHoras = document.getElementById('miniHoras');
+            if (salidaHoras) salidaHoras.textContent = horas.length ? 'Horas ocupadas: ' + horas.join(', ') : 'Este día no tiene horarios ocupados.';
             validarDisponibilidad();
         });
 
@@ -2257,7 +2567,7 @@
         seguro(initAcciones, 'initAcciones');
         seguro(iniciarScroll, 'iniciarScroll');
 
-        var cargas = [cargarEspacios(), cargarPanel()];
+        var cargas = [cargarEspacios(), cargarPanel(), cargarEspaciosMapa()];
 
         /* TODO (spec §2): Calendario, Verificar solicitudes y Editar eventos se
            muestran como pantallas vacías hasta que el equipo de trabajo conecte

@@ -212,6 +212,8 @@ class ClienteController:
         session['correo'] = usuario['correo']
         session['id_rol'] = usuario.get('id_rol')
         session['nombre_rol'] = rol
+        if rol == 'Docente':
+            session['modo'] = 'encargado' if EspacioModel.listar_por_encargado(usuario['id_usuario']) else 'docente'
 
         ClienteModel.actualizar_acceso(usuario['id_usuario'])
 

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAILO MAPS — Mis solicitudes</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            color: #292929;
+        }
+
+        aside {
+            flex: 0 0 250px;
+            padding: 2rem 1.5rem;
+            background: rgb(159, 4, 4);
+        }
+
+        .container-user-actions-aside {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: red;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .usuario {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+
+        .usuario img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .log_out {
+            margin-top: 8px;
+            padding: 5px 12px;
+            background: darkred;
+            border: 4px solid gold;
+            border-radius: 16px;
+            cursor: pointer;
+        }
+
+        .herramientas a {
+            display: block;
+            padding: 15px;
+            margin: 6px 0;
+            border: 3px solid gold;
+            border-radius: 10px;
+            background: cadetblue;
+            color: gold;
+            text-decoration: none;
+        }
+
+        .herramientas a:hover {
+            background: #477f82;
+        }
+
+        main {
+            flex: 1;
+            min-width: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header_nav {
+            min-height: 3rem;
+            display: flex;
+            align-items: center;
+            padding: 10px 25px;
+            background: chartreuse;
+        }
+
+        .contenido-notificaciones {
+            padding: 28px;
+        }
+
+        .encabezado {
+            margin-bottom: 24px;
+        }
+
+        .encabezado h1 {
+            margin-bottom: 8px;
+        }
+
+        .encabezado p {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .panel-notificaciones {
+            min-width: 0;
+            padding: 18px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px #0000000d;
+        }
+
+        .cabecera-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .contador {
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #eeeeee;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .tarjeta-notificacion {
+            margin-bottom: 14px;
+            padding: 16px;
+            border: 1px solid #d8d8d8;
+            border-left: 5px solid #287a8a;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .cabecera-tarjeta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .cabecera-tarjeta h3 {
+            margin-bottom: 6px;
+            font-size: 17px;
+        }
+
+        .actividad {
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .estado {
+            display: inline-block;
+            padding: 6px 9px;
+            border-radius: 5px;
+            background: #fff1c9;
+            color: #785500;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .estado.aceptada {
+            background: #d9f2df;
+            color: #216b35;
+        }
+
+        .estado.rechazada {
+            background: #f9dddd;
+            color: #922b2b;
+        }
+
+        .estado.pendiente {
+            background: #fff1c9;
+            color: #785500;
+        }
+
+        .resumen {
+            display: grid;
+            gap: 7px;
+            margin-bottom: 14px;
+            color: #444;
+            font-size: 14px;
+        }
+
+        .acciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .boton {
+            padding: 9px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .boton:hover {
+            filter: brightness(0.94);
+        }
+
+        .boton-detalle {
+            background: #e9e9e9;
+            color: #222;
+        }
+
+        .detalle {
+            margin-top: 15px;
+            padding-top: 14px;
+            border-top: 1px solid #ddd;
+        }
+
+        .detalle[hidden] {
+            display: none;
+        }
+
+        .detalle h4 {
+            margin-bottom: 12px;
+        }
+
+        .datos-detalle {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 11px;
+        }
+
+        .dato {
+            overflow-wrap: anywhere;
+            line-height: 1.4;
+        }
+
+        .dato strong {
+            display: block;
+            margin-bottom: 3px;
+            color: #555;
+            font-size: 12px;
+        }
+
+        .mensaje-vacio {
+            padding: 20px 10px;
+            color: #777;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .aviso-prototipo {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 7px;
+            background: #fff5d6;
+            color: #725718;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 900px) {
+            aside {
+                flex-basis: 190px;
+                padding: 1rem;
+            }
+
+            .contenido-notificaciones {
+                padding: 18px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            body {
+                flex-direction: column;
+            }
+
+            aside {
+                flex-basis: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside>
+        <div class="container-user-actions-aside">
+            <div class="usuario">
+                <img src="../static/profile_picture.png" alt="Foto de perfil">
+            </div>
+            <h3>Bienvenido, usuario</h3>
+            <button class="log_out" type="button"><h2>Cerrar sesión</h2></button>
+        </div>
+
+        <div class="herramientas">
+            <a href="./NOTIFICACIONES_RECIBIDAS.html"><h3>Solicitudes recibidas</h3></a>
+            <a href="./NOTIFICACIONES_PROPIAS.html"><h3>Mis solicitudes</h3></a>
+            <a href="./HOME(MAPA).html"><h3>Mapa</h3></a>
+            <a href="./CALENDARIO.html"><h3>Calendario</h3></a>
+            <a href="./SOLICITUDES.html"><h3>Solicitudes y reservas</h3></a>
+        </div>
+    </aside>
+
+    <main>
+        <nav class="header_nav">Herramientas</nav>
+
+        <section class="contenido-notificaciones">
+            <header class="encabezado">
+                <h1>Mis solicitudes</h1>
+                <p>Consulta el estado de las reservas que has realizado y revisa la respuesta de quienes gestionan los espacios.</p>
+            </header>
+
+            <section class="panel-notificaciones">
+                <div class="cabecera-panel">
+                    <h2>Mis solicitudes</h2>
+                    <span class="contador" id="contador-propias">0</span>
+                </div>
+                <div id="lista-propias"></div>
+            </section>
+
+            <p class="aviso-prototipo">
+                Prototipo de demostración: Benitez, vincula esto a la base de datos.
+            </p>
+        </section>
+    </main>
+
+    <script>
+        const solicitudesPropias = [
+            {
+                id_solicitud: "SOL-003",
+                fecha_solicitud: "2026-10-18 10:15",
+                fecha_uso: "2026-10-27",
+                hora_inicio: "08:00",
+                hora_fin: "10:00",
+                cantidad_personas: 30,
+                nombre_actividad: "Reunión académica",
+                descripcion_actividad: "Reunión de coordinación entre docentes.",
+                estado: "Aceptada",
+                id_usuario: "aca va el id del profe",
+                id_espacio: "aca va el id del salon de actos",
+                motivo_rechazo: ""
+            },
+            {
+                id_solicitud: "SOL-004",
+                fecha_solicitud: "2026-10-17 09:20",
+                fecha_uso: "2026-10-24",
+                hora_inicio: "11:00",
+                hora_fin: "12:00",
+                cantidad_personas: 15,
+                nombre_actividad: "Asesoría de proyecto",
+                descripcion_actividad: "Encuentro para revisar los avances del proyecto stem.",
+                estado: "Rechazada",
+                id_usuario: "aca va el id del profe",
+                id_espacio: "aca va el id del laboratorio de quimica",
+                motivo_rechazo: "El espacio no está disponible en ese horario."
+            }
+        ];
+
+        function escaparHTML(valor) {
+            return String(valor ?? "").replace(/[&<>\"']/g, caracter => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[caracter]);
+        }
+
+        function crearDetalle(solicitud) {
+            const campos = [
+                ["Fecha de solicitud", solicitud.fecha_solicitud],
+                ["Fecha de uso", solicitud.fecha_uso],
+                ["Hora de inicio", solicitud.hora_inicio],
+                ["Hora de fin", solicitud.hora_fin],
+                ["Cantidad de personas", solicitud.cantidad_personas],
+                ["Nombre de la actividad", solicitud.nombre_actividad],
+                ["Descripción", solicitud.descripcion_actividad],
+                ["Estado", solicitud.estado],
+                ["ID de solicitud", solicitud.id_solicitud],
+                ["ID de usuario", solicitud.id_usuario],
+                ["ID de espacio", solicitud.id_espacio]
+            ];
+
+            if (solicitud.motivo_rechazo) {
+                campos.push(["Motivo de rechazo", solicitud.motivo_rechazo]);
+            }
+
+            return campos.map(([titulo, valor]) => `
+                <div class="dato">
+                    <strong>${escaparHTML(titulo)}</strong>
+                    <span>${escaparHTML(valor || "No especificado")}</span>
+                </div>
+            `).join("");
+        }
+
+        function crearTarjeta(solicitud) {
+            const tarjeta = document.createElement("article");
+            tarjeta.className = "tarjeta-notificacion";
+
+            const estadoClase = solicitud.estado.toLowerCase();
+
+            tarjeta.innerHTML = `
+                <div class="cabecera-tarjeta">
+                    <div>
+                        <h3>${escaparHTML(solicitud.nombre_actividad)}</h3>
+                        <p class="actividad">Espacio: ${escaparHTML(solicitud.id_espacio)}</p>
+                    </div>
+                    <span class="estado ${escaparHTML(estadoClase)}">${escaparHTML(solicitud.estado)}</span>
+                </div>
+
+                <div class="resumen">
+                    <p><strong>Fecha de uso:</strong> ${escaparHTML(solicitud.fecha_uso)}</p>
+                    <p><strong>Horario:</strong> ${escaparHTML(solicitud.hora_inicio)} – ${escaparHTML(solicitud.hora_fin)}</p>
+                    <p><strong>Personas:</strong> ${escaparHTML(solicitud.cantidad_personas)}</p>
+                </div>
+
+                <div class="acciones">
+                    <button type="button" class="boton boton-detalle">Ver detalles</button>
+                </div>
+
+                <div class="detalle" hidden>
+                    <h4>Detalles de la solicitud</h4>
+                    <div class="datos-detalle">${crearDetalle(solicitud)}</div>
+                </div>
+            `;
+
+            const detalle = tarjeta.querySelector(".detalle");
+            const botonDetalle = tarjeta.querySelector(".boton-detalle");
+
+            botonDetalle.addEventListener("click", () => {
+                detalle.hidden = !detalle.hidden;
+                botonDetalle.textContent = detalle.hidden ? "Ver detalles" : "Ocultar detalles";
+            });
+
+            return tarjeta;
+        }
+
+        function renderizarNotificaciones() {
+            const propiasOrdenadas = [...solicitudesPropias].sort((a, b) =>
+                b.fecha_solicitud.localeCompare(a.fecha_solicitud)
+            );
+
+            const listaPropias = document.getElementById("lista-propias");
+            listaPropias.replaceChildren();
+
+            propiasOrdenadas.forEach(solicitud => {
+                listaPropias.appendChild(crearTarjeta(solicitud));
+            });
+
+            document.getElementById("contador-propias").textContent = solicitudesPropias.length + " registros";
+
+            if (!propiasOrdenadas.length) {
+                listaPropias.innerHTML = '<p class="mensaje-vacio">Todavía no tienes solicitudes propias.</p>';
+            }
+        }
+
+        renderizarNotificaciones();
+    </script>
+</body>
+</html>

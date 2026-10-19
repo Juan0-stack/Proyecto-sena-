@@ -1,0 +1,22 @@
+/* Ajusta la pantalla de mapas existente cuando se abre dentro del panel docente. */
+html,body{width:100%;height:100%;min-height:100%;overflow:hidden;background:#0c0708;color:#F3EAD8;font-family:Inter,Arial,sans-serif}
+body[data-integrado="true"]>aside,body[data-integrado="true"] main>nav.header_nav{display:none!important}
+body[data-integrado="true"] main{display:flex;flex:1;width:100%;height:100%;min-width:0;overflow:hidden;flex-direction:column;background:#0c0708}
+body[data-integrado="true"] .filtro_mapa{height:auto;min-height:54px;flex:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;background:#110a0b;border-bottom:1px solid rgba(201,169,110,.22);color:#F3EAD8}
+body[data-integrado="true"] #titulo-filtro{font-size:14px;font-weight:650}
+body[data-integrado="true"] .mapa-tooltip{position:fixed;z-index:10000;max-width:min(300px,calc(100vw - 20px));padding:10px 13px;border:1px solid rgba(201,169,110,.55);border-radius:12px;background:rgba(24,13,15,.97);box-shadow:0 12px 30px rgba(0,0,0,.42),inset 3px 0 0 #C9A96E;color:#F8EFDE;font-size:13px;font-weight:600;line-height:1.4;letter-spacing:.01em;pointer-events:none;backdrop-filter:blur(10px);transform:translateY(3px);opacity:0;transition:opacity .12s ease,transform .12s ease}
+body[data-integrado="true"] .mapa-tooltip[data-visible="true"]{transform:translateY(0);opacity:1}
+body[data-integrado="true"] .mapa-tooltip[hidden]{display:none!important}
+body[data-integrado="true"] map area{cursor:pointer}
+body[data-integrado="true"] .selector-pisos{display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end}
+body[data-integrado="true"] .boton-piso{padding:7px 11px;border:1px solid rgba(201,169,110,.32);border-radius:9px;background:#1a1012;color:#F3EAD8;cursor:pointer}
+body[data-integrado="true"] .boton-piso:hover,body[data-integrado="true"] .boton-piso.activo{border-color:#C9A96E;background:rgba(201,169,110,.14);color:#E0C48A}
+body[data-integrado="true"] .mapa_general{flex:1;min-height:0;width:100%;overflow:auto;display:flex;justify-content:center;align-items:center;padding:16px;background:#0c0708}
+body[data-integrado="true"] .contenedor-mapas{display:flex;width:100%;height:100%;min-height:0;overflow:auto;align-items:center;justify-content:center;padding:0;background:#0c0708}
+body[data-integrado="true"] .contenedor-mapas img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 10px 22px rgba(0,0,0,.32))}
+body[data-integrado="true"] #mapa-general-vista{width:100%;height:100%;display:flex;justify-content:center;align-items:center}
+body[data-integrado="true"] #mapa-general-vista>img.mapa-general{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain}
+body[data-integrado="true"] #visor-seccion{color:#F3EAD8;background:#110a0b}
+body[data-integrado="true"] #volver{flex:none;margin-left:auto;padding:9px 13px;border:1px solid rgba(201,169,110,.34);border-radius:9px;background:#1a1012;color:#E0C48A;white-space:nowrap;cursor:pointer}
+body[data-integrado="true"] .capa-resaltado .espacio-resaltado{fill:rgba(201,169,110,.32);stroke:#E0C48A}
+@media(max-width:600px){body[data-integrado="true"] .filtro_mapa{align-items:flex-start;flex-direction:column}body[data-integrado="true"] .selector-pisos{justify-content:flex-start}body[data-integrado="true"] #volver{margin-left:0}body[data-integrado="true"] .mapa_general{padding:8px}}

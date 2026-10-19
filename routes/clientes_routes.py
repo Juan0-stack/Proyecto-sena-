@@ -6,6 +6,7 @@ from models.espacio_model import EspacioModel
 from models.evento_model import EventoModel
 from models.solicitud_model import SolicitudModel
 from utils.auth import login_required, role_required
+from utils.modo_docente import modo_actual, espacios_a_cargo
 
 clientes_bp = Blueprint('clientes', __name__)
 
@@ -92,9 +93,38 @@ def maestro_panel():
     # Solo lectura: reutilizamos PanelController.datos_docente (spec §5).
     datos = PanelController.datos_docente(session.get('id_usuario'))
     espacios = datos.get('mis_espacios') or []
-    return render_template('maestro_panel.html', datos=datos,
+    modo = modo_actual()
+    return render_template('maestro_panel.html', datos=datos, modo_docente=modo,
                            tiene_espacio=bool(espacios),
                            espacio=espacios[0] if espacios else None)
+
+
+@clientes_bp.route('/api/cambiar-modo', methods=['POST'])
+@role_required('Docente', api=True)
+def cambiar_modo_docente():
+    espacios = espacios_a_cargo()
+    if not espacios:
+        session['modo'] = 'docente'
+        return jsonify({'ok': False, 'error': 'Tu cuenta no tiene un espacio a cargo.'}), 403
+    datos = request.get_json(silent=True) or {}
+    modo = (datos.get('modo') or '').strip().lower()
+    if modo not in ('docente', 'encargado'):
+        return jsonify({'ok': False, 'error': 'Elige un modo válido.'}), 400
+    session['modo'] = modo
+    return jsonify({'ok': True, 'modo': modo})
+
+
+@clientes_bp.route('/maestro/mapa-funcional')
+@role_required('Docente')
+def mapa_funcional_maestro():
+    # Reutiliza los planos interactivos existentes dentro del panel docente.
+    return render_template('HOME(MAPA).html', integrado=True)
+
+
+@clientes_bp.route('/mapa-publico')
+def mapa_publico():
+    # Mapa público de consulta: permite explorar edificios y pisos, sin reservar.
+    return render_template('HOME(MAPA).html', integrado=True, vista_publica=True)
 
 
 @clientes_bp.route('/estudiante/panel')

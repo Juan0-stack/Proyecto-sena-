@@ -392,9 +392,10 @@
 
 
     </style>
+    {% if integrado %}<link rel="stylesheet" href="/static/css/mapa-docente-integrado.css?v=6">{% endif %}
             
 </head>
-<body>
+<body data-integrado="{{ 'true' if integrado else 'false' }}" data-vista-publica="{{ 'true' if vista_publica|default(false) else 'false' }}">
         <aside>
             <div class="container-user-actions-aside">
                 <div class="usuario">
@@ -422,7 +423,9 @@
     <div id="selector-pisos" class="selector-pisos" hidden>
         <!-- JavaScript insertará aquí los botones -->
     </div>
+    <button type="button" id="volver" aria-label="Volver al inicio del mapa">Volver al inicio del mapa</button>
 </nav>
+{% if integrado %}<div id="mapa-tooltip" class="mapa-tooltip" role="tooltip" hidden></div>{% endif %}
             <section class="mapa_general">
                 
                 
@@ -433,32 +436,32 @@
                 <div class="mapa_general" id="mapa-general-vista">
                     <img 
                     class="mapa-general"
-                     src="../static/Mapa_general.png"
+                     src="../static/mapas-tema/Mapa_general.png"
                     usemap="#mapa-general-areas">
                <!--areas del mapa general-->
                     <map name="mapa-general-areas" class="imge">
 
                         <area
-                            alt="Primaria"
-                            title="Primaria"
-                            data-seccion="primaria"
+                            alt="Gimnasio y Sistemas"
+                            title="Gimnasio y Sistemas"
+                            data-seccion="gimnasio-sistemas"
                             coords="130,661,29,649,50,253,152,269"
                             shape="poly"
                             href="./SeccionE2.html"
                         >
 
                         <area
-                            alt="Balcon"
-                            title="Balcon"
-                            data-seccion="balcon"
+                            alt="Primaria"
+                            title="Primaria"
+                            data-seccion="primaria"
                             coords="125,181,126,258,154,263,154,297,811,296,813,184" 
                             shape="poly"
                             href="./SeccionD2.html"
                         >
 
                         <area
-                        alt="Musica"
-                        title="Musica"
+                        alt="Laboratorio de Música"
+                        title="Laboratorio de Música"
                         data-seccion="musica"
                         coords="837,343,835,176,1055,176,1056,340" 
                         shape="poly"
@@ -466,8 +469,8 @@
                         >
 
                         <area
-                            alt="Torre Bachillerato"
-                            title="Torre Bachillerato"
+                            alt="Bachillerato"
+                            title="Bachillerato"
                             data-seccion="bachillerato"
                             coords="1061,320,1374,320,1377,676,1060,676"
                             shape="poly"
@@ -475,17 +478,17 @@
                         >
 
                         <area
-                            alt="Salon de actos"
-                            title="Salon de actos"
-                            data-seccion="salon-actos"
+                            alt="Cafetería"
+                            title="Cafetería"
+                            data-seccion="cafeteria"
                             coords="149,544,623,544,622,665,143,666"
                             shape="poly"
                             href="./SeccionF2.html"
                         >
 
                         <area
-                            alt="Administrativo"
-                            title="Administrativo"
+                            alt="Administración"
+                            title="Administración"
                             data-seccion="administrativo"
                             coords="634,560,1046,558,1045,675,637,680"
                             shape="poly"
@@ -511,8 +514,8 @@
                         >
 
                         <area
-                            alt="Salon Danzas"
-                            title="Salon Danzas"
+                            alt="Salón de Danzas"
+                            title="Salón de Danzas"
                             data-seccion="danzas"
                             coords="1138,312,1135,18,1257,18,1262,314"
                             shape="poly"
@@ -523,7 +526,7 @@
 
                 </div>
                 <div class="s_a1">
-                    <img src="../static/Administrativo.png" usemap="#map_a1">
+                    <img src="../static/mapas-tema/Administrativo.png" usemap="#map_a1">
 
                     <map name="map_a1">
                         <area target="" alt="Patio_C1" title="Patio_C1" data-espacio="a1-Patio_C1" data-nombre="Patio_C1" href="#" coords="1100,167,1740,169,1746,643,1099,646" shape="poly">
@@ -531,7 +534,7 @@
                         </map>
                 </div>
                 <div class="s_a2">
-                    <img src="../static/Administrativo.png" usemap="#map_a2">
+                    <img src="../static/mapas-tema/Administrativo.png" usemap="#map_a2">
 
                     <map name="map_a2">
                         <area target="" alt="Rectoria" title="Rectoria" data-espacio="a2-Rectoria" data-nombre="Rectoria" href="#" coords="107,167,109,638,412,639,414,171" shape="poly">
@@ -541,7 +544,7 @@
                     </map>
                 </div>
                 <div class="s_a3">
-                    <img src="../static/Administrativo.png" usemap="#map_a3">
+                    <img src="../static/mapas-tema/Administrativo.png" usemap="#map_a3">
 
                     <map name="map_a3">
                     <area target="" alt="Biblioteca" title="Biblioteca" data-espacio="a3-Biblioteca" data-nombre="Biblioteca" href="#" coords="116,169,108,649,888,644,883,164" shape="poly">
@@ -553,14 +556,14 @@
                     </map>
                 </div>
                 <div class="s_b0">
-                        <img src="../static/TorreBachillerato1.png" usemap="#map_b0">
+                        <img src="../static/mapas-tema/TorreBachillerato1.png" usemap="#map_b0">
 
                         <map name="map_b0">
                         <area target="" alt="PreJardin" title="PreJardin" href="#" coords="709,53,1191,57,1189,974,709,970" shape="poly">
                     </map>
                 </div>
                 <div class="s_b1">
-                    <img src="../static/TorreBachillerato1.png" usemap="#map_b1">
+                    <img src="../static/mapas-tema/TorreBachillerato1.png" usemap="#map_b1">
 
                     <map name="map_b1">
                         <area target="" alt="Salon" title="Salon" data-espacio="b1-Salon1" data-nombre="Salon1" href="#" coords="711,674,911,672,911,972,709,970" shape="poly">
@@ -573,7 +576,7 @@
                     </map>
                 </div>
                 <div class="s_b2">
-                    <img src="../static/TorreBachillerato1.png" usemap="#map_b2">
+                    <img src="../static/mapas-tema/TorreBachillerato1.png" usemap="#map_b2">
 
                     <map name="map_b2">
                         <area target="" alt="Lab_Fisica" title="Lab_Fisica" data-espacio="b2-Lab_Fisica" data-nombre="Lab_Fisica" href="#" coords="711,738,710,253,908,254,910,737" shape="poly">
@@ -583,7 +586,7 @@
                     </map>
                 </div>
                 <div class="s_b3">
-                    <img src="../static/TorreBachillerato1.png" usemap="#map_b3">
+                    <img src="../static/mapas-tema/TorreBachillerato1.png" usemap="#map_b3">
 
                     <map name="map_b3">
                         <area target="" alt="Salon" title="Salon" data-espacio="b3-Salon7" data-nombre="Salon7" href="#" coords="711,671,711,363,910,363,912,671" shape="poly">
@@ -596,14 +599,14 @@
                     </map>
                 </div>
                 <div class="s_c1">
-                    <img src="../static/Salon_musica-artes1.jpg" usemap="#map_c1">
+                    <img src="../static/mapas-tema/Salon_musica-artes1.png" usemap="#map_c1">
 
                     <map name="map_c1">
                         <area target="" alt="musica" title="musica" data-espacio="c1-musica" data-nombre="musica" href="#" coords="846,330,847,863,1381,856,1379,327" shape="poly">
                     </map>
                 </div>
                 <div class="s_c2">
-                    <img src="../static/Salon_musica-artes2.jpg" usemap="#map_c2">
+                    <img src="../static/mapas-tema/Salon_musica-artes2.png" usemap="#map_c2">
 
                     <map name="map_c2">
                         <area target="" alt="artes" title="artes" data-espacio="c2-artes" data-nombre="artes" href="#" coords="846,330,847,863,1381,856,1379,327" shape="poly">
@@ -611,14 +614,14 @@
                     </map>
                 </div>
                 <div class="s_d1">
-                    <img src="../static/Balcon.png" usemap="#map_d1">
+                    <img src="../static/mapas-tema/Balcon.png" usemap="#map_d1">
 
                     <map name="map_d1">
                         <area target="" alt="Patio_C2" title="Patio_C2" data-espacio="d1-patio_c2" data-nombre="patio_c2" href="#" coords="637,282,1687,274,1690,616,634,616" shape="poly">
                     </map>
                 </div>
                 <div class="s_d2">
-                    <img src="../static/Balcon.png" usemap="#map_d2">
+                    <img src="../static/mapas-tema/Balcon.png" usemap="#map_d2">
 
                     <map name="map_d2">
                         <area target="" alt="Salon1" title="Salon1" data-espacio="d2-salon1" data-nombre="salon1" href="#" coords="1524,284,1526,526,1686,523,1686,282" shape="poly">
@@ -638,7 +641,7 @@
                 </map>
                 </div>
                 <div class="s_e2">
-                    <img src="../static/Primaria.png" usemap="#map_e2">
+                    <img src="../static/mapas-tema/Primaria.png" usemap="#map_e2">
 
                     <map name="map_e2">
                         <area target="" alt="Salon1" title="Salon1" data-espacio="e2-salon1" data-nombre="salon1" href="#" coords="316,39,655,34,653,265,318,265" shape="poly">
@@ -648,7 +651,7 @@
                     </map>
                 </div>
                 <div class="s_e3">
-                    <img src="../static/Primaria.png" usemap="#map_e3">
+                    <img src="../static/mapas-tema/Primaria.png" usemap="#map_e3">
 
                     <map name="map_e3">
                         <area target="" alt="Inf_P" title="Inf_P" data-espacio="e3-infp" data-nombre="infp" href="#" coords="312,35,316,273,654,271,654,37" shape="poly">
@@ -657,14 +660,14 @@
                     </map>
                 </div>
                 <div class="s_f1">
-                    <img src="../static/Salon_actos.png" usemap="#map_f1">
+                    <img src="../static/mapas-tema/Salon_actos.png" usemap="#map_f1">
 
                     <map name="map_f1">
                        <area target="" alt="Comedor" title="Comedor" data-espacio="f2-comedor" data-nombre="comedor" href="#" coords="735,296,1404,294,1402,696,735,694" shape="poly">
                     </map>
                 </div>
                 <div class="s_f2">
-                    <img src="../static/Salon_actos.png" usemap="#map_f2">
+                    <img src="../static/mapas-tema/Salon_actos.png" usemap="#map_f2">
 
                     <map name="map_f2">
                         <area target="" alt="Salon_actos" title="Salon_actos" data-espacio="f2-Salon_actos" data-nombre="salon_actos" href="" coords="1405,294,1405,694,735,693,737,294" shape="poly">
@@ -672,7 +675,7 @@
                     </map>
                 </div>
                 <div class="s_f3">
-                    <img src="../static/Salon_actos.png" usemap="#map_f3">
+                    <img src="../static/mapas-tema/Salon_actos.png" usemap="#map_f3">
 
                     <map name="map_f3">
                         <area target="" alt="Salon_C" title="Salon_C" data-espacio="f3-salonc" data-nombre="salon_c" href="#" coords="737,293,737,689,508,689,506,292" shape="poly">
@@ -687,7 +690,6 @@
 <!--Mini seccion dentro del mismo mapa-->
             <div id="visor-seccion" style="display:none;">
 
-                <button id="volver"></button>
                 <h2 id="titulo-seccion"></h2>
                 <div id="contenedor-seccion">
                     <img id="imagen-seccion">
@@ -707,6 +709,29 @@ document.querySelectorAll("map area").forEach(area => {
     area.dataset.coordenadasOriginales = area.getAttribute("coords");
 });
 
+// Mantener las zonas activas incluso si no carga el ajustador externo.
+if (typeof window.imageMapResize !== "function") {
+    window.imageMapResize = function () {
+        document.querySelectorAll("map").forEach(function (mapa) {
+            const imagen = document.querySelector('img[usemap="#' + mapa.name + '"]');
+            if (!imagen || !imagen.naturalWidth || !imagen.clientWidth) return;
+            const escalaX = imagen.clientWidth / imagen.naturalWidth;
+            const escalaY = imagen.clientHeight / imagen.naturalHeight;
+            mapa.querySelectorAll("area").forEach(function (area) {
+                const originales = (area.dataset.coordenadasOriginales || "").split(",").map(Number);
+                area.coords = originales.map(function (valor, indice) {
+                    return Math.round(valor * (indice % 2 === 0 ? escalaX : escalaY));
+                }).join(",");
+            });
+        });
+    };
+    window.addEventListener("resize", window.imageMapResize);
+    document.querySelectorAll('img[usemap]').forEach(function (imagen) {
+        if (imagen.complete) window.imageMapResize();
+        else imagen.addEventListener("load", window.imageMapResize);
+    });
+}
+
 // Ajustar las áreas interactivas al tamaño de las imágenes.
 imageMapResize();
 
@@ -721,6 +746,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectorPisos = document.getElementById("selector-pisos");
     const tituloFiltro = document.getElementById("titulo-filtro");
     const botonVolver = document.getElementById("volver");
+    const tooltipMapa = document.getElementById("mapa-tooltip");
 
     const botonesMapa = document.querySelectorAll(
         "#mapa-general-vista area[data-seccion]"
@@ -737,52 +763,176 @@ document.addEventListener("DOMContentLoaded", function () {
     // 2. CONFIGURACIÓN DE LAS SECCIONES
     
 
+    const edificiosMapa = {
+        administrativo: { codigo: "A", nombre: "Administración", pisos: ["A1", "A2", "A3"] },
+        bachillerato: { codigo: "B", nombre: "Bachillerato", pisos: ["B0", "B1", "B2", "B3"] },
+        musica: { codigo: "C", nombre: "Laboratorio de Música", pisos: ["C1", "C2"] },
+        primaria: { codigo: "D", nombre: "Primaria", pisos: ["D1", "D2"] },
+        "gimnasio-sistemas": { codigo: "E", nombre: "Gimnasio y Sistemas", pisos: ["E1", "E2", "E3"] },
+        cafeteria: { codigo: "F", nombre: "Cafetería", pisos: ["F1", "F2", "F3"] },
+        patio1: { nombre: "Patio 1" },
+        patio2: { nombre: "Patio 2" },
+        danzas: { nombre: "Salón de Danzas" }
+    };
+
     const seccionesMapa = {
-        primaria: ".s_e2",
-        balcon: ".s_d2",
-        musica: ".s_c2",
-        bachillerato: ".s_b1",
-        "salon-actos": ".s_f2",
+        primaria: ".s_d1",
+        "gimnasio-sistemas": ".s_e1",
+        musica: ".s_c1",
+        bachillerato: ".s_b0",
+        cafeteria: ".s_f1",
         administrativo: ".s_a1"
     };
 
     // Pisos disponibles en cada sección.
     const pisosPorSeccion = {
         administrativo: [
-            { selector: ".s_a1", nombre: "Piso A1" },
-            { selector: ".s_a2", nombre: "Piso A2" },
-            { selector: ".s_a3", nombre: "Piso A3" }
+            { selector: ".s_a1", codigo: "A1" },
+            { selector: ".s_a2", codigo: "A2" },
+            { selector: ".s_a3", codigo: "A3" }
         ],
 
         bachillerato: [
-            { selector: ".s_b0", nombre: "Piso B0" },
-            { selector: ".s_b1", nombre: "Piso B1" },
-            { selector: ".s_b2", nombre: "Piso B2" },
-            { selector: ".s_b3", nombre: "Piso B3" }
+            { selector: ".s_b0", codigo: "B0" },
+            { selector: ".s_b1", codigo: "B1" },
+            { selector: ".s_b2", codigo: "B2" },
+            { selector: ".s_b3", codigo: "B3" }
         ],
 
         musica: [
-            { selector: ".s_c1", nombre: "Piso C1" },
-            { selector: ".s_c2", nombre: "Piso C2" }
-        ],
-
-        balcon: [
-            { selector: ".s_d1", nombre: "Piso D1" },
-            { selector: ".s_d2", nombre: "Piso D2" }
+            { selector: ".s_c1", codigo: "C1" },
+            { selector: ".s_c2", codigo: "C2" }
         ],
 
         primaria: [
-            { selector: ".s_e1", nombre: "Piso E1" },
-            { selector: ".s_e2", nombre: "Piso E2" },
-            { selector: ".s_e3", nombre: "Piso E3" }
+            { selector: ".s_d1", codigo: "D1" },
+            { selector: ".s_d2", codigo: "D2" }
         ],
 
-        "salon-actos": [
-            { selector: ".s_f1", nombre: "Piso F1" },
-            { selector: ".s_f2", nombre: "Piso F2" },
-            { selector: ".s_f3", nombre: "Piso F3" }
+        "gimnasio-sistemas": [
+            { selector: ".s_e1", codigo: "E1" },
+            { selector: ".s_e2", codigo: "E2" },
+            { selector: ".s_e3", codigo: "E3" }
+        ],
+
+        cafeteria: [
+            { selector: ".s_f1", codigo: "F1" },
+            { selector: ".s_f2", codigo: "F2" },
+            { selector: ".s_f3", codigo: "F3" }
         ]
     };
+
+    const nombresEspaciosMapa = {
+        patio_c1: "Patio C1",
+        oficina_pastoral: "Oficina de Pastoral",
+        rectoria: "Rectoría",
+        coordinacion_a: "Coordinación A",
+        salon_p: "Salón P",
+        biblioteca: "Biblioteca",
+        atencion_a_padres1: "Atención a padres 1",
+        atencion_a_padres2: "Atención a padres 2",
+        ofi_calidad: "Oficina de Calidad",
+        orientacion_esc: "Orientación escolar",
+        prejardin: "Prejardín",
+        salon1: "Salón 1",
+        salon2: "Salón 2",
+        salon3: "Salón 3",
+        salon4: "Salón 4",
+        salon5: "Salón 5",
+        salon6: "Salón 6",
+        salon7: "Salón 7",
+        salon8: "Salón 8",
+        salon9: "Salón 9",
+        salon10: "Salón 10",
+        salon11: "Salón 11",
+        coordinacion_c: "Coordinación C",
+        bodega: "Bodega",
+        lab_fisica: "Laboratorio de Física",
+        lab_biologia: "Laboratorio de Biología",
+        lab_quimica: "Laboratorio de Química",
+        lab_sociales: "Laboratorio de Sociales",
+        musica: "Sala de Música",
+        artes: "Sala de Artes",
+        patio_c2: "Patio C2",
+        gimnasio: "Gimnasio",
+        infp: "Sala de informática de primaria",
+        infb: "Sala de informática principal",
+        comedor: "Comedor",
+        salon_actos: "Salón de actos",
+        salon_c: "Salón C",
+        salon_m: "Salón M",
+        oficina: "Oficina"
+    };
+
+    const nombreEdificioPorCodigo = {
+        A: "Administración",
+        B: "Bachillerato",
+        C: "Laboratorio de Música",
+        D: "Primaria",
+        E: "Gimnasio y Sistemas",
+        F: "Cafetería"
+    };
+
+    function nombreNivel(codigo) {
+        const nivel = Number(String(codigo).slice(1));
+        const nombres = { 1: "Primer piso", 2: "Segundo piso", 3: "Tercer piso" };
+        return nivel === 0 ? "Nivel 0" : (nombres[nivel] || "Piso " + nivel);
+    }
+
+    function conectarTooltip(elemento, texto) {
+        if (!tooltipMapa || !texto) return;
+        elemento.setAttribute("aria-label", texto);
+        elemento.setAttribute("aria-describedby", "mapa-tooltip");
+        elemento.removeAttribute("title");
+
+        function mostrar(evento) {
+            tooltipMapa.textContent = texto;
+            tooltipMapa.hidden = false;
+            tooltipMapa.dataset.visible = "true";
+
+            const rectangulo = elemento.getBoundingClientRect();
+            const x = evento && evento.type !== "focus"
+                ? evento.clientX
+                : rectangulo.left + rectangulo.width / 2;
+            const y = evento && evento.type !== "focus"
+                ? evento.clientY
+                : rectangulo.top + rectangulo.height / 2;
+
+            window.requestAnimationFrame(function () {
+                const margen = 10;
+                const separacion = 14;
+                const ancho = tooltipMapa.offsetWidth;
+                const alto = tooltipMapa.offsetHeight;
+                let izquierda = x + separacion;
+                let arriba = y + separacion;
+                if (izquierda + ancho > window.innerWidth - margen) izquierda = x - ancho - separacion;
+                if (arriba + alto > window.innerHeight - margen) arriba = y - alto - separacion;
+                tooltipMapa.style.left = Math.max(margen, izquierda) + "px";
+                tooltipMapa.style.top = Math.max(margen, arriba) + "px";
+            });
+        }
+
+        function ocultar() {
+            tooltipMapa.dataset.visible = "false";
+            tooltipMapa.hidden = true;
+        }
+
+        elemento.addEventListener("mouseenter", mostrar);
+        elemento.addEventListener("mousemove", mostrar);
+        elemento.addEventListener("mouseleave", ocultar);
+        elemento.addEventListener("focus", mostrar);
+        elemento.addEventListener("blur", ocultar);
+    }
+
+    botonesMapa.forEach(function (area) {
+        const edificio = edificiosMapa[area.dataset.seccion];
+        if (!edificio) return;
+        let texto = edificio.codigo
+            ? "Edificio " + edificio.codigo + " · " + edificio.nombre
+            : edificio.nombre;
+        if (edificio.pisos) texto += " · Pisos " + edificio.pisos.join(", ");
+        conectarTooltip(area, texto);
+    });
 
     
     // 3. OCULTAR LOS PISOS
@@ -809,15 +959,23 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        tituloFiltro.textContent = "Pisos disponibles";
+        const edificio = edificiosMapa[seccion];
+        tituloFiltro.textContent = edificio
+            ? edificio.nombre + " · selecciona un piso"
+            : "Pisos disponibles";
 
         pisosSeccion.forEach(function (piso) {
             const boton = document.createElement("button");
+            const etiquetaNivel = nombreNivel(piso.codigo);
 
             boton.type = "button";
             boton.className = "boton-piso";
-            boton.textContent = piso.nombre;
+            boton.textContent = piso.codigo + " · " + etiquetaNivel;
             boton.dataset.selector = piso.selector;
+            const textoTooltip = edificio
+                ? "Edificio " + edificio.codigo + " · " + edificio.nombre + " · " + etiquetaNivel + " (" + piso.codigo + ")"
+                : etiquetaNivel + " (" + piso.codigo + ")";
+            conectarTooltip(boton, textoTooltip);
 
             boton.addEventListener("click", function () {
                 mostrarPiso(seccion, piso.selector);
@@ -1077,8 +1235,6 @@ document.querySelectorAll("map").forEach(map => {
     // 8. VOLVER AL MAPA GENERAL
    
     if (botonVolver) {
-        botonVolver.textContent = "Volver al mapa general";
-
         botonVolver.addEventListener("click", function () {
             ocultarPisos();
 
@@ -1118,6 +1274,7 @@ document.querySelectorAll("map").forEach(map => {
     // 10. REFERENCIAS AL FORMULARIO DE RESERVAS
     
 
+    if (document.body.dataset.integrado !== "true") {
     const modal = document.getElementById("modal-reserva");
     const formulario = document.getElementById("formulario-reserva");
     const nombreEspacio = document.getElementById("nombre-espacio");
@@ -1254,6 +1411,47 @@ document.querySelectorAll("map").forEach(map => {
     ].join("-");
 
     fechaUso.min = fechaLocal;
+    } else {
+        let zonasPermitidas = null;
+        window.addEventListener("message", function (event) {
+            if (event.origin !== window.location.origin || event.source !== window.parent) return;
+            if (event.data && event.data.tipo === "filtrar-zonas-mapa" && Array.isArray(event.data.zonas)) {
+                zonasPermitidas = new Set(event.data.zonas);
+            } else if (event.data && event.data.tipo === "recalcular-mapa") {
+                requestAnimationFrame(function () {
+                    if (typeof window.imageMapResize === "function") window.imageMapResize();
+                    window.dispatchEvent(new Event("resize"));
+                });
+            }
+        });
+        document.querySelectorAll(".contenedor-mapas area[data-espacio]").forEach(function (area) {
+            const identificador = area.dataset.espacio || "";
+            const partes = identificador.match(/^([a-f])(\d)-(.+)$/i);
+            const nombreCrudo = area.dataset.nombre || area.title || area.alt || "Espacio";
+            const claveNombre = nombreCrudo.toLowerCase().trim().replace(/[\s-]+/g, "_");
+            const nombreEspacio = nombresEspaciosMapa[claveNombre] || nombreCrudo.replace(/_/g, " ");
+            let textoTooltip = nombreEspacio;
+            if (partes) {
+                const codigoEdificio = partes[1].toUpperCase();
+                const codigoPiso = (partes[1] + partes[2]).toUpperCase();
+                textoTooltip += " · Edificio " + codigoEdificio + " (" +
+                    nombreEdificioPorCodigo[codigoEdificio] + "), " +
+                    nombreNivel(codigoPiso) + " (" + codigoPiso + ")";
+            }
+            conectarTooltip(area, textoTooltip);
+
+            area.addEventListener("click", function (event) {
+                event.preventDefault();
+                if (document.body.dataset.vistaPublica === "true") return;
+                if (zonasPermitidas && !zonasPermitidas.has(area.dataset.espacio)) return;
+                window.parent.postMessage({
+                    tipo: "seleccionar-espacio-mapa",
+                    identificador: area.dataset.espacio,
+                    nombre: area.dataset.nombre || area.title || area.alt
+                }, window.location.origin);
+            });
+        });
+    }
 
 });
 </script>
