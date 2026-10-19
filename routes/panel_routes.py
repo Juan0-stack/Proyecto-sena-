@@ -10,7 +10,7 @@ panel_bp = Blueprint('panel', __name__)
 @login_required(api=True)
 def datos_panel():
     rol = session.get('nombre_rol')
-    if rol == 'Administrador':
+    if rol in ('Administrador', 'Gestión de Calidad'):
         return jsonify({'ok': True, 'rol': rol, 'datos': PanelController.datos_admin()})
     if rol == 'Docente':
         return jsonify({'ok': True, 'rol': rol, 'datos': PanelController.datos_docente(session.get('id_usuario'))})

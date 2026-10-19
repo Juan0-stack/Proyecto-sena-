@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISAILO MAPS — Gestión de Calidad</title>
+    {% set es_admin = True if es_admin is not defined else es_admin %}
+    <title>ISAILO MAPS — {{ 'Administrador' if es_admin else 'Gestión de Calidad' }}</title>
 
     <!-- Hojas de estilo: base reutilizada (admin.css) + tokens + panel -->
     <link rel="stylesheet" href="../static/admin.css?v=9">
@@ -28,9 +29,11 @@
         try { if (sessionStorage.getItem('isailo-login-transition') === '1') document.documentElement.classList.add('transicion-login-entrada'); } catch (error) { /* El panel sigue funcionando si el almacenamiento está bloqueado. */ }
     </script>
 </head>
-<body class="calidad" data-rol="Administrador" data-usuario-id="{{ session['id_usuario'] }}">
+<body class="calidad" data-rol="{{ 'Administrador' if es_admin else 'Gestión de Calidad' }}" data-usuario-id="{{ session['id_usuario'] }}">
 
-    {% set rol_etiqueta = 'Gestión de Calidad' %}
+    {% set rol_etiqueta = 'Administrador' if es_admin else 'Gestión de Calidad' %}
+    {# Menú: Gestión de Calidad no ve "Gestión roles" (no aparece en su menú).
+       El Administrador conserva todo (spec §4). #}
     {% set menu = [
         {'vista': 'panel',       'etiqueta': 'Panel de control',     'icono': 'fa-solid fa-gauge-high'},
         {'vista': 'mapa',        'etiqueta': 'Mapa',                 'icono': 'fa-solid fa-map-location-dot'},
@@ -38,9 +41,11 @@
         {'vista': 'eventos',     'etiqueta': 'Editar eventos',       'icono': 'fa-regular fa-pen-to-square'},
         {'vista': 'solicitudes', 'etiqueta': 'Verificar solicitudes', 'icono': 'fa-regular fa-clipboard-check', 'badge_salida': 'badgeSolicitudes'},
         {'vista': 'usuarios',    'etiqueta': 'Gestión maestros',     'icono': 'fa-solid fa-user-group'},
-        {'vista': 'roles',       'etiqueta': 'Gestión roles',        'icono': 'fa-solid fa-user-shield'},
         {'vista': 'espacios',    'etiqueta': 'Propiedades espacio',  'icono': 'fa-solid fa-door-open'}
     ] %}
+    {% if es_admin %}
+        {% set _ = menu.insert(6, {'vista': 'roles', 'etiqueta': 'Gestión roles', 'icono': 'fa-solid fa-user-shield'}) %}
+    {% endif %}
 
     {% include 'partials/panel_header.html' %}
     {% include 'partials/panel_sidebar.html' %}
@@ -92,6 +97,7 @@
                         <span class="kpi-card__nota">Docentes activos en la plataforma</span>
                         <span class="kpi-card__tend" id="tendMaestros" hidden></span>
                     </article>
+                    {% if es_admin %}
                     <article class="kpi-card" data-reveal="up" data-ir="roles" role="button" tabindex="0" title="Ver roles">
                         <span class="kpi-card__icono"><i class="fa-solid fa-users-gear"></i></span>
                         <span class="kpi-card__label">Usuarios y roles</span>
@@ -99,6 +105,7 @@
                         <span class="kpi-card__nota">Total de usuarios con permisos</span>
                         <span class="kpi-card__tend" id="tendUsuarios" hidden></span>
                     </article>
+                    {% endif %}
                 </div>
 
                 <div class="home-fila home-fila--analitica">
@@ -153,11 +160,13 @@
                                 <span class="atajo__texto"><b>Gestión maestros</b><small>Asigna y administra usuarios</small></span>
                                 <i class="fas fa-chevron-right atajo__flecha" aria-hidden="true"></i>
                             </button>
+                            {% if es_admin %}
                             <button type="button" class="atajo" data-ir="roles">
                                 <span class="atajo__icono"><i class="fa-solid fa-user-shield"></i></span>
                                 <span class="atajo__texto"><b>Gestión roles</b><small>Consulta los permisos del sistema</small></span>
                                 <i class="fas fa-chevron-right atajo__flecha" aria-hidden="true"></i>
                             </button>
+                            {% endif %}
                             <button type="button" class="atajo" data-ir="espacios">
                                 <span class="atajo__icono"><i class="fa-solid fa-door-open"></i></span>
                                 <span class="atajo__texto"><b>Propiedades espacio</b><small>Administra la información de espacios</small></span>
@@ -275,6 +284,8 @@
                         <thead>
                             <tr>
                                 <th>Evento</th>
+                                <th>Tipo</th>
+                                <th>Espacios</th>
                                 <th>Fechas</th>
                                 <th>Color</th>
                                 <th class="tabla__col-acciones">Acciones</th>
@@ -371,7 +382,10 @@
                 <div class="filtros-rol" id="filtrosRol" role="tablist" aria-label="Filtrar por rol">
                     <button type="button" class="filtro-rol filtro-rol--activo" data-rol-filtro="Docente" role="tab" aria-selected="true">Docentes</button>
                     <button type="button" class="filtro-rol" data-rol-filtro="Estudiante" role="tab" aria-selected="false">Estudiantes</button>
+                    {% if es_admin %}
                     <button type="button" class="filtro-rol" data-rol-filtro="Administrador" role="tab" aria-selected="false">Administradores</button>
+                    <button type="button" class="filtro-rol" data-rol-filtro="Gestión de Calidad" role="tab" aria-selected="false">Gestión de Calidad</button>
+                    {% endif %}
                     <button type="button" class="filtro-rol" data-rol-filtro="" role="tab" aria-selected="false">Todos</button>
                 </div>
 
@@ -392,7 +406,8 @@
                 </div>
             </section>
 
-            <!-- ============ GESTIÓN ROLES (solo lectura) ============ -->
+            {% if es_admin %}
+            <!-- ============ GESTIÓN ROLES (solo lectura, exclusivo del Administrador) ============ -->
             <section class="modulo vista" id="roles">
                 {% include 'partials/volver_inicio.html' %}
                 <div class="seccion-cab">
@@ -403,13 +418,14 @@
                             Gestión roles
                         </h2>
                         <p class="seccion-sub">
-                            La plataforma tiene tres roles fijos. Esta vista es informativa: describe
+                            La plataforma tiene cuatro roles fijos. Esta vista es informativa: describe
                             qué puede hacer cada rol y cuántos usuarios lo tienen.
                         </p>
                     </div>
                 </div>
                 <div class="roles-grid" id="rolesGrid"></div>
             </section>
+            {% endif %}
 
             <!-- ============ PROPIEDADES ESPACIO ============ -->
             <section class="modulo vista" id="espacios">
@@ -549,6 +565,20 @@
             <h3 id="tituloModalEvento">Nuevo evento</h3>
             <form id="formEvento" autocomplete="off">
                 <div class="form-grid">
+                    <div class="form-campo form-campo--par">
+                        <label for="evTipo">Tipo de evento</label>
+                        <select id="evTipo" required>
+                            <option value="Institucional">Institucional</option>
+                            <option value="Cultural">Cultural</option>
+                            <option value="Académico">Académico</option>
+                            <option value="Deportivo">Deportivo</option>
+                        </select>
+                    </div>
+                    <div class="form-campo form-campo--par">
+                        <label for="evEspacios">Espacios (puedes elegir varios)</label>
+                        <select id="evEspacios" multiple size="4" aria-describedby="evEspaciosAyuda"></select>
+                        <small id="evEspaciosAyuda">Mantén Ctrl (Windows) o ⌘ (Mac) para elegir varios.</small>
+                    </div>
                     <div class="form-campo form-campo--ancho">
                         <label for="evNombre">Nombre del evento</label>
                         <input id="evNombre" type="text" maxlength="100" required placeholder="Nombre del evento">
@@ -613,7 +643,10 @@
                         <select id="usuRol">
                             <option value="1">Estudiante</option>
                             <option value="2">Docente</option>
+                            {% if es_admin %}
                             <option value="3">Administrador</option>
+                            <option value="4">Gestión de Calidad</option>
+                            {% endif %}
                         </select>
                     </div>
                 </div>
@@ -730,6 +763,33 @@
         /* Red de seguridad: nunca dejamos el bloqueo de entrada de login activo. */
         setTimeout(function () { document.documentElement.classList.remove('transicion-login-entrada'); }, 1200);
     </script>
-    <script src="../static/panel.js?v=11"></script>
+    <script src="../static/panel.js?v=12"></script>
+    <script>
+        (function () {
+            try {
+                var win = window;
+                win.addEventListener('pageshow', function (ev) {
+                    if (ev.persisted) {
+                        fetch('/api/sesion', { method: 'GET', cache: 'no-store' })
+                            .then(function (res) {
+                                if (res.status !== 200) {
+                                    win.location.replace('/login');
+                                } else {
+                                    res.json().then(function (d) {
+                                        if (!d || !d.ok || !d.autenticado) {
+                                            win.location.replace('/login');
+                                        }
+                                    }).catch(function () {
+                                        win.location.replace('/login');
+                                    });
+                                }
+                            }).catch(function () {
+                                win.location.replace('/login');
+                            });
+                    }
+                });
+            } catch (e) {}
+        })();
+    </script>
 </body>
 </html>

@@ -8,9 +8,30 @@ from models.solicitud_model import SolicitudModel
 
 PANEL_POR_ROL = {
     'Administrador': '/admin/panel',
+    'Gestión de Calidad': '/calidad/panel',
     'Docente': '/maestro/panel',
     'Estudiante': '/estudiante/panel'
 }
+
+# Roles con acceso al área administrativa. El Administrador conserva todo el
+# poder; "Gestión de Calidad" tiene menos (spec §4).
+ADMINISTRADOR = 'Administrador'
+GESTION_CALIDAD = 'Gestión de Calidad'
+ROLES_ADMINISTRATIVOS = (ADMINISTRADOR, GESTION_CALIDAD)
+ID_ROL_GESTION_CALIDAD = 4
+
+
+def _rol_sesion():
+    """Nombre del rol de la sesión actual (o cadena vacía)."""
+    return session.get('nombre_rol') or ''
+
+
+def _es_administrador():
+    return _rol_sesion() == ADMINISTRADOR
+
+
+def _es_gestion_calidad():
+    return _rol_sesion() == GESTION_CALIDAD
 
 
 class ClienteController:
@@ -34,7 +55,7 @@ class ClienteController:
             id_rol = int(datos.get('rol') or datos.get('id_rol') or 1)
         except (TypeError, ValueError):
             id_rol = 1
-        if id_rol not in (1, 2, 3):
+        if id_rol not in (1, 2, 3, 4):
             id_rol = 1
         return id_rol
 
@@ -51,6 +72,10 @@ class ClienteController:
             return {'ok': False, 'error': 'La contraseña debe tener al menos 4 caracteres.'}
 
         id_rol = ClienteController._rol_desde_datos(datos)
+
+        # Gestión de Calidad solo puede crear Docentes y Estudiantes (spec §4).
+        if _es_gestion_calidad() and id_rol in (3, ID_ROL_GESTION_CALIDAD):
+            return {'ok': False, 'error': 'No tienes permiso para crear cuentas administrativas.'}
 
         if ClienteModel.buscar_por_correo(correo):
             return {'ok': False, 'error': 'Ya existe una cuenta con ese usuario o correo.'}
@@ -86,11 +111,21 @@ class ClienteController:
         if existente and existente['id_usuario'] != id_usuario:
             return {'ok': False, 'error': 'Ya existe una cuenta con ese usuario o correo.'}
 
-        if id_usuario == session.get('id_usuario') and id_rol != 3:
-            return {'ok': False, 'error': 'No puedes quitarte tu propio rol de administrador.'}
-
         if not ClienteModel.buscar_por_id(id_usuario):
             return {'ok': False, 'error': 'El usuario no existe.'}
+
+        # Gestión de Calidad no puede tocar cuentas administrativas ni
+        # asignar roles administrativos (spec §4). Va antes del control de
+        # "rol propio" para que su propio caso dé el mensaje de permisos.
+        if _es_gestion_calidad():
+            objetivo = ClienteModel.buscar_por_id(id_usuario)
+            if objetivo and objetivo.get('nombre_rol') in ROLES_ADMINISTRATIVOS:
+                return {'ok': False, 'error': 'No tienes permiso para editar cuentas administrativas.'}
+            if id_rol in (3, ID_ROL_GESTION_CALIDAD):
+                return {'ok': False, 'error': 'No tienes permiso para asignar roles administrativos.'}
+
+        if id_usuario == session.get('id_usuario') and id_rol != session.get('id_rol'):
+            return {'ok': False, 'error': 'No puedes cambiar tu propio rol.'}
 
         if not ClienteModel.actualizar(id_usuario, nombre, apellido, correo, id_rol, password or None):
             return {'ok': False, 'error': 'No se pudo actualizar el usuario.'}
@@ -103,8 +138,38 @@ class ClienteController:
             return {'ok': False, 'error': 'Estado inválido.'}
         if int(id_usuario) == session.get('id_usuario') and estado == 'Inactivo':
             return {'ok': False, 'error': 'No puedes deshabilitar tu propia cuenta.'}
+
+        # Gestión de Calidad no puede activar ni desactivar cuentas
+        # administrativas (spec §4).
+        if _es_gestion_calidad():
+            objetivo = ClienteModel.buscar_por_id(int(id_usuario))
+            if objetivo and objetivo.get('nombre_rol') in ROLES_ADMINISTRATIVOS:
+                return {'ok': False, 'error': 'No tienes permiso para cambiar cuentas administrativas.'}
+
         if not ClienteModel.cambiar_estado(int(id_usuario), estado):
             return {'ok': False, 'error': 'No se pudo cambiar el estado del usuario.'}
+        return {'ok': True}
+
+    @staticmethod
+    def eliminar(id_usuario):
+        """Elimina un usuario de forma definitiva. Solo el Administrador
+        (spec §4); Gestión de Calidad no puede."""
+        if not _es_administrador():
+            return {'ok': False, 'error': 'No tienes permiso para eliminar usuarios.'}
+
+        id_usuario = int(id_usuario)
+        if id_usuario == session.get('id_usuario'):
+            return {'ok': False, 'error': 'No puedes eliminar tu propia cuenta.'}
+
+        if not ClienteModel.buscar_por_id(id_usuario):
+            return {'ok': False, 'error': 'El usuario no existe.'}
+
+        if not ClienteModel.eliminar(id_usuario):
+            return {
+                'ok': False,
+                'error': 'No se pudo eliminar el usuario. Puede tener solicitudes '
+                         'u otros registros asociados; deshabilítalo en su lugar.'
+            }
         return {'ok': True}
 
     @staticmethod
@@ -126,7 +191,7 @@ class ClienteController:
         rol = usuario.get('nombre_rol')
         try:
             if admin_only or str(admin_only).lower() in ('1', 'true', 'on'):
-                if rol != 'Administrador':
+                if rol not in ROLES_ADMINISTRATIVOS:
                     return {'ok': False, 'error': 'Esta cuenta no tiene acceso administrativo'}
         except Exception:
             pass
@@ -275,6 +340,8 @@ class EventoController:
         fecha_inicio = (datos.get('fecha_inicio') or '').strip()
         fecha_fin = (datos.get('fecha_fin') or '').strip() or None
         color = (datos.get('color') or '#8B1E1E').strip()
+        tipo_evento = (datos.get('tipo_evento') or 'Institucional').strip()
+        id_espacios = datos.get('id_espacios') or []
 
         if not nombre:
             return None, 'El nombre del evento es obligatorio.'
@@ -285,12 +352,26 @@ class EventoController:
         if not COLOR_RE.match(color):
             color = '#8B1E1E'
 
+        if tipo_evento not in ('Institucional', 'Cultural', 'Académico', 'Deportivo'):
+            return None, 'El tipo de evento no es válido.'
+        try:
+            id_espacios = list(dict.fromkeys(int(id) for id in id_espacios))
+        except (TypeError, ValueError):
+            return None, 'Selecciona espacios válidos.'
+        if tipo_evento == 'Cultural' and not id_espacios:
+            return None, 'Asigna al menos un espacio al evento cultural.'
+        espacios_existentes = {e['id_espacio'] for e in EspacioModel.listar()}
+        if any(id not in espacios_existentes for id in id_espacios):
+            return None, 'Uno de los espacios seleccionados ya no existe.'
+
         return {
             'nombre': nombre,
             'descripcion': descripcion,
             'fecha_inicio': fecha_inicio,
             'fecha_fin': fecha_fin,
-            'color': color
+            'color': color,
+            'tipo_evento': tipo_evento,
+            'id_espacios': id_espacios
         }, None
 
     @staticmethod
@@ -301,7 +382,8 @@ class EventoController:
 
         nuevo_id = EventoModel.crear(
             valores['nombre'], valores['descripcion'], valores['fecha_inicio'],
-            valores['fecha_fin'], valores['color'], id_usuario
+            valores['fecha_fin'], valores['color'], id_usuario,
+            valores['tipo_evento'], valores['id_espacios']
         )
         if not nuevo_id:
             return {'ok': False, 'error': 'No se pudo crear el evento.'}
@@ -318,7 +400,8 @@ class EventoController:
 
         if not EventoModel.actualizar(
             id_evento, valores['nombre'], valores['descripcion'],
-            valores['fecha_inicio'], valores['fecha_fin'], valores['color']
+            valores['fecha_inicio'], valores['fecha_fin'], valores['color'],
+            valores['tipo_evento'], valores['id_espacios']
         ):
             return {'ok': False, 'error': 'No se pudo actualizar el evento.'}
         return {'ok': True}
@@ -742,7 +825,7 @@ class SolicitudController:
         rol = session.get('nombre_rol')
         id_usuario = session.get('id_usuario')
 
-        if rol == 'Administrador':
+        if rol in ROLES_ADMINISTRATIVOS:
             solicitudes = SolicitudModel.listar_todas()
             for s in solicitudes:
                 s['origen'] = 'general'
@@ -787,7 +870,7 @@ class SolicitudController:
 
         rol = session.get('nombre_rol')
         id_usuario = session.get('id_usuario')
-        es_admin = rol == 'Administrador'
+        es_admin = rol in ROLES_ADMINISTRATIVOS
         es_encargado = (
             rol == 'Docente'
             and solicitud.get('id_usuario_encargado') == id_usuario

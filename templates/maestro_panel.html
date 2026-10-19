@@ -266,6 +266,25 @@
         if (!(window.Motion && window.Motion.animado)) { document.documentElement.classList.remove('js'); }
         setTimeout(function () { document.documentElement.classList.remove('transicion-login-entrada'); }, 1200);
     </script>
-    <script src="../static/panel.js?v=11"></script>
+    <script src="../static/panel.js?v=12"></script>
+    <script>
+        (function () {
+            try {
+                window.addEventListener('pageshow', function (ev) {
+                    if (ev.persisted) {
+                        fetch('/api/sesion', { method: 'GET', cache: 'no-store' })
+                            .then(function (res) {
+                                if (res.status !== 200) { window.location.replace('/login'); }
+                                else {
+                                    res.json().then(function (d) {
+                                        if (!d || !d.ok || !d.autenticado) { window.location.replace('/login'); }
+                                    }).catch(function () { window.location.replace('/login'); });
+                                }
+                            }).catch(function () { window.location.replace('/login'); });
+                    }
+                });
+            } catch (e) {}
+        })();
+    </script>
 </body>
 </html>

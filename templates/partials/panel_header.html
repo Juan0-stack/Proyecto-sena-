@@ -7,8 +7,9 @@
    ===================================================================== #}
 {% import 'partials/logo.html' as logo %}
 {% set _home = '/admin/panel' if session.get('nombre_rol') == 'Administrador'
+    else ('/calidad/panel' if session.get('nombre_rol') == 'Gestión de Calidad'
     else ('/maestro/panel' if session.get('nombre_rol') == 'Docente'
-    else ('/estudiante/panel' if session.get('nombre_rol') == 'Estudiante' else '/login')) %}
+    else ('/estudiante/panel' if session.get('nombre_rol') == 'Estudiante' else '/login'))) %}
 <header class="app-header" id="header">
     <button type="button" class="app-header__avisomenu" id="sidebarAbrir"
             aria-label="Abrir menú" aria-expanded="false">

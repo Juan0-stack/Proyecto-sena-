@@ -16,6 +16,8 @@ def _respuesta_sin_rol(api):
     rol = session.get('nombre_rol')
     if rol == 'Administrador':
         return redirect('/admin/panel')
+    if rol == 'Gestión de Calidad':
+        return redirect('/calidad/panel')
     if rol == 'Docente':
         return redirect('/maestro/panel')
     if rol == 'Estudiante':

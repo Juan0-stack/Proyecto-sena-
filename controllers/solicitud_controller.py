@@ -94,7 +94,7 @@ class SolicitudController:
         rol = session.get('nombre_rol')
         id_usuario = session.get('id_usuario')
 
-        if rol == 'Administrador':
+        if rol == 'Administrador' or rol == 'Gestión de Calidad':
             solicitudes = SolicitudModel.listar_todas()
             for s in solicitudes:
                 s['origen'] = 'general'
@@ -139,7 +139,7 @@ class SolicitudController:
 
         rol = session.get('nombre_rol')
         id_usuario = session.get('id_usuario')
-        es_admin = rol == 'Administrador'
+        es_admin = rol in ('Administrador', 'Gestión de Calidad')
         es_encargado = (
             rol == 'Docente'
             and solicitud.get('id_usuario_encargado') == id_usuario

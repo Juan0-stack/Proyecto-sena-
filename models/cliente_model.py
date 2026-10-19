@@ -102,6 +102,26 @@ class ClienteModel:
             conn.close()
 
     @staticmethod
+    def eliminar(id_usuario):
+        """Borra un usuario de forma definitiva. Falla si tiene registros
+        asociados (solicitudes, etc.). Solo lo usa el Administrador."""
+        conn = get_connection()
+        if not conn:
+            return False
+        try:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM usuarios WHERE id_usuario = %s", (id_usuario,))
+            conn.commit()
+            return cursor.rowcount > 0
+        except Exception as e:
+            print(f'Error al eliminar usuario: {e}')
+            conn.rollback()
+            return False
+        finally:
+            cursor.close()
+            conn.close()
+
+    @staticmethod
     def actualizar_acceso(id_usuario):
         conn = get_connection()
         if not conn:

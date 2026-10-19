@@ -9,6 +9,12 @@
     var BODY = document.body;
     var ROL = BODY.getAttribute('data-rol') || '';
     var ID_USUARIO = parseInt(BODY.getAttribute('data-usuario-id') || '0', 10);
+    /* Dos roles administrativos (spec §4): el Administrador conserva todo el
+       poder; Gestión de Calidad tiene menos. */
+    var ES_ADMIN = ROL === 'Administrador';
+    var ES_CALIDAD = ROL === 'Gestión de Calidad';
+    var ES_GESTION = ES_ADMIN || ES_CALIDAD;
+    var ROLES_ADMINISTRATIVOS = ['Administrador', 'Gestión de Calidad'];
     var ENTRADA_DESDE_LOGIN = false;
 
     function completarEntradaLogin() {
@@ -520,10 +526,13 @@
 
     function accionesPorRol(e) {
         var botones = '';
-        if (ROL === 'Administrador') {
+        if (ES_GESTION) {
             botones += '<button class="btn-admin btn-admin--primario" data-accion="editar" data-id="' + e.id_espacio + '"><i class="fas fa-pen"></i> Editar</button>';
             botones += '<button class="btn-admin btn-admin--outline" data-accion="solicitudes" data-id="' + e.id_espacio + '"><i class="fas fa-list"></i> Solicitudes</button>';
-            botones += '<button class="btn-admin btn-admin--danger" data-accion="eliminar" data-id="' + e.id_espacio + '"><i class="fas fa-trash"></i> Eliminar</button>';
+            /* Eliminar espacios es exclusivo del Administrador (spec §4). */
+            if (ES_ADMIN) {
+                botones += '<button class="btn-admin btn-admin--danger" data-accion="eliminar" data-id="' + e.id_espacio + '"><i class="fas fa-trash"></i> Eliminar</button>';
+            }
         } else if (ROL === 'Docente') {
             if (e.estado !== 'Mantenimiento') {
                 botones += '<button class="btn-admin btn-admin--primario" data-accion="solicitar" data-id="' + e.id_espacio + '"><i class="fas fa-calendar-plus"></i> Solicitar</button>';
@@ -680,7 +689,7 @@
         /* TODO (spec §2): en el panel de Gestión de Calidad las pantallas de
            Calendario y Verificar solicitudes quedan vacías hasta la conexión;
            por eso no se vuelven a enlazar cargarSolicitudes() ni cargarSemana(). */
-        if (ROL !== 'Administrador') {
+        if (!ES_GESTION) {
             if (ROL !== 'Estudiante') promesas.push(cargarSolicitudes());
             promesas.push(cargarOcupacionOperativa(), cargarSemana());
         } else {
@@ -1017,7 +1026,7 @@
         return api('/api/eventos').then(function (res) {
             estado.eventos = res.ok ? (res.eventos || []) : [];
             pintarCalPared();
-            if (ROL === 'Administrador') pintarTablaEventos();
+            if (ES_GESTION) pintarTablaEventos();
             if (ROL === 'Estudiante') pintarProximosEventos();
             if (ROL === 'Docente') pintarStatsMaestro();
         });
@@ -1096,6 +1105,8 @@
             return '<tr>' +
                 '<td><strong>' + esc(ev.nombre) + '</strong>' +
                     (ev.descripcion ? '<br><small style="color:rgba(230,215,184,.55)">' + esc(ev.descripcion) + '</small>' : '') + '</td>' +
+                '<td>' + esc(ev.tipo_evento || 'Institucional') + '</td>' +
+                '<td>' + esc(ev.espacios_nombres || 'Sin espacio asignado') + '</td>' +
                 '<td>' + fechas + '</td>' +
                 '<td><span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:' + esc(ev.color) + ';border:1px solid rgba(230,215,184,.3);vertical-align:middle;"></span></td>' +
                 '<td class="tabla__col-acciones"><span class="tabla__acciones">' +
@@ -1109,6 +1120,10 @@
 
     function abrirModalEvento(evento) {
         $('#formEvento').reset();
+        var selectEspacios = $('#evEspacios');
+        selectEspacios.innerHTML = estado.espacios.map(function (espacio) {
+            return '<option value="' + espacio.id_espacio + '">' + esc(espacio.nombre) + '</option>';
+        }).join('');
         estado.eventoEditandoId = evento ? evento.id_evento : null;
         $('#tituloModalEvento').textContent = evento ? 'Editar evento' : 'Nuevo evento';
         if (evento) {
@@ -1116,6 +1131,11 @@
             $('#evDescripcion').value = evento.descripcion || '';
             $('#evInicio').value = evento.fecha_inicio;
             $('#evFin').value = evento.fecha_fin || '';
+            $('#evTipo').value = evento.tipo_evento || 'Institucional';
+            (evento.id_espacios || []).forEach(function (id) {
+                var opcion = selectEspacios.querySelector('option[value="' + id + '"]');
+                if (opcion) opcion.selected = true;
+            });
             var radio = $('input[name="evColor"][value="' + evento.color + '"]');
             if (radio) radio.checked = true;
         } else {
@@ -1135,7 +1155,9 @@
             descripcion: $('#evDescripcion').value.trim(),
             fecha_inicio: $('#evInicio').value,
             fecha_fin: $('#evFin').value,
-            color: colorSel ? colorSel.value : '#8B1E1E'
+            color: colorSel ? colorSel.value : '#8B1E1E',
+            tipo_evento: $('#evTipo').value,
+            id_espacios: Array.from($('#evEspacios').selectedOptions).map(function (opcion) { return Number(opcion.value); })
         };
 
         var peticion = estado.eventoEditandoId
@@ -1198,12 +1220,20 @@
                 ? '<span class="estado-sol estado-sol--aprobada">Activo</span>'
                 : '<span class="estado-sol estado-sol--rechazada">Inactivo</span>';
             var cargo = espaciosDeUsuario(u.id_usuario);
+            /* Gestión de Calidad no puede tocar cuentas administrativas
+               (spec §4): se ocultan sus acciones. Eliminar usuarios es
+               exclusivo del Administrador. */
+            var esObjetivoAdmin = ROLES_ADMINISTRATIVOS.indexOf(u.nombre_rol) !== -1;
+            var puedeEditar = ES_ADMIN || !esObjetivoAdmin;
             var acciones = '<span class="tabla__acciones">' +
-                '<button class="btn-icono" title="Editar" data-accion="usu-editar" data-id="' + u.id_usuario + '"><i class="fas fa-pen"></i></button>' +
-                (esPropio ? '' :
+                (puedeEditar ?
+                    '<button class="btn-icono" title="Editar" data-accion="usu-editar" data-id="' + u.id_usuario + '"><i class="fas fa-pen"></i></button>' : '') +
+                ((esPropio || !puedeEditar) ? '' :
                     '<button class="btn-icono btn-icono--peligro" title="' + (activo ? 'Deshabilitar' : 'Habilitar') +
                     '" data-accion="usu-estado" data-id="' + u.id_usuario + '" data-nuevo="' + (activo ? 'Inactivo' : 'Activo') + '">' +
                     '<i class="fas ' + (activo ? 'fa-user-slash' : 'fa-user-check') + '"></i></button>') +
+                ((ES_ADMIN && !esPropio) ?
+                    '<button class="btn-icono btn-icono--peligro" title="Eliminar usuario" data-accion="usu-eliminar" data-id="' + u.id_usuario + '"><i class="fas fa-trash"></i></button>' : '') +
                 '</span>';
             return '<tr>' +
                 '<td><strong>' + esc(u.nombre + (u.apellido ? ' ' + u.apellido : '')) + '</strong></td>' +
@@ -1227,7 +1257,8 @@
         var cont = document.getElementById('rolesGrid');
         if (!cont) return;
         var definidos = [
-            { clave: 'Administrador', icono: 'fa-user-shield', desc: 'Gestiona espacios, eventos y usuarios; aprueba solicitudes y configura el sistema.' },
+            { clave: 'Administrador', icono: 'fa-user-shield', desc: 'Administra el sistema completo: espacios, eventos, usuarios y todos los roles; aprueba solicitudes.' },
+            { clave: 'Gestión de Calidad', icono: 'fa-clipboard-check', desc: 'Apoya la gestión: administra docentes y estudiantes, espacios y eventos. No toca cuentas administrativas.' },
             { clave: 'Docente', icono: 'fa-chalkboard-user', desc: 'Solicita espacios y autoriza las solicitudes de los espacios que tiene a cargo.' },
             { clave: 'Estudiante', icono: 'fa-graduation-cap', desc: 'Consulta la disponibilidad de espacios y los eventos institucionales.' }
         ];
@@ -1324,7 +1355,7 @@
             cerrarModal('modalUsuario');
             toast(estado.usuarioEditandoId ? 'Usuario actualizado.' : 'Usuario creado.');
             cargarUsuarios();
-            if (ROL === 'Administrador') cargarResumen();
+            if (ES_GESTION) cargarResumen();
         });
     }
 
@@ -1421,7 +1452,7 @@
         return api('/api/panel').then(function (res) {
             estado.panelDatos = res.ok ? (res.datos || {}) : null;
             if (!estado.panelDatos) return;
-            if (ROL === 'Administrador') pintarPanelAdmin();
+            if (ES_GESTION) pintarPanelAdmin();
             else if (ROL === 'Docente') pintarPanelDocente();
             else pintarPanelEstudiante();
         });
@@ -1870,7 +1901,7 @@
     }
 
     function pintarSolicitudes() {
-        if (ROL !== 'Administrador') return;
+        if (!ES_GESTION) return;
         var contPend = document.getElementById('solPendientes');
         var contHist = document.getElementById('solHistorial');
         if (!contPend && !contHist) return;
@@ -2017,7 +2048,7 @@
                     var usuario = null;
                     estado.usuarios.forEach(function (u) { if (u.id_usuario === id) usuario = u; });
                     if (usuario) {
-                        var mapaRoles = { Estudiante: 1, Docente: 2, Administrador: 3 };
+                        var mapaRoles = { Estudiante: 1, Docente: 2, Administrador: 3, 'Gestión de Calidad': 4 };
                         usuario.id_rol_map = mapaRoles[usuario.nombre_rol];
                         abrirModalUsuario(usuario);
                     }
@@ -2032,6 +2063,17 @@
                                 if (!res.ok) { toast(res.error || 'No se pudo actualizar.', 'error'); return; }
                                 toast('Estado actualizado.');
                                 cargarUsuarios();
+                            });
+                        });
+                } else if (btn.getAttribute('data-accion') === 'usu-eliminar') {
+                    confirmar('Eliminar usuario',
+                        'Se borrará la cuenta de forma definitiva. Esta acción no se puede deshacer.',
+                        function () {
+                            api('/api/clientes/' + id, 'DELETE').then(function (res) {
+                                if (!res.ok) { toast(res.error || 'No se pudo eliminar.', 'error'); return; }
+                                toast('Usuario eliminado.');
+                                cargarUsuarios();
+                                cargarResumen();
                             });
                         });
                 }
@@ -2270,13 +2312,13 @@
            la agenda. El código de estas funciones se conserva sin enlazar:
            cargarSemana(), cargarSolicitudes() y cargarEventos() no se llaman. */
         seguro(function () {
-            if (ROL !== 'Administrador') {
+            if (!ES_GESTION) {
                 cargas.push(cargarEventos(), cargarSemana());
                 if (ROL !== 'Estudiante') cargas.push(cargarSolicitudes(), cargarOcupacionOperativa());
             } else {
                 cargas.push(cargarOcupacionOperativa());
             }
-            if (ROL === 'Administrador') cargas.push(cargarUsuarios(), cargarDocentes());
+            if (ES_GESTION) cargas.push(cargarUsuarios(), cargarDocentes());
         }, 'carga por rol');
 
         /* El panel SIEMPRE debe terminar visible. Si algo falla al pintar los

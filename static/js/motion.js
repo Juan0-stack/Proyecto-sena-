@@ -1,8 +1,8 @@
 /* =====================================================================
    ISAILO MAPS — motion.js
-   Motor único de movimiento del panel (Gestión de Calidad).
-   Reúne TODA la animación de la interfaz en un solo lugar para que las
-   plantillas no esparzan animaciones sueltas.
+   Qué hace: reúne las animaciones y el desplazamiento suave del panel.
+   Quién lo usa: las plantillas de panel y static/panel.js.
+   Qué NO hace: no consulta la base de datos ni decide permisos.
 
    Librerías (vendorizadas en static/vendor/, sin build):
      - anime.js v4.5.0  (global `anime`)
@@ -29,26 +29,30 @@
 
     var ANIME = window.anime || null;
     var LENIS = window.Lenis || null;
-    var REDUCE = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var REDUCIR_MOVIMIENTO = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-    /* reads/updates de números con separador de miles (es-CO) */
-    var FMT = (function () {
-        try { return new Intl.NumberFormat('es-CO'); } catch (e) { return null; }
-    })();
-
-    function miles(n) {
-        n = Math.round(n);
-        return FMT ? FMT.format(n) : String(n);
+    /* Se prepara el formato de números que se usa en los indicadores. */
+    var FORMATO_NUMEROS = null;
+    try {
+        FORMATO_NUMEROS = new Intl.NumberFormat('es-CO');
+    } catch (error) {
+        FORMATO_NUMEROS = null;
     }
 
-    function aArray(nodos) {
+    function mostrarConSeparadorDeMiles(numero) {
+        var numeroRedondeado = Math.round(numero);
+        if (FORMATO_NUMEROS) return FORMATO_NUMEROS.format(numeroRedondeado);
+        return String(numeroRedondeado);
+    }
+
+    function convertirNodosEnLista(nodos) {
         if (!nodos) return [];
         if (nodos.nodeType === 1) return [nodos];
         return Array.prototype.slice.call(nodos);
     }
 
     function sinMovimiento() {
-        return REDUCE || !ANIME;
+        return REDUCIR_MOVIMIENTO || !ANIME;
     }
 
     /* ------------------------------------------------------------------
@@ -59,52 +63,76 @@
          data-reveal-delay="120"  (ms extra por elemento)
          data-reveal-stagger="60" (ms entre elementos, opcional)
        ------------------------------------------------------------------ */
+    function buscarElementosPendientes(contenedor) {
+        var raiz = contenedor || document;
+        var selector = '[data-reveal]:not([data-reveal-done])';
+        var nodos = convertirNodosEnLista(raiz.querySelectorAll ? raiz.querySelectorAll(selector) : []);
+        var raizPendiente = raiz.nodeType === 1 && raiz.hasAttribute('data-reveal') && !raiz.hasAttribute('data-reveal-done');
+        if (raizPendiente) nodos.unshift(raiz);
+        return { raiz: raiz, nodos: nodos };
+    }
+
+    function dejarElementosVisibles(nodos) {
+        nodos.forEach(function (elemento) {
+            elemento.style.opacity = '';
+            elemento.style.transform = '';
+            elemento.setAttribute('data-reveal-done', '1');
+        });
+    }
+
+    function obtenerSeparacionDeEntrada(opciones, raiz) {
+        if (opciones.stagger != null) return opciones.stagger;
+        if (raiz.getAttribute) {
+            var separacion = raiz.getAttribute('data-reveal-stagger');
+            if (separacion) return parseInt(separacion, 10);
+        }
+        return 55;
+    }
+
+    function crearMovimientoInicial(modo, distancia) {
+        var movimiento = { x: 0, y: 0 };
+        if (modo === 'up') movimiento.y = distancia;
+        if (modo === 'left') movimiento.x = -distancia;
+        if (modo === 'right') movimiento.x = distancia;
+        return movimiento;
+    }
+
+    function animarElementoDeEntrada(elemento, opciones, retraso) {
+        var modo = elemento.getAttribute('data-reveal') || 'up';
+        var retrasoExtra = parseInt(elemento.getAttribute('data-reveal-delay') || '0', 10) || 0;
+        var movimiento = crearMovimientoInicial(modo, opciones.distancia);
+        var propiedades = {
+            opacity: [0, 1],
+            duration: opciones.duration,
+            delay: retraso + retrasoExtra,
+            ease: opciones.ease,
+            complete: function () { dejarElementosVisibles([elemento]); }
+        };
+        if (movimiento.y) propiedades.translateY = [movimiento.y, 0];
+        if (movimiento.x) propiedades.translateX = [movimiento.x, 0];
+        ANIME.animate(elemento, propiedades);
+    }
+
     function revealIn(contenedor, opciones) {
         opciones = opciones || {};
-        var raiz = contenedor || document;
-        var nodos = aArray(raiz.querySelectorAll ? raiz.querySelectorAll('[data-reveal]:not([data-reveal-done])') : []);
-        if (raiz.nodeType === 1 && raiz.getAttribute && raiz.hasAttribute('data-reveal') && !raiz.hasAttribute('data-reveal-done')) {
-            nodos.unshift(raiz);
-        }
+        var resultado = buscarElementosPendientes(contenedor);
+        var nodos = resultado.nodos;
         if (!nodos.length) return [];
-
         if (sinMovimiento()) {
-            nodos.forEach(function (el) {
-                el.style.opacity = '';
-                el.style.transform = '';
-                el.setAttribute('data-reveal-done', '1');
-            });
+            dejarElementosVisibles(nodos);
             return nodos;
         }
 
-        var gap = opciones.stagger != null ? opciones.stagger
-            : (raiz.getAttribute && raiz.getAttribute('data-reveal-stagger')) ? parseInt(raiz.getAttribute('data-reveal-stagger'), 10)
-                : 55;
-        var dur = opciones.duration || 560;
-        var ease = opciones.ease || 'outCubic';
-        var poco = opciones.distancia || 14;
-
-        var acumulado = 0;
-        nodos.forEach(function (el) {
-            var modo = el.getAttribute('data-reveal') || 'up';
-            var extra = parseInt(el.getAttribute('data-reveal-delay') || '0', 10) || 0;
-            var desdeY = (modo === 'up') ? poco : 0;
-            var desdeX = (modo === 'left') ? -poco : (modo === 'right' ? poco : 0);
-            var props = {
-                opacity: [0, 1],
-                duration: dur,
-                delay: acumulado + extra,
-                ease: ease,
-                complete: function () {
-                    el.style.opacity = '';
-                    el.style.transform = '';
-                    el.setAttribute('data-reveal-done', '1');
-                }
-            };
-            if (desdeY) props.translateY = [desdeY, 0];
-            if (desdeX) props.translateX = [desdeX, 0];
-            ANIME.animate(el, props);
-            acumulado += gap;
+        var configuracion = {
+            stagger: obtenerSeparacionDeEntrada(opciones, resultado.raiz),
+            duration: opciones.duration || 560,
+            ease: opciones.ease || 'outCubic',
+            distancia: opciones.distancia || 14
+        };
+        var retraso = 0;
+        nodos.forEach(function (elemento) {
+            animarElementoDeEntrada(elemento, configuracion, retraso);
+            retraso += configuracion.stagger;
         });
         return nodos;
     }
@@ -114,25 +142,25 @@
        entrada. Se usa desde panel.js para contenido generado por fetch.
        ------------------------------------------------------------------ */
     function animateIn(elementos, opciones) {
-        var nodos = aArray(elementos);
+        var nodos = convertirNodosEnLista(elementos);
         if (!nodos.length) return;
         opciones = opciones || {};
         if (sinMovimiento()) return;
 
-        var dur = opciones.duration || 480;
-        var gap = opciones.stagger != null ? opciones.stagger : 45;
-        var desde = opciones.y != null ? opciones.y : 12;
+        var duracion = opciones.duration || 480;
+        var separacion = opciones.stagger != null ? opciones.stagger : 45;
+        var desplazamiento = opciones.y != null ? opciones.y : 12;
 
-        nodos.forEach(function (el, i) {
-            var props = {
+        nodos.forEach(function (elemento, i) {
+            var propiedades = {
                 opacity: [0, 1],
-                translateY: [desde, 0],
-                duration: dur,
-                delay: i * gap,
+                translateY: [desplazamiento, 0],
+                duration: duracion,
+                delay: i * separacion,
                 ease: opciones.ease || 'outCubic'
             };
-            if (opciones.scale != null) props.scale = [opciones.scale, 1];
-            ANIME.animate(el, props);
+            if (opciones.scale != null) propiedades.scale = [opciones.scale, 1];
+            ANIME.animate(elemento, propiedades);
         });
     }
 
@@ -140,23 +168,23 @@
        animateOut — salida suave (opacidad + pequeño desplazamiento).
        ------------------------------------------------------------------ */
     function animateOut(elementos, opciones) {
-        var nodos = aArray(elementos);
+        var nodos = convertirNodosEnLista(elementos);
         if (!nodos.length) return;
         opciones = opciones || {};
         var terminar = opciones.complete || function () { };
         if (sinMovimiento()) { terminar(); return; }
-        var dur = opciones.duration || 220;
-        var desde = opciones.y != null ? opciones.y : 8;
-        nodos.forEach(function (el, i) {
-            ANIME.animate(el, {
+        var duracion = opciones.duration || 220;
+        var desplazamiento = opciones.y != null ? opciones.y : 8;
+        nodos.forEach(function (elemento, i) {
+            ANIME.animate(elemento, {
                 opacity: [1, 0],
-                translateY: [0, desde],
-                duration: dur,
+                translateY: [0, desplazamiento],
+                duration: duracion,
                 delay: i * (opciones.stagger || 0),
                 ease: opciones.ease || 'inQuad',
                 complete: function () {
-                    el.style.opacity = '';
-                    el.style.transform = '';
+                    elemento.style.opacity = '';
+                    elemento.style.transform = '';
                     terminar();
                 }
             });
@@ -173,17 +201,17 @@
         if (isNaN(destino)) { el.textContent = valor; return; }
 
         if (sinMovimiento()) {
-            el.textContent = miles(destino);
+            el.textContent = mostrarConSeparadorDeMiles(destino);
             return;
         }
 
-        var proxy = { n: 0 };
-        ANIME.animate(proxy, {
-            n: destino,
+        var contador = { valor: 0 };
+        ANIME.animate(contador, {
+            valor: destino,
             duration: opciones.duration || 900,
             ease: opciones.ease || 'outExpo',
-            onUpdate: function () { el.textContent = miles(proxy.n); },
-            complete: function () { el.textContent = miles(destino); }
+            onUpdate: function () { el.textContent = mostrarConSeparadorDeMiles(contador.valor); },
+            complete: function () { el.textContent = mostrarConSeparadorDeMiles(destino); }
         });
     }
 
@@ -193,9 +221,16 @@
     function drawLine(path, opciones) {
         if (!path) return;
         opciones = opciones || {};
-        var longitud = 0;
-        try { longitud = path.getTotalLength ? path.getTotalLength() : (path.getAttribute('data-length') || 300); }
-        catch (e) { longitud = Number(path.getAttribute('data-length')) || 300; }
+        var longitud;
+        if (path.getTotalLength) {
+            try {
+                longitud = path.getTotalLength();
+            } catch (error) {
+                longitud = Number(path.getAttribute('data-length')) || 300;
+            }
+        } else {
+            longitud = path.getAttribute('data-length') || 300;
+        }
 
         path.style.strokeDasharray = longitud + ' ' + longitud;
 
@@ -289,7 +324,7 @@
         el.style.willChange = '';
         el.style.visibility = 'visible';
         if (el.getAttribute) el.setAttribute('data-reveal-done', '1');
-        aArray(el.querySelectorAll ? el.querySelectorAll('[data-reveal]') : []).forEach(function (n) {
+        convertirNodosEnLista(el.querySelectorAll ? el.querySelectorAll('[data-reveal]') : []).forEach(function (n) {
             n.style.opacity = '';
             n.style.transform = '';
             n.setAttribute('data-reveal-done', '1');
@@ -308,57 +343,36 @@
        ------------------------------------------------------------------ */
     var tokenVista = 0;
 
-    function transitionTo(saliente, entrante, opciones) {
-        opciones = opciones || {};
-        var hecho = false;
-        function finalizar() {
-            if (hecho) return;
-            hecho = true;
-            if (typeof opciones.done === 'function') opciones.done();
-        }
+    function finalizarTransicion(estado, opciones) {
+        if (estado.finalizada) return;
+        estado.finalizada = true;
+        if (typeof opciones.done === 'function') opciones.done();
+    }
 
-        if (!entrante) { finalizar(); return; }
+    function limpiarVistaSaliente(vista) {
+        if (!vista) return;
+        vista.classList.remove('vista--activa');
+        vista.style.opacity = '';
+        vista.style.transform = '';
+        vista.style.willChange = '';
+    }
 
-        var token = ++tokenVista;
-        function vigente() { return token === tokenVista; }
-
-        /* 1) Mostrar la sección nueva cuanto antes: nunca pantalla vacía. */
-        entrante.classList.add('vista--activa');
-        entrante.style.visibility = 'visible';
-
+    function prepararVistaEntrante(vista, opciones) {
+        vista.classList.add('vista--activa');
+        vista.style.visibility = 'visible';
         if (opciones.indicador) moveIndicator(opciones.indicador);
+    }
 
-        /* 2) Sin saliente o sin animación: estado final directo. */
-        if (!saliente || saliente === entrante || sinMovimiento()) {
-            if (saliente && saliente !== entrante) {
-                detenerAnimaciones(saliente);
-                saliente.classList.remove('vista--activa');
-                saliente.style.opacity = '';
-                saliente.style.transform = '';
-                saliente.style.willChange = '';
-            }
-            estadoFinalVista(entrante);
-            finalizar();
-            return;
-        }
-
-        detenerAnimaciones(saliente);
-        detenerAnimaciones(entrante);
-
-        /* 3) Red de seguridad: pase lo que pase, a los 800 ms estado final. */
+    function programarRespaldoDeTransicion(saliente, entrante, token, estado, opciones) {
         setTimeout(function () {
-            if (!vigente()) return;
-            if (saliente) {
-                saliente.classList.remove('vista--activa');
-                saliente.style.opacity = '';
-                saliente.style.transform = '';
-                saliente.style.willChange = '';
-            }
+            if (token !== tokenVista) return;
+            limpiarVistaSaliente(saliente);
             estadoFinalVista(entrante);
-            finalizar();
+            finalizarTransicion(estado, opciones);
         }, 800);
+    }
 
-        /* 4) Fundido cruzado. */
+    function animarSalidaDeVista(saliente, entrante, token, estado, opciones) {
         saliente.style.opacity = '1';
         ANIME.animate(saliente, {
             opacity: [1, 0],
@@ -366,19 +380,43 @@
             duration: 180,
             ease: 'outQuad',
             complete: function () {
-                if (!vigente()) return; /* llegó otra transición: ella manda */
-                saliente.classList.remove('vista--activa');
-                saliente.style.opacity = '';
-                saliente.style.transform = '';
-                saliente.style.willChange = '';
+                if (token !== tokenVista) return;
+                limpiarVistaSaliente(saliente);
                 try {
                     entradaEscalonada(entrante);
                     revealIn(entrante);
                 } finally {
-                    finalizar();
+                    finalizarTransicion(estado, opciones);
                 }
             }
         });
+    }
+
+    function transitionTo(saliente, entrante, opciones) {
+        opciones = opciones || {};
+        var estado = { finalizada: false };
+        if (!entrante) {
+            finalizarTransicion(estado, opciones);
+            return;
+        }
+
+        var token = ++tokenVista;
+        prepararVistaEntrante(entrante, opciones);
+
+        if (!saliente || saliente === entrante || sinMovimiento()) {
+            if (saliente && saliente !== entrante) {
+                detenerAnimaciones(saliente);
+                limpiarVistaSaliente(saliente);
+            }
+            estadoFinalVista(entrante);
+            finalizarTransicion(estado, opciones);
+            return;
+        }
+
+        detenerAnimaciones(saliente);
+        detenerAnimaciones(entrante);
+        programarRespaldoDeTransicion(saliente, entrante, token, estado, opciones);
+        animarSalidaDeVista(saliente, entrante, token, estado, opciones);
     }
 
     /* Cancela la transición en curso y deja la vista indicada en su estado
@@ -388,7 +426,7 @@
     }
 
     function entradaEscalonada(seccion) {
-        var hijos = aArray(seccion.children).filter(function (el) {
+        var hijos = convertirNodosEnLista(seccion.children).filter(function (el) {
             /* Los [data-reveal] los anima revealIn con su propia cadencia. */
             return !(el.getAttribute && el.hasAttribute('data-reveal'));
         });
@@ -408,10 +446,20 @@
         });
     }
 
-    /* ------------------------------------------------------------------
-       moveIndicator — desliza la barra dorada del menú hacia el ítem activo
-       (un solo elemento animado). `inmediato` la coloca sin animar.
-       ------------------------------------------------------------------ */
+    /* Calcula dónde debe quedar el marcador del menú. */
+    function calcularDestinoIndicador(item, indicador) {
+        var alturaItem = item.offsetHeight || 44;
+        var centroItem = item.offsetTop + alturaItem / 2;
+        var alturaIndicador = indicador.offsetHeight || 26;
+        return Math.max(0, centroItem - alturaIndicador / 2);
+    }
+
+    function obtenerPosicionActualIndicador(indicador) {
+        var resultado = /translateY\(([-\d.]+)px\)/.exec(indicador.style.transform || '');
+        if (!resultado) return 0;
+        return parseFloat(resultado[1]) || 0;
+    }
+
     function moveIndicator(item, opciones) {
         opciones = opciones || {};
         var indicador = document.getElementById('menuIndicador');
@@ -422,11 +470,9 @@
             return;
         }
 
+        /* SIN USO: se conserva esta referencia que existía antes del cambio. */
         var contenedor = item.offsetParent || item.parentNode;
-        var alto = item.offsetHeight || 44;
-        var centro = item.offsetTop + alto / 2;
-        var altoIndicador = indicador.offsetHeight || 26;
-        var destino = Math.max(0, centro - altoIndicador / 2);
+        var destino = calcularDestinoIndicador(item, indicador);
 
         indicador.style.opacity = '1';
 
@@ -434,9 +480,7 @@
             indicador.style.transform = 'translateY(' + destino + 'px)';
             return;
         }
-        var actual = 0;
-        var m = /translateY\(([-\d.]+)px\)/.exec(indicador.style.transform || '');
-        if (m) actual = parseFloat(m[1]) || 0;
+        var actual = obtenerPosicionActualIndicador(indicador);
         ANIME.animate(indicador, {
             translateY: [actual, destino],
             duration: 300,
@@ -454,7 +498,7 @@
         opciones = opciones || {};
         wrapperScroll = opciones.wrapper || null;
         if (!wrapperScroll) return null;
-        if (REDUCE || !LENIS) return null;
+        if (REDUCIR_MOVIMIENTO || !LENIS) return null;
 
         try {
             lenis = new LENIS({
@@ -499,7 +543,7 @@
         window.addEventListener('load', function () {
             setTimeout(function () {
                 var activa = document.querySelector('.vista--activa') || document;
-                aArray(activa.querySelectorAll('[data-reveal]:not([data-reveal-done])')).forEach(function (el) {
+                convertirNodosEnLista(activa.querySelectorAll('[data-reveal]:not([data-reveal-done])')).forEach(function (el) {
                     el.style.opacity = '';
                     el.style.transform = '';
                     el.setAttribute('data-reveal-done', '1');
@@ -509,7 +553,7 @@
     }
 
     window.Motion = {
-        reduce: REDUCE,
+        reduce: REDUCIR_MOVIMIENTO,
         animado: !!ANIME,
         suave: !!LENIS,
         revealIn: revealIn,
