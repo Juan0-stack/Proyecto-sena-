@@ -21,6 +21,16 @@ def crear_solicitud():
 def listar_solicitudes():
     if session.get('nombre_rol') == 'Estudiante':
         return jsonify({'ok': False, 'error': 'No tienes permisos para ver las solicitudes.'}), 403
+    rol = session.get('nombre_rol')
+    if rol == 'Docente':
+        id_usuario = session.get('id_usuario')
+        mis_ids = [e.get('id_espacio') for e in EspacioModel.listar_por_encargado(id_usuario)]
+        datos = SolicitudController.listar_para_sesion()
+        if mis_ids:
+            datos = [d for d in datos if d.get('id_espacio') in mis_ids]
+        else:
+            datos = []
+        return jsonify({'ok': True, 'solicitudes': datos})
     return jsonify({'ok': True, 'solicitudes': SolicitudController.listar_para_sesion()})
 
 
@@ -33,7 +43,7 @@ def cambiar_estado_solicitud(id_solicitud):
 
 
 @solicitudes_bp.route('/api/ocupacion', methods=['GET'])
-@role_required('Administrador', 'Docente', api=True)
+@role_required('Administrador', 'Gestión de Calidad', 'Docente', api=True)
 def ocupacion_mes():
     mes = (request.args.get('mes') or '').strip()
     tipo = (request.args.get('tipo') or '').strip()
@@ -52,5 +62,16 @@ def ocupacion_mes():
         hasta = date(anio + 1, 1, 1) - timedelta(days=1)
     else:
         hasta = date(anio, num + 1, 1) - timedelta(days=1)
-    filas = SolicitudModel.ocupacion(desde, hasta, tipo=tipo or None)
+    rol = session.get('nombre_rol')
+    if rol == 'Docente':
+        id_usuario = session.get('id_usuario')
+        mis_ids = [e.get('id_espacio') for e in EspacioModel.listar_por_encargado(id_usuario)]
+        if mis_ids:
+            # Para docente, filtrar por sus espacios
+            filas = SolicitudModel.ocupacion(desde, hasta, tipo=tipo or None)
+            filas = [f for f in filas if f.get('id_espacio') in mis_ids]
+        else:
+            filas = []
+    else:
+        filas = SolicitudModel.ocupacion(desde, hasta, tipo=tipo or None)
     return jsonify({'ok': True, 'ocupacion': filas})

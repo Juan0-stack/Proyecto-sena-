@@ -81,7 +81,8 @@ def init_db():
             VALUES
                 (1, 'Estudiante', 'Usuario estudiante de la institución'),
                 (2, 'Docente', 'Usuario docente de la institución'),
-                (3, 'Administrador', 'Usuario con acceso administrativo')
+                (3, 'Administrador', 'Usuario con acceso administrativo'),
+                (4, 'Gestión de Calidad', 'Usuario con permisos de gestión de calidad')
             """
         )
         cursor.execute(
@@ -144,6 +145,25 @@ def init_db():
                 "ALTER TABLE eventos_institucionales "
                 "ADD COLUMN fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP"
             )
+        cursor.execute("SHOW COLUMNS FROM eventos_institucionales LIKE 'tipo_evento'")
+        if cursor.fetchone() is None:
+            cursor.execute(
+                "ALTER TABLE eventos_institucionales "
+                "ADD COLUMN tipo_evento VARCHAR(30) NOT NULL DEFAULT 'Institucional'"
+            )
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS evento_espacios (
+                id_evento INT NOT NULL,
+                id_espacio INT NOT NULL,
+                PRIMARY KEY (id_evento, id_espacio),
+                CONSTRAINT evento_espacios_evento_fk FOREIGN KEY (id_evento)
+                    REFERENCES eventos_institucionales (id_evento) ON DELETE CASCADE,
+                CONSTRAINT evento_espacios_espacio_fk FOREIGN KEY (id_espacio)
+                    REFERENCES espacios (id_espacio) ON DELETE CASCADE
+            )
+            """
+        )
         _sembrar_admin(cursor)
         conn.commit()
         cursor.close()

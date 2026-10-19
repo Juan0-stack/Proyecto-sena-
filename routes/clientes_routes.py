@@ -23,6 +23,8 @@ def index():
 @clientes_bp.route('/login')
 @clientes_bp.route('/login.html')
 def login():
+    if session.get('id_usuario'):
+        return redirect(_panel_para_rol(session.get('nombre_rol')))
     return render_template('login.html')
 
 
@@ -70,7 +72,15 @@ def login_admin():
 @clientes_bp.route('/admin/panel')
 @role_required('Administrador')
 def admin_panel():
-    return render_template('admin_panel.html')
+    return render_template('admin_panel.html', es_admin=True)
+
+
+@clientes_bp.route('/calidad/panel')
+@role_required('Gestión de Calidad')
+def calidad_panel():
+    # Mismo home/plantilla que el Administrador, sin lo exclusivo de él
+    # (Gestión roles, cuentas administrativas, eliminar usuarios). Spec §4.
+    return render_template('admin_panel.html', es_admin=False)
 
 
 @clientes_bp.route('/maestro/panel')
@@ -98,27 +108,34 @@ def login_cliente():
 
 
 @clientes_bp.route('/api/clientes/registrar', methods=['POST'])
-@role_required('Administrador', api=True)
+@role_required('Administrador', 'Gestión de Calidad', api=True)
 def registrar_cliente():
     datos = request.get_json(silent=True) or request.form
     return jsonify(ClienteController.registrar(datos))
 
 
 @clientes_bp.route('/api/clientes', methods=['GET'])
-@role_required('Administrador', api=True)
+@role_required('Administrador', 'Gestión de Calidad', api=True)
 def listar_clientes():
     return jsonify({'ok': True, 'usuarios': ClienteModel.listar()})
 
 
 @clientes_bp.route('/api/clientes/<int:id_usuario>', methods=['PUT'])
-@role_required('Administrador', api=True)
+@role_required('Administrador', 'Gestión de Calidad', api=True)
 def actualizar_cliente(id_usuario):
     datos = request.get_json(silent=True) or {}
     return jsonify(ClienteController.actualizar(id_usuario, datos))
 
 
-@clientes_bp.route('/api/clientes/<int:id_usuario>/estado', methods=['PATCH'])
+@clientes_bp.route('/api/clientes/<int:id_usuario>', methods=['DELETE'])
 @role_required('Administrador', api=True)
+def eliminar_cliente(id_usuario):
+    # Solo el Administrador elimina usuarios de forma definitiva (spec §4).
+    return jsonify(ClienteController.eliminar(id_usuario))
+
+
+@clientes_bp.route('/api/clientes/<int:id_usuario>/estado', methods=['PATCH'])
+@role_required('Administrador', 'Gestión de Calidad', api=True)
 def cambiar_estado_cliente(id_usuario):
     datos = request.get_json(silent=True) or {}
     return jsonify(ClienteController.cambiar_estado(id_usuario, (datos.get('estado') or '').strip()))
@@ -131,23 +148,20 @@ def listar_docentes():
 
 
 @clientes_bp.route('/api/roles', methods=['GET'])
-@login_required(api=True)
+@role_required('Administrador', api=True)
 def listar_roles():
     return jsonify({'ok': True, 'roles': ClienteModel.listar_roles()})
 
 
-@clientes_bp.route('/api/resumen', methods=['GET'])
-@role_required('Administrador', api=True)
-def resumen_admin():
+@clientes_bp.route('/api/sesion', methods=['GET'])
+@login_required(api=True)
+def estado_sesion():
+    rol = session.get('nombre_rol') or ''
     return jsonify({
         'ok': True,
-        'resumen': {
-            'espacios': EspacioModel.contar(),
-            'espacios_disponibles': EspacioModel.contar_por_estado('Disponible'),
-            'usuarios_activos': ClienteModel.contar_activos(),
-            'solicitudes_pendientes': SolicitudModel.contar_por_estado('pendiente'),
-            'eventos': EventoModel.contar()
-        }
+        'autenticado': True,
+        'rol': rol,
+        'panel': PANEL_POR_ROL.get(rol) if rol else None
     })
 
 

@@ -4,21 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISAILO MAPS</title>
+    <link rel="stylesheet" href="../static/css/tokens.css">
     <link rel="stylesheet" href="../static/css/logo.css?v=1">
-    <link rel="stylesheet" href="../static/css.css?v=8">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css.css?v=9">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="../static/vendor/logo.png" type="image/png">
 </head>
 <body>
 
-    {% import 'partials/logo.html' as logo %}
-
     <header class="navbar navbar--transparent" id="navbar">
-        {{ logo.marca(size=32, texto=True, href='#inicio', etiqueta='ISAILO MAPS', clase='logo-nav') }}
+        <a class="logo-nav marca-logo" href="#inicio" aria-label="ISAILO MAPS">
+            <img class="marca-logo__img" src="../static/logo.png" alt="" style="--logo-size: 32px;">
+            <span class="marca-logo__texto"><span class="marca-logo__nombre">ISAILO MAPS</span></span>
+        </a>
         <nav>
             <ul class="menu" id="menu">
                 <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#calendario">Calendario cultural</a></li>
                 <li><a href="#nosotros">Nosotros</a></li>
                 <li><a href="#contacto">Contacto</a></li>
                 <li><a href="/login">Inicio de sesión</a></li>
@@ -38,8 +41,9 @@
         <div class="hero__decoracion hero__decoracion--5"></div>
 
         <div class="hero__contenido">
-            {{ logo.emblema(size=200, etiqueta='Logo Isailo Maps', clase='hero__logo', id='heroLogo') }}
-            <h1 class="hero__h1">ISAILO <span>MAPS</span></h1>
+            <h1 class="hero__h1 hero__h1--logo">
+                <img src="../static/logo.png" alt="ISAILO MAPS" class="hero__logo" id="heroLogo">
+            </h1>
             <p class="hero__sub">
                 Descubre, explora y gestiona cada espacio del
                 <strong>Instituto San Ignacio de Loyola</strong>
@@ -49,11 +53,48 @@
                 <a href="/login" class="btn-hero--primario">
                     <i class="fas fa-rocket"></i> Comenzar
                 </a>
-                <a href="#nosotros" class="btn-hero--secundario">
-                    <i class="fas fa-arrow-down"></i> Más información
+                <a href="#calendario" class="btn-hero--secundario">
+                    <i class="fas fa-calendar-days" aria-hidden="true"></i> Mira el calendario cultural
                 </a>
             </div>
+            <a href="#nosotros" class="hero__mas-informacion">Más información <i class="fas fa-arrow-down" aria-hidden="true"></i></a>
         </div>
+    </section>
+
+    <section class="calendario-publico" id="mapa" aria-label="Calendario y espacios públicos">
+        <div class="mapa-publico__encabezado">
+            <span class="etiqueta">Explora la institución</span>
+            <h2>Agenda y espacios</h2>
+            <p>Consulta los eventos culturales del instituto.</p>
+        </div>
+        <nav class="cal-publico__atajos" role="tablist" aria-label="Secciones públicas">
+            <button type="button" class="cal-publico__atajo is-active" id="tabCalendario" role="tab" aria-selected="true" aria-controls="calendario" data-panel-tab="calendario">
+                <span class="cal-publico__atajo-icono"><i class="fas fa-calendar-days" aria-hidden="true"></i></span>
+                <span><strong>Calendario</strong><small>Eventos culturales y sus espacios</small></span>
+                <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="cal-publico__atajo" id="tabEspacios" role="tab" aria-selected="false" aria-controls="espaciosPublicos" data-panel-tab="espaciosPublicos">
+                <span class="cal-publico__atajo-icono"><i class="fas fa-door-open" aria-hidden="true"></i></span>
+                <span><strong>Espacios</strong><small>Explora los espacios del instituto</small></span>
+                <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            </button>
+        </nav>
+        <div class="cal-publico__panel" id="calendario" role="tabpanel" aria-labelledby="tabCalendario">
+            <div class="cal-publico__panel-cabecera">
+                <div><span class="etiqueta">Agenda institucional</span><h2 id="calendario-titulo">Calendario cultural</h2></div>
+                <div class="cal-publico__barra">
+                    <button type="button" class="btn-nav" id="calPublicoAnterior" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
+                    <strong id="calPublicoAnio" class="cal-publico__anio" aria-live="polite"></strong>
+                    <button type="button" class="btn-nav" id="calPublicoSiguiente" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
+                    <button type="button" class="btn-hoy" id="calPublicoHoy">Hoy</button>
+                </div>
+            </div>
+            <div class="cal-publico__meses" id="calPublicoMeses" aria-live="polite">
+                <p class="cal-publico__estado">Cargando eventos culturales…</p>
+            </div>
+            <div class="cal-publico__agenda" id="calPublicoEventos" aria-live="polite"></div>
+        </div>
+        <div class="cal-publico__panel cal-publico__panel--vacio" id="espaciosPublicos" role="tabpanel" aria-labelledby="tabEspacios" hidden></div>
     </section>
 
     <section class="about" id="nosotros">
@@ -156,6 +197,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="../static/js/calendario-publico.js?v=1"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var TIENE_GSAP = typeof window.gsap !== 'undefined';

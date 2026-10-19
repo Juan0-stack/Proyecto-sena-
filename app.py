@@ -14,6 +14,16 @@ app.config.from_object(Config)
 
 init_db()
 
+# Headers sin caché para páginas y endpoints que requieren sesión
+@app.after_request
+def _sin_cache(respuesta):
+    # Evitar cachear páginas protegidas y respuestas dinámicas
+    if not request.path.startswith('/static'):
+        respuesta.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private'
+        respuesta.headers['Pragma'] = 'no-cache'
+        respuesta.headers['Expires'] = '0'
+    return respuesta
+
 #por defecto abre index.html
 @app.route('/')
 def inicio():

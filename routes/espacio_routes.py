@@ -13,18 +13,22 @@ espacios_bp = Blueprint('espacios', __name__)
 @espacios_bp.route('/api/espacios', methods=['GET'])
 @login_required(api=True)
 def listar_espacios():
+    rol = session.get('nombre_rol')
+    id_usuario = session.get('id_usuario')
+    if rol == 'Docente':
+        return jsonify({'ok': True, 'espacios': EspacioModel.listar_por_encargado(id_usuario)})
     return jsonify({'ok': True, 'espacios': EspacioModel.listar()})
 
 
 @espacios_bp.route('/api/espacios', methods=['POST'])
-@role_required('Administrador', api=True)
+@role_required('Administrador', 'Gestión de Calidad', api=True)
 def crear_espacio():
     datos = request.get_json(silent=True) or {}
     return jsonify(EspacioController.crear(datos))
 
 
 @espacios_bp.route('/api/espacios/<int:id_espacio>', methods=['PUT'])
-@role_required('Administrador', api=True)
+@role_required('Administrador', 'Gestión de Calidad', api=True)
 def actualizar_espacio(id_espacio):
     datos = request.get_json(silent=True) or {}
     return jsonify(EspacioController.actualizar(id_espacio, datos))
@@ -39,6 +43,13 @@ def eliminar_espacio(id_espacio):
 @espacios_bp.route('/api/espacios/<int:id_espacio>/ocupacion', methods=['GET'])
 @login_required(api=True)
 def ocupacion_espacio(id_espacio):
+    rol = session.get('nombre_rol')
+    id_usuario = session.get('id_usuario')
+    if rol == 'Docente':
+        # Solo permitir si el docente es encargado de ese espacio
+        espacios_mios = [e.get('id_espacio') for e in EspacioModel.listar_por_encargado(id_usuario)]
+        if id_espacio not in espacios_mios:
+            return jsonify({'ok': False, 'error': 'No tienes permiso para ver la ocupación de este espacio.'}), 403
     desde = (request.args.get('desde') or '').strip()
     hasta = (request.args.get('hasta') or '').strip()
     try:
