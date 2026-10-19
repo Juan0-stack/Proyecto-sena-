@@ -381,19 +381,30 @@
         var nueva = document.getElementById(id);
         if (!nueva) return null;
 
-        /* La última petición gana: invalida cualquier transición en curso. */
+        /* La última petición gana: invalida y limpia cualquier transición
+           interrumpida antes de decidir qué sección debe salir. */
         if (MOTION && MOTION.cancelarTransicion) MOTION.cancelarTransicion();
 
-        /* Saliente = la sección que se estaba mostrando. */
+        var vistas = $$('.vista');
         var anterior = vistaActualId ? document.getElementById(vistaActualId) : null;
+        if (!anterior || !anterior.classList.contains('vista--activa')) {
+            anterior = vistas.find(function (vista) {
+                return vista !== nueva && vista.classList.contains('vista--activa');
+            }) || null;
+        }
         if (anterior === nueva) anterior = null;
 
-        /* Cualquier otra sección que quedara marcada como activa se limpia,
-           para no tener dos secciones visibles a la vez. */
-        $$('.vista').forEach(function (v) {
-            if (v !== nueva && v !== anterior && v.classList.contains('vista--activa')) {
-                v.classList.remove('vista--activa');
-                limpiarEstilos(v);
+        /* Al cambiar rápido pueden quedar animaciones vivas en una tercera
+           pestaña. Se cancelan y se fijan las vistas a un estado consistente. */
+        vistas.forEach(function (vista) {
+            if (vista.classList.contains('vista--activa') || vista === nueva) {
+                if (MOTION && MOTION.detenerAnimaciones) MOTION.detenerAnimaciones(vista);
+            }
+            if (vista !== nueva && vista !== anterior) {
+                vista.classList.remove('vista--activa');
+                limpiarEstilos(vista);
+            } else {
+                limpiarEstilos(vista);
             }
         });
 

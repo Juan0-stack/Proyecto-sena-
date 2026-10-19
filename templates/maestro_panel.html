@@ -31,7 +31,7 @@
     ] %}
     {% if tiene_espacio %}
         {% set _ = menu.append({'vista': 'eventos', 'etiqueta': 'Gestión de eventos', 'icono': 'fa-regular fa-pen-to-square'}) %}
-        {% set _ = menu.append({'vista': 'solicitudes', 'etiqueta': 'Verificar solicitudes', 'icono': 'fa-regular fa-clipboard-check', 'badge_salida': 'badgeSolicitudes'}) %}
+        {% set _ = menu.append({'vista': 'solicitudes', 'etiqueta': 'Verificar solicitudes', 'icono': 'fa-solid fa-hourglass-half', 'badge_salida': 'badgeSolicitudes'}) %}
     {% endif %}
 
     {% include 'partials/panel_header.html' %}
@@ -247,7 +247,7 @@
                 </ul>
                 {% else %}
                 <div class="vacio-estado">
-                    <span class="vacio-estado__icono"><i class="fa-regular fa-clipboard-check"></i></span>
+                    <span class="vacio-estado__icono"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span>
                     <p class="vacio-estado__titulo">Sin solicitudes pendientes</p>
                     <p class="vacio-estado__texto">Cuando alguien solicite tu espacio, aparecerá aquí.</p>
                 </div>
