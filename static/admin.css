@@ -2084,48 +2084,6 @@ html.transicion-login-entrada body {
     font-size: 2rem;
 }
 
-/* ============ PRÓXIMOS EVENTOS (ESTUDIANTE) ============ */
-.proximos-eventos {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 16px;
-}
-
-.evento-card {
-    background: linear-gradient(135deg, #1a0808 0%, #140606 100%);
-    border: 1px solid rgba(230, 215, 184, 0.1);
-    border-left: 4px solid var(--ev-color, var(--color-accent));
-    border-radius: 12px;
-    padding: 16px 18px;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.evento-card:hover {
-    transform: translateY(-3px) scale(1.01);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
-}
-
-.evento-card__fecha {
-    font-size: 0.76rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: rgba(230, 215, 184, 0.6);
-    margin-bottom: 6px;
-}
-
-.evento-card__nombre {
-    font-weight: 600;
-    color: var(--color-gold-claro);
-    font-size: 0.98rem;
-}
-
-.evento-card__desc {
-    font-size: 0.84rem;
-    color: rgba(242, 232, 214, 0.65);
-    margin-top: 4px;
-}
-
 /* ============ TOAST ============ */
 .toast {
     position: fixed;
@@ -2445,89 +2403,6 @@ html.transicion-login-entrada body {
     margin-top: 2px;
 }
 
-.primer-evento__card {
-    position: relative;
-    background: linear-gradient(135deg, rgba(139, 30, 30, 0.22), rgba(13, 5, 5, 0.65));
-    border: 1px solid var(--ev-color, rgba(139, 30, 30, 0.4));
-    border-left: 6px solid var(--ev-color, #8B1E1E);
-    border-radius: 18px;
-    padding: 26px 28px;
-    margin-bottom: 20px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
-}
-
-.primer-evento__card--vacio {
-    text-align: center;
-    padding: 40px 28px;
-}
-
-.primer-evento__card--vacio i {
-    font-size: 30px;
-    color: rgba(230, 215, 184, 0.72);
-    margin-bottom: 10px;
-}
-
-.primer-evento__card--vacio h3 {
-    font-family: 'Playfair Display', serif;
-    color: var(--color-gold);
-    font-size: 1.2rem;
-    margin-bottom: 6px;
-}
-
-.primer-evento__card--vacio p {
-    color: rgba(230, 215, 184, 0.72);
-    font-size: 0.9rem;
-}
-
-.primer-evento__fecha {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--color-gold);
-    background: rgba(13, 5, 5, 0.5);
-    border-radius: 50px;
-    padding: 5px 14px;
-}
-
-.primer-evento__nombre {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.6rem;
-    color: var(--color-gold-claro);
-    margin: 14px 0 6px;
-}
-
-.primer-evento__desc {
-    color: rgba(242, 232, 214, 0.7);
-    font-size: 0.92rem;
-}
-
-.primer-evento__card:not(.primer-evento__card--vacio) {
-    min-height: 210px;
-    padding: 34px clamp(26px, 5vw, 58px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    background: radial-gradient(ellipse at 92% 15%, rgba(230, 215, 184, 0.1), transparent 38%),
-        linear-gradient(120deg, rgba(139, 30, 30, 0.32), rgba(13, 5, 5, 0.72));
-}
-
-.primer-evento__card:not(.primer-evento__card--vacio) .primer-evento__nombre {
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
-    max-width: 800px;
-}
-
-.primer-evento__card--vacio {
-    min-height: 210px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border-left-width: 1px;
-    background: radial-gradient(ellipse at center, rgba(230, 215, 184, 0.07), transparent 58%), rgba(16, 8, 8, 0.65);
-}
-
 .cargo-vacio {
     display: flex;
     align-items: flex-start;
@@ -2589,7 +2464,6 @@ html.transicion-login-entrada body {
 .panel-bloque,
 .espacio-fila,
 .cargo-espacio,
-.evento-card,
 .hoy-item,
 .actividad-item,
 .btn-admin,
@@ -2629,13 +2503,6 @@ html.transicion-login-entrada body {
     transform: translateY(-1px) scale(1.02);
 }
 
-.accesos-estudiante {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 30px;
-}
-
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -2647,7 +2514,6 @@ html.transicion-login-entrada body {
     }
 
     .espacio-fila,
-    .evento-card,
     .tabla tbody tr,
     .btn-nav,
     .btn-icono,

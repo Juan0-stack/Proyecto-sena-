@@ -8,9 +8,8 @@
 
    el nuevo esqueleto (encabezado + barra lateral + contenido) y las
 
-   tarjetas del sistema visual. No afecta a los paneles de Docente y
-
-   Estudiante, que no cargan este archivo.
+   tarjetas del sistema visual. No afecta al panel de Docente, que no carga
+   este archivo.
 
    Usa los tokens de static/css/tokens.css.
 

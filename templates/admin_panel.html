@@ -381,7 +381,6 @@
 
                 <div class="filtros-rol" id="filtrosRol" role="tablist" aria-label="Filtrar por rol">
                     <button type="button" class="filtro-rol filtro-rol--activo" data-rol-filtro="Docente" role="tab" aria-selected="true">Docentes</button>
-                    <button type="button" class="filtro-rol" data-rol-filtro="Estudiante" role="tab" aria-selected="false">Estudiantes</button>
                     {% if es_admin %}
                     <button type="button" class="filtro-rol" data-rol-filtro="Administrador" role="tab" aria-selected="false">Administradores</button>
                     <button type="button" class="filtro-rol" data-rol-filtro="Gestión de Calidad" role="tab" aria-selected="false">Gestión de Calidad</button>
@@ -641,7 +640,6 @@
                     <div class="form-campo">
                         <label for="usuRol">Rol</label>
                         <select id="usuRol">
-                            <option value="1">Estudiante</option>
                             <option value="2">Docente</option>
                             {% if es_admin %}
                             <option value="3">Administrador</option>

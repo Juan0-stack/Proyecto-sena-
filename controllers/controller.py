@@ -9,8 +9,7 @@ from models.solicitud_model import SolicitudModel
 PANEL_POR_ROL = {
     'Administrador': '/admin/panel',
     'Gestión de Calidad': '/calidad/panel',
-    'Docente': '/maestro/panel',
-    'Estudiante': '/estudiante/panel'
+    'Docente': '/maestro/panel'
 }
 
 # Roles con acceso al área administrativa. El Administrador conserva todo el
@@ -51,13 +50,14 @@ class ClienteController:
 
     @staticmethod
     def _rol_desde_datos(datos):
+        valor = datos.get('rol') or datos.get('id_rol')
+        if valor in (None, ''):
+            return None
         try:
-            id_rol = int(datos.get('rol') or datos.get('id_rol') or 1)
+            id_rol = int(valor)
         except (TypeError, ValueError):
-            id_rol = 1
-        if id_rol not in (1, 2, 3, 4):
-            id_rol = 1
-        return id_rol
+            return None
+        return id_rol if id_rol in (2, 3, 4) else None
 
     @staticmethod
     def registrar(datos):
@@ -72,8 +72,10 @@ class ClienteController:
             return {'ok': False, 'error': 'La contraseña debe tener al menos 4 caracteres.'}
 
         id_rol = ClienteController._rol_desde_datos(datos)
+        if id_rol is None:
+            return {'ok': False, 'error': 'Selecciona un rol disponible. El rol de estudiante ya no está habilitado.'}
 
-        # Gestión de Calidad solo puede crear Docentes y Estudiantes (spec §4).
+        # Gestión de Calidad solo puede crear cuentas de Docente.
         if _es_gestion_calidad() and id_rol in (3, ID_ROL_GESTION_CALIDAD):
             return {'ok': False, 'error': 'No tienes permiso para crear cuentas administrativas.'}
 
@@ -105,21 +107,25 @@ class ClienteController:
             return {'ok': False, 'error': 'La contraseña debe tener al menos 4 caracteres.'}
 
         id_rol = ClienteController._rol_desde_datos(datos)
+        if id_rol is None:
+            return {'ok': False, 'error': 'Selecciona un rol disponible. El rol de estudiante ya no está habilitado.'}
         id_usuario = int(id_usuario)
 
         existente = ClienteModel.buscar_por_correo(correo)
         if existente and existente['id_usuario'] != id_usuario:
             return {'ok': False, 'error': 'Ya existe una cuenta con ese usuario o correo.'}
 
-        if not ClienteModel.buscar_por_id(id_usuario):
+        usuario_objetivo = ClienteModel.buscar_por_id(id_usuario)
+        if not usuario_objetivo:
             return {'ok': False, 'error': 'El usuario no existe.'}
+        if usuario_objetivo.get('nombre_rol') == 'Estudiante':
+            return {'ok': False, 'error': 'Esta cuenta ya no se gestiona desde este panel.'}
 
         # Gestión de Calidad no puede tocar cuentas administrativas ni
         # asignar roles administrativos (spec §4). Va antes del control de
         # "rol propio" para que su propio caso dé el mensaje de permisos.
         if _es_gestion_calidad():
-            objetivo = ClienteModel.buscar_por_id(id_usuario)
-            if objetivo and objetivo.get('nombre_rol') in ROLES_ADMINISTRATIVOS:
+            if usuario_objetivo.get('nombre_rol') in ROLES_ADMINISTRATIVOS:
                 return {'ok': False, 'error': 'No tienes permiso para editar cuentas administrativas.'}
             if id_rol in (3, ID_ROL_GESTION_CALIDAD):
                 return {'ok': False, 'error': 'No tienes permiso para asignar roles administrativos.'}
@@ -189,6 +195,8 @@ class ClienteController:
             return {'ok': False, 'error': 'Tu cuenta está deshabilitada. Contacta al administrador.'}
 
         rol = usuario.get('nombre_rol')
+        if rol == 'Estudiante':
+            return {'ok': False, 'error': 'El acceso para estudiantes ya no está disponible.'}
         try:
             if admin_only or str(admin_only).lower() in ('1', 'true', 'on'):
                 if rol not in ROLES_ADMINISTRATIVOS:
@@ -215,7 +223,7 @@ class ClienteController:
                 'correo': usuario['correo'],
                 'rol': rol
             },
-            'panel': PANEL_POR_ROL.get(rol, '/estudiante/panel')
+            'panel': PANEL_POR_ROL.get(rol, '/login')
         }
 
     @staticmethod
@@ -724,18 +732,6 @@ class PanelController:
             'actividad': feed[:8],
             'proximos_eventos': _proximos_eventos()
         }
-
-    @staticmethod
-    def datos_estudiante():
-        proximos = EventoModel.listar_futuros(6)
-        return {
-            'proximo_evento': proximos[0] if proximos else None,
-            'eventos': proximos
-        }
-
-
-
-
 
 class SolicitudController:
 

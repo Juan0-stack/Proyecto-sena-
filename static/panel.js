@@ -281,7 +281,7 @@
     /* ================= PESTAÑAS ================= */
 
     function initMenu() {
-        /* --- Docente/Estudiante: menú horizontal con hamburguesa --- */
+        /* --- Docente: menú horizontal con hamburguesa --- */
         var hamburguesa = $('#hamburguesa');
         var lista = $('.nav__lista');
         if (hamburguesa && lista && !document.getElementById('sidebar')) {
@@ -502,10 +502,8 @@
             if (res.ok) estado.espacios = res.espacios || [];
             pintarFiltroTipos();
             pintarEspacios();
-            if (ROL !== 'Estudiante') {
-                pintarCalOperativo();
-                pintarChipsCalendario();
-            }
+            pintarCalOperativo();
+            pintarChipsCalendario();
             pintarUsuarios();
         });
     }
@@ -576,13 +574,11 @@
             if (esMio) meta += ' <span class="badge-mini"><i class="fas fa-key"></i> Mi espacio</span>';
 
             var campanaHtml = '';
-            if (ROL !== 'Estudiante') {
-                var pendientes = pendientesDeEspacio(e.id_espacio);
-                if (pendientes.length > 0) {
-                    campanaHtml = '<button type="button" class="campana-boton" data-accion="campana" data-id="' +
-                        e.id_espacio + '" title="' + pendientes.length + ' solicitud(es) pendiente(s) por revisar" aria-label="Ver solicitudes pendientes">' +
-                        '<i class="fas fa-bell"></i><span class="campana-boton__badge">' + pendientes.length + '</span></button>';
-                }
+            var pendientes = pendientesDeEspacio(e.id_espacio);
+            if (pendientes.length > 0) {
+                campanaHtml = '<button type="button" class="campana-boton" data-accion="campana" data-id="' +
+                    e.id_espacio + '" title="' + pendientes.length + ' solicitud(es) pendiente(s) por revisar" aria-label="Ver solicitudes pendientes">' +
+                    '<i class="fas fa-bell"></i><span class="campana-boton__badge">' + pendientes.length + '</span></button>';
             }
 
             var detalle =
@@ -701,8 +697,7 @@
            Calendario y Verificar solicitudes quedan vacías hasta la conexión;
            por eso no se vuelven a enlazar cargarSolicitudes() ni cargarSemana(). */
         if (!ES_GESTION) {
-            if (ROL !== 'Estudiante') promesas.push(cargarSolicitudes());
-            promesas.push(cargarOcupacionOperativa(), cargarSemana());
+            promesas.push(cargarSolicitudes(), cargarOcupacionOperativa(), cargarSemana());
         } else {
             promesas.push(cargarOcupacionOperativa());
         }
@@ -1038,7 +1033,6 @@
             estado.eventos = res.ok ? (res.eventos || []) : [];
             pintarCalPared();
             if (ES_GESTION) pintarTablaEventos();
-            if (ROL === 'Estudiante') pintarProximosEventos();
             if (ROL === 'Docente') pintarStatsMaestro();
         });
     }
@@ -1269,9 +1263,8 @@
         if (!cont) return;
         var definidos = [
             { clave: 'Administrador', icono: 'fa-user-shield', desc: 'Administra el sistema completo: espacios, eventos, usuarios y todos los roles; aprueba solicitudes.' },
-            { clave: 'Gestión de Calidad', icono: 'fa-clipboard-check', desc: 'Apoya la gestión: administra docentes y estudiantes, espacios y eventos. No toca cuentas administrativas.' },
-            { clave: 'Docente', icono: 'fa-chalkboard-user', desc: 'Solicita espacios y autoriza las solicitudes de los espacios que tiene a cargo.' },
-            { clave: 'Estudiante', icono: 'fa-graduation-cap', desc: 'Consulta la disponibilidad de espacios y los eventos institucionales.' }
+            { clave: 'Gestión de Calidad', icono: 'fa-clipboard-check', desc: 'Apoya la gestión: administra docentes, espacios y eventos. No toca cuentas administrativas.' },
+            { clave: 'Docente', icono: 'fa-chalkboard-user', desc: 'Solicita espacios y autoriza las solicitudes de los espacios que tiene a cargo.' }
         ];
         cont.innerHTML = definidos.map(function (r) {
             var total = estado.usuarios.filter(function (u) { return u.nombre_rol === r.clave; }).length;
@@ -1302,7 +1295,7 @@
         }
         var rolSel = $('#usuRol');
         if (usuario && usuario.id_rol_map) rolSel.value = String(usuario.id_rol_map);
-        else rolSel.value = '1';
+        else rolSel.value = '2';
         pintarEspacioCargo(usuario);
         setError('#errorModalUsuario', '');
         abrirModal('modalUsuario');
@@ -1412,33 +1405,6 @@
         if (pendientesTexto) pendientesTexto.textContent = miCargo.length ? 'En tus espacios a cargo' : 'Disponible cuando tengas espacios asignados';
     }
 
-    function pintarProximosEventos() {
-        var cont = $('#proximosEventos');
-        if (!cont) return;
-        var hoy = hoyISO();
-        var proximos = estado.eventos
-            .filter(function (ev) { return (ev.fecha_fin || ev.fecha_inicio) >= hoy; })
-            .sort(function (a, b) { return String(a.fecha_inicio).localeCompare(String(b.fecha_inicio)); })
-            .slice(0, 6);
-
-        if (!proximos.length) {
-            cont.innerHTML = '<p class="acordeon-vacia">No hay eventos programados por ahora.</p>';
-            return;
-        }
-        cont.innerHTML = proximos.map(function (ev) {
-            var rango = ev.fecha_fin && ev.fecha_fin !== ev.fecha_inicio
-                ? fmtFecha(ev.fecha_inicio) + ' – ' + fmtFecha(ev.fecha_fin)
-                : fmtFecha(ev.fecha_inicio);
-            return '<article class="evento-card" style="--ev-color:' + esc(ev.color) + '">' +
-                '<div class="evento-card__fecha">' + rango + '</div>' +
-                '<div class="evento-card__nombre">' + esc(ev.nombre) + '</div>' +
-                (ev.descripcion ? '<div class="evento-card__desc">' + esc(ev.descripcion) + '</div>' : '') +
-            '</article>';
-        }).join('');
-
-        animarEntrada($$('.evento-card', cont), { y: 12, duration: DURACION.entrada });
-    }
-
     /* ================= PANELES POR ROL ================= */
 
     function tiempoRelativo(isoStr) {
@@ -1465,7 +1431,6 @@
             if (!estado.panelDatos) return;
             if (ES_GESTION) pintarPanelAdmin();
             else if (ROL === 'Docente') pintarPanelDocente();
-            else pintarPanelEstudiante();
         });
     }
 
@@ -1754,30 +1719,6 @@
         }
     }
 
-    function pintarPanelEstudiante() {
-        var d = estado.panelDatos || {};
-        var cont = $('#proximoEventoContenido');
-        if (!cont) return;
-        var ev = d.proximo_evento;
-        if (!ev) {
-            cont.innerHTML = '<div class="primer-evento__card primer-evento__card--vacio">' +
-                '<i class="fas fa-calendar-xmark"></i>' +
-                '<h3>No hay eventos próximos</h3>' +
-                '<p>La administración publicará aquí las fechas importantes del instituto.</p>' +
-            '</div>';
-            return;
-        }
-        var rango = ev.fecha_fin && ev.fecha_fin !== ev.fecha_inicio
-            ? fmtFecha(ev.fecha_inicio) + ' – ' + fmtFecha(ev.fecha_fin)
-            : fmtFecha(ev.fecha_inicio);
-        cont.innerHTML = '<article class="primer-evento__card" style="--ev-color:' + esc(ev.color) + '">' +
-            '<div class="primer-evento__fecha"><i class="fas fa-calendar-day"></i> ' + esc(rango) + '</div>' +
-            '<h3 class="primer-evento__nombre">' + esc(ev.nombre) + '</h3>' +
-            (ev.descripcion ? '<p class="primer-evento__desc">' + esc(ev.descripcion) + '</p>' : '') +
-        '</article>';
-        animarEntrada($$('.primer-evento__card', cont), { y: 12, duration: 0.34, stagger: 0 });
-    }
-
     /* ================= CALENDARIO SEMANAL (mockup) ================= */
 
     function pintarChipsCalendario() {
@@ -2059,7 +2000,7 @@
                     var usuario = null;
                     estado.usuarios.forEach(function (u) { if (u.id_usuario === id) usuario = u; });
                     if (usuario) {
-                        var mapaRoles = { Estudiante: 1, Docente: 2, Administrador: 3, 'Gestión de Calidad': 4 };
+                        var mapaRoles = { Docente: 2, Administrador: 3, 'Gestión de Calidad': 4 };
                         usuario.id_rol_map = mapaRoles[usuario.nombre_rol];
                         abrirModalUsuario(usuario);
                     }
@@ -2325,7 +2266,7 @@
         seguro(function () {
             if (!ES_GESTION) {
                 cargas.push(cargarEventos(), cargarSemana());
-                if (ROL !== 'Estudiante') cargas.push(cargarSolicitudes(), cargarOcupacionOperativa());
+                cargas.push(cargarSolicitudes(), cargarOcupacionOperativa());
             } else {
                 cargas.push(cargarOcupacionOperativa());
             }

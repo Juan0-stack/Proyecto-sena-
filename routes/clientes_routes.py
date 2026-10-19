@@ -11,7 +11,7 @@ clientes_bp = Blueprint('clientes', __name__)
 
 
 def _panel_para_rol(nombre_rol):
-    return PANEL_POR_ROL.get(nombre_rol, '/estudiante/panel')
+    return PANEL_POR_ROL.get(nombre_rol, '/login')
 
 
 @clientes_bp.route('/')
@@ -24,7 +24,10 @@ def index():
 @clientes_bp.route('/login.html')
 def login():
     if session.get('id_usuario'):
-        return redirect(_panel_para_rol(session.get('nombre_rol')))
+        destino = _panel_para_rol(session.get('nombre_rol'))
+        if destino != '/login':
+            return redirect(destino)
+        ClienteController.cerrar_sesion()
     return render_template('login.html')
 
 
@@ -95,10 +98,8 @@ def maestro_panel():
 
 
 @clientes_bp.route('/estudiante/panel')
-@role_required('Estudiante')
-def estudiante_panel():
-    datos = PanelController.datos_estudiante()
-    return render_template('estudiante_panel.html', datos=datos)
+def panel_estudiante_desactivado():
+    return redirect('/login')
 
 
 @clientes_bp.route('/api/clientes/login', methods=['POST'])
@@ -117,7 +118,11 @@ def registrar_cliente():
 @clientes_bp.route('/api/clientes', methods=['GET'])
 @role_required('Administrador', 'Gestión de Calidad', api=True)
 def listar_clientes():
-    return jsonify({'ok': True, 'usuarios': ClienteModel.listar()})
+    usuarios = [
+        usuario for usuario in ClienteModel.listar()
+        if usuario.get('nombre_rol') != 'Estudiante'
+    ]
+    return jsonify({'ok': True, 'usuarios': usuarios})
 
 
 @clientes_bp.route('/api/clientes/<int:id_usuario>', methods=['PUT'])
