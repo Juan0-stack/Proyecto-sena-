@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAILO MAPS — Solicitar espacio</title>
+    <link rel="stylesheet" href="../static/css/tokens.css?v=1">
+    <link rel="stylesheet" href="../static/css/calidad.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .blank-body { min-height: 100vh; background: radial-gradient(1200px circle at 50% 50%, rgba(201,169,110,0.06), transparent 60%), var(--bg, #0c0708); color: var(--texto, #F3EAD8); display: flex; flex-direction: column; }
+        .blank-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px; }
+        .blank-card { text-align: center; max-width: 520px; display: flex; flex-direction: column; gap: 16px; padding: 40px 32px; border-radius: var(--radio-lg, 18px); border: 1px solid var(--linea, rgba(201,169,110,0.16)); background: linear-gradient(180deg, rgba(19,11,12,0.98), rgba(13,5,5,0.92)); box-shadow: var(--sombra, 0 10px 30px rgba(0,0,0,0.35)); }
+        .blank-card__title { margin: 0; font-family: var(--fuente-titulo, 'Playfair Display', Georgia, serif); font-size: clamp(32px, 5vw, 48px); }
+        .blank-card__text { margin: 0; color: var(--texto-2, #CDC1AA); line-height: 1.7; }
+        .blank-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 8px; }
+    </style>
+</head>
+<body class="blank-body">
+    <main class="blank-main">
+        <section class="blank-card">
+            <h1 class="blank-card__title">Solicitar espacio</h1>
+            <p class="blank-card__text">El formulario de solicitud de espacios no se ha conectado aún. Esta página se deja en blanco a la espera de la conexión del calendario y el formulario (tarea del equipo de trabajo).</p>
+            <p class="blank-card__text">Puedes volver al panel del docente para consultar el estado de tus solicitudes.</p>
+            <div class="blank-actions">
+                <a class="btn-admin btn-admin--primario" href="/maestro/panel"><i class="fas fa-arrow-left"></i> Volver al panel docente</a>
+                <a class="btn-admin btn-admin--outline" href="/logout">Cerrar sesión</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

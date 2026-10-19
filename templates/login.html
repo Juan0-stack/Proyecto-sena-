@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAILO MAPS — Iniciar Sesión</title>
+    <link rel="stylesheet" href="../static/css/tokens.css?v=1">
+    <link rel="stylesheet" href="../static/css/logo.css?v=1">
+    <link rel="stylesheet" href="../static/css/login.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="../static/vendor/logo.png" type="image/png">
+    <script>
+        document.documentElement.classList.add('js', 'login-anim');
+        /* Red de seguridad: aunque login.js no cargue, la tarjeta se muestra. */
+        setTimeout(function () { document.documentElement.classList.remove('login-anim'); }, 2000);
+        try { if (sessionStorage.getItem('isailo-login-transition') === '1') document.documentElement.classList.add('transicion-login-entrada'); } catch (error) { }
+    </script>
+</head>
+<body>
+    {% import 'partials/logo.html' as logo %}
+    <div class="login-decor login-decor--1"></div>
+    <div class="login-decor login-decor--2"></div>
+    <div class="login-decor login-decor--3"></div>
+
+    <main class="login-layout login-layout--single" id="loginCard"
+          data-steps=".login-brand, .login-card__title, .login-card__text, .form-field, .login-submit, .login-links, .login-note">
+        <section class="login-card">
+            <header class="login-card__header">
+                <div class="login-brand">
+                    {{ logo.marca(size=44, texto=True, wordmark='ISAILO MAPS', subtitulo='Instituto San Ignacio de Loyola') }}
+                </div>
+                <h1 class="login-card__title">Iniciar sesión</h1>
+                <p class="login-card__text">Ingresa con tu usuario o correo y contraseña para continuar.</p>
+            </header>
+            <form class="login-form" id="formLogin" autocomplete="off">
+                <div class="form-field">
+                    <label class="form-label" for="usuario">Usuario o correo</label>
+                    <div class="form-input__wrap">
+                        <i class="fas fa-user form-input__icon" aria-hidden="true"></i>
+                        <input class="form-input form-input--icon-left" id="usuario" name="correo" type="text" placeholder="correo@ejemplo.com" autocomplete="username" required>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="password">Contraseña</label>
+                    <div class="form-input__wrap form-input__wrap--password">
+                        <i class="fas fa-lock form-input__icon" aria-hidden="true"></i>
+                        <input class="form-input form-input--icon-left" id="password" name="password" type="password" placeholder="Tu contraseña" autocomplete="current-password" required>
+                        <button type="button" class="form-password-toggle" id="togglePassword"
+                                aria-label="Mostrar contraseña" aria-pressed="false" title="Mostrar contraseña">
+                            <i class="fas fa-eye-slash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="login-error" id="loginError" hidden>
+                    <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                    <span id="loginErrorText"></span>
+                </div>
+                <button class="login-submit" type="submit" data-texto="Ingresar">
+                    <span>Ingresar</span>
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </button>
+            </form>
+            <div class="login-links">
+                <a class="login-link" href="/admin/login">Acceso administrativo</a>
+            </div>
+            <div class="login-note">Instituto San Ignacio de Loyola</div>
+        </section>
+    </main>
+
+    <script src="../static/vendor/anime.umd.min.js"></script>
+    <script src="../static/js/login.js?v=1"></script>
+</body>
+</html>

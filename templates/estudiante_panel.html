@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es" class="no-js">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAILO MAPS — Panel Estudiante</title>
+
+    <link rel="stylesheet" href="../static/admin.css?v=9">
+    <link rel="stylesheet" href="../static/variables.css">
+    <link rel="stylesheet" href="../static/css/tokens.css?v=1">
+    <link rel="stylesheet" href="../static/css/logo.css?v=1">
+    <link rel="stylesheet" href="../static/vendor/lenis.css">
+    <link rel="stylesheet" href="../static/css/calidad.css?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="../static/vendor/logo.png" type="image/png">
+
+    <script>
+        document.documentElement.classList.remove('no-js');
+        document.documentElement.classList.add('js');
+        try { if (sessionStorage.getItem('isailo-login-transition') === '1') document.documentElement.classList.add('transicion-login-entrada'); } catch (error) { }
+    </script>
+</head>
+<body class="calidad" data-rol="Estudiante" data-usuario-id="{{ session['id_usuario'] }}">
+
+    {% set rol_etiqueta = 'Estudiante' %}
+    {% set menu = [
+        {'vista': 'panel',      'etiqueta': 'Panel de control', 'icono': 'fa-solid fa-gauge-high'},
+        {'vista': 'mapa',       'etiqueta': 'Mapa',             'icono': 'fa-solid fa-map-location-dot'},
+        {'vista': 'calendario', 'etiqueta': 'Calendario',       'icono': 'fa-regular fa-calendar-days'}
+    ] %}
+
+    {% include 'partials/panel_header.html' %}
+    {% include 'partials/panel_sidebar.html' %}
+
+    <main class="app-content" id="contenido">
+        <div class="dashboard">
+
+            <!-- ============ PANEL DE CONTROL (home del estudiante) ============ -->
+            <section class="modulo vista vista--activa" id="panel">
+                <header class="home-cab" data-reveal="up">
+                    <div class="home-cab__texto">
+                        <span class="etiqueta-seccion">Estudiante</span>
+                        <h1 class="home-cab__titulo">Hola, {{ session['nombre'] }}</h1>
+                        <p class="home-cab__sub">Consulta los eventos del instituto y, muy pronto, el calendario de espacios.</p>
+                    </div>
+                </header>
+
+                <div class="home-fila home-fila--inferior">
+                    <article class="tarjeta" data-reveal="up">
+                        <header class="tarjeta__cab">
+                            <div class="tarjeta__cab-texto">
+                                <span class="tarjeta__etq">Próximo evento</span>
+                                <h3 class="tarjeta__titulo">
+                                    {% if datos.proximo_evento %}{{ datos.proximo_evento.nombre }}{% else %}Sin eventos programados{% endif %}
+                                </h3>
+                            </div>
+                        </header>
+                        {% if datos.proximo_evento %}
+                        <p class="home-cab__sub">
+                            {{ datos.proximo_evento.fecha_inicio }}{% if datos.proximo_evento.fecha_fin %} → {{ datos.proximo_evento.fecha_fin }}{% endif %}
+                        </p>
+                        {% else %}
+                        <div class="vacio-estado">
+                            <span class="vacio-estado__icono"><i class="fa-regular fa-calendar"></i></span>
+                            <p class="vacio-estado__texto">Cuando se publiquen eventos, aparecerán aquí.</p>
+                        </div>
+                        {% endif %}
+                    </article>
+
+                    <article class="tarjeta" data-reveal="up">
+                        <header class="tarjeta__cab">
+                            <div class="tarjeta__cab-texto">
+                                <span class="tarjeta__etq">Agenda</span>
+                                <h3 class="tarjeta__titulo">Próximos eventos</h3>
+                            </div>
+                        </header>
+                        {% if datos.eventos %}
+                        <ul class="actividad-lista">
+                            {% for ev in datos.eventos %}
+                            <li class="actividad-item">
+                                <span class="actividad-item__icono"><i class="fa-regular fa-calendar-days"></i></span>
+                                <div class="actividad-item__cuerpo">
+                                    <span class="actividad-item__texto">{{ ev.nombre }}</span>
+                                    <span class="actividad-item__detalle">{{ ev.fecha_inicio }}{% if ev.fecha_fin %} → {{ ev.fecha_fin }}{% endif %}</span>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <div class="vacio-estado">
+                            <span class="vacio-estado__icono"><i class="fa-regular fa-calendar"></i></span>
+                            <p class="vacio-estado__titulo">Sin eventos próximos</p>
+                            <p class="vacio-estado__texto">Vuelve más tarde para ver novedades.</p>
+                        </div>
+                        {% endif %}
+                    </article>
+                </div>
+            </section>
+
+            <!-- ============ MAPA ============ -->
+            <section class="modulo vista" id="mapa">
+                {% include 'partials/volver_inicio.html' %}
+                <div class="seccion-cab">
+                    <div class="seccion-cab__texto">
+                        <h2 class="seccion-titulo">Mapa</h2>
+                        <p class="seccion-sub">Ubicación de los espacios del instituto.</p>
+                    </div>
+                </div>
+                <div class="vacio-estado">
+                    <span class="vacio-estado__icono"><i class="fa-solid fa-map-location-dot"></i></span>
+                    <p class="vacio-estado__titulo">Próximamente</p>
+                    <p class="vacio-estado__texto">El mapa interactivo estará disponible próximamente.</p>
+                </div>
+            </section>
+
+            <!-- ============ CALENDARIO ============ -->
+            <section class="modulo vista" id="calendario">
+                {% include 'partials/volver_inicio.html' %}
+                <div class="seccion-cab">
+                    <div class="seccion-cab__texto">
+                        <h2 class="seccion-titulo">Calendario</h2>
+                        <p class="seccion-sub">Reservas y eventos por día.</p>
+                    </div>
+                </div>
+                <div class="vacio-estado">
+                    <span class="vacio-estado__icono"><i class="fa-regular fa-calendar-days"></i></span>
+                    <p class="vacio-estado__titulo">Próximamente</p>
+                    <p class="vacio-estado__texto">La agenda estará disponible próximamente.</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ================= LIBRERÍAS (vendorizadas, sin build) ================= -->
+    <script src="../static/vendor/anime.umd.min.js"></script>
+    <script src="../static/vendor/lenis.min.js"></script>
+    <script src="../static/js/motion.js?v=2"></script>
+    <script>
+        if (!(window.Motion && window.Motion.animado)) { document.documentElement.classList.remove('js'); }
+        setTimeout(function () { document.documentElement.classList.remove('transicion-login-entrada'); }, 1200);
+    </script>
+    <script src="../static/panel.js?v=11"></script>
+</body>
+</html>

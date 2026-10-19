@@ -1,268 +1,494 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="no-js">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISAILO MAPS — Panel Administrativo</title>
+    <title>ISAILO MAPS — Gestión de Calidad</title>
 
+    <!-- Hojas de estilo: base reutilizada (admin.css) + tokens + panel -->
     <link rel="stylesheet" href="../static/admin.css?v=9">
     <link rel="stylesheet" href="../static/variables.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/tokens.css?v=1">
+    <link rel="stylesheet" href="../static/css/logo.css?v=1">
+    <link rel="stylesheet" href="../static/css/login.css?v=1">
+    <link rel="stylesheet" href="../static/vendor/lenis.css">
+    <link rel="stylesheet" href="../static/css/calidad.css?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="../static/vendor/logo.png" type="image/png">
+
+    <!--
+      Marca "js": oculta los elementos [data-reveal] hasta que motion.js los
+      anime (evita el parpadeo). Si JS no corre, la clase no existe y todo se
+      ve igual. Si motion.js falla, el script de respaldo del final la quita.
+    -->
     <script>
-        try { if (sessionStorage.getItem('isailo-login-transition') === '1') document.documentElement.classList.add('transicion-login-entrada'); } catch (error) { /* El panel puede cargar aunque el almacenamiento esté bloqueado. */ }
+        document.documentElement.classList.remove('no-js');
+        document.documentElement.classList.add('js');
+        try { if (sessionStorage.getItem('isailo-login-transition') === '1') document.documentElement.classList.add('transicion-login-entrada'); } catch (error) { /* El panel sigue funcionando si el almacenamiento está bloqueado. */ }
     </script>
 </head>
-<body data-rol="Administrador" data-usuario-id="{{ session['id_usuario'] }}">
+<body class="calidad" data-rol="Administrador" data-usuario-id="{{ session['id_usuario'] }}">
 
-    <header class="header" id="header">
-        <div class="header__logo">
-            <img src="../static/logo.png" alt="ISAILO MAPS" class="header__logo-img">
-            <span class="header__logo-texto">ISAILO MAPS — Admin</span>
-        </div>
-        <nav>
-            <ul class="nav__lista">
-                <li><a class="nav__enlace nav__enlace--activo" href="#panel" data-vista="panel"><i class="fas fa-tachometer-alt nav__icono"></i> Panel</a></li>
-                <li><a class="nav__enlace" href="#espacios" data-vista="espacios"><i class="fas fa-door-open nav__icono"></i> Espacios</a></li>
-                <li><a class="nav__enlace" href="#calendario" data-vista="calendario"><i class="fas fa-calendar-check nav__icono"></i> Calendario</a></li>
-                <li><a class="nav__enlace" href="#usuarios" data-vista="usuarios"><i class="fas fa-users nav__icono"></i> Usuarios</a></li>
-                <li><a class="nav__enlace" href="#mapa" data-vista="mapa"><i class="fas fa-map-marked-alt nav__icono"></i> Mapa</a></li>
-                <li><a class="nav__enlace nav__enlace--salir" href="/logout"><i class="fas fa-sign-out-alt nav__icono"></i> Salir</a></li>
-            </ul>
-            <button class="nav__hamburguesa" id="hamburguesa" aria-label="Menú">
-                <span class="nav__hamburguesa-linea"></span>
-                <span class="nav__hamburguesa-linea"></span>
-                <span class="nav__hamburguesa-linea"></span>
-            </button>
-        </nav>
-    </header>
+    {% set rol_etiqueta = 'Gestión de Calidad' %}
+    {% set menu = [
+        {'vista': 'panel',       'etiqueta': 'Panel de control',     'icono': 'fa-solid fa-gauge-high'},
+        {'vista': 'mapa',        'etiqueta': 'Mapa',                 'icono': 'fa-solid fa-map-location-dot'},
+        {'vista': 'calendario',  'etiqueta': 'Calendario',           'icono': 'fa-regular fa-calendar-days'},
+        {'vista': 'eventos',     'etiqueta': 'Editar eventos',       'icono': 'fa-regular fa-pen-to-square'},
+        {'vista': 'solicitudes', 'etiqueta': 'Verificar solicitudes', 'icono': 'fa-regular fa-clipboard-check', 'badge_salida': 'badgeSolicitudes'},
+        {'vista': 'usuarios',    'etiqueta': 'Gestión maestros',     'icono': 'fa-solid fa-user-group'},
+        {'vista': 'roles',       'etiqueta': 'Gestión roles',        'icono': 'fa-solid fa-user-shield'},
+        {'vista': 'espacios',    'etiqueta': 'Propiedades espacio',  'icono': 'fa-solid fa-door-open'}
+    ] %}
 
-    <main class="dashboard">
+    {% include 'partials/panel_header.html' %}
+    {% include 'partials/panel_sidebar.html' %}
 
-        <section class="modulo vista vista--activa" id="panel">
-            <div class="panel-hero">
-                <div class="panel-hero__decoracion panel-hero__decoracion--1"></div>
-                <div class="panel-hero__decoracion panel-hero__decoracion--2"></div>
-                <div class="panel-hero__contenido">
-                    <span class="panel-hero__badge"><i class="fas fa-user-shield"></i> Acceso Administrativo</span>
-                    <h1 class="panel-hero__titulo">Panel de Administración</h1>
-                    <p class="panel-hero__subtitulo">
-                        Bienvenido, {{ session['nombre'] }}. Gestiona los espacios, el calendario
-                        institucional y los usuarios del Instituto San Ignacio de Loyola.
-                    </p>
-                </div>
-            </div>
+    <main class="app-content" id="contenido">
+        <div class="dashboard">
 
-            <div class="modulo__encabezado">
-                <span class="etiqueta-seccion">Resumen</span>
-                <h2>Indicadores generales</h2>
-            </div>
-            <div class="alerta-vencidas" id="alertaVencidas" data-ir="espacios" role="button" tabindex="0" hidden>
-                <i class="fas fa-circle-exclamation"></i>
-                <span id="alertaVencidasTexto"></span>
-                <i class="fas fa-chevron-right alerta-vencidas__flecha"></i>
-            </div>
-            <div class="stats-grid">
-                <div class="stat-card stat-card--click" data-ir="espacios" role="button" tabindex="0" title="Ver espacios">
-                    <div class="stat-card__icono"><i class="fas fa-map-pin"></i></div>
-                    <div class="stat-card__numero" id="statEspacios">—</div>
-                    <div class="stat-card__label">Espacios registrados</div>
-                    <div class="stat-card__sub"><span id="statDisponibles">—</span> disponibles ahora</div>
-                </div>
-                <div class="stat-card stat-card--click" data-ir="espacios" role="button" tabindex="0" title="Revisar solicitudes pendientes">
-                    <div class="stat-card__icono"><i class="fas fa-hourglass-half"></i></div>
-                    <div class="stat-card__numero" id="statPendientes">—</div>
-                    <div class="stat-card__label">Solicitudes pendientes</div>
-                    <div class="stat-card__sub">Esperando revisión</div>
-                </div>
-                <div class="stat-card stat-card--click" data-ir="usuarios" role="button" tabindex="0" title="Ver usuarios">
-                    <div class="stat-card__icono"><i class="fas fa-users"></i></div>
-                    <div class="stat-card__numero" id="statUsuarios">—</div>
-                    <div class="stat-card__label">Usuarios activos</div>
-                    <div class="stat-card__sub">Toda la comunidad</div>
-                </div>
-                <div class="stat-card stat-card--click" data-ir="calendario" role="button" tabindex="0" title="Ver calendario">
-                    <div class="stat-card__icono"><i class="fas fa-calendar-day"></i></div>
-                    <div class="stat-card__numero" id="statEventos">—</div>
-                    <div class="stat-card__label">Eventos publicados</div>
-                    <div class="stat-card__sub">Calendario institucional</div>
-                </div>
-            </div>
-
-            <div class="panel-bloques">
-                <div class="panel-bloque panel-bloque--hoy">
-                    <div class="panel-bloque__cab">
-                        <div>
-                            <span class="etiqueta-seccion">Hoy</span>
-                            <h3>Agenda del día</h3>
-                        </div>
-                        <span class="panel-bloque__fecha" id="hoyFecha"></span>
+            <!-- ============ PANEL DE CONTROL (home) ============ -->
+            <section class="modulo vista vista--activa" id="panel">
+                <header class="home-cab" data-reveal="up">
+                    <div class="home-cab__texto">
+                        <h1 class="home-cab__titulo">Panel de control</h1>
+                        <p class="home-cab__sub">
+                            Vista general del sistema, seguimiento y control de las actividades,
+                            usuarios y solicitudes.
+                        </p>
                     </div>
-                    <div class="panel-bloque__cuerpo" id="hoyContenido"></div>
+                    <div class="home-cab__fecha">
+                        <span class="home-cab__fecha-etq">Hoy</span>
+                        <span class="home-cab__fecha-dia" id="homeFecha">—</span>
+                    </div>
+                </header>
+
+                <div class="alerta-vencidas" id="alertaVencidas" data-ir="solicitudes" role="button" tabindex="0" hidden>
+                    <i class="fas fa-circle-exclamation"></i>
+                    <span id="alertaVencidasTexto"></span>
+                    <i class="fas fa-chevron-right alerta-vencidas__flecha"></i>
                 </div>
-                <div class="panel-bloque panel-bloque--actividad">
-                    <div class="panel-bloque__cab">
-                        <div>
-                            <span class="etiqueta-seccion">Reciente</span>
-                            <h3>Actividad</h3>
+
+                <div class="kpi-grid" data-reveal-stagger="70">
+                    <article class="kpi-card" data-reveal="up" data-ir="eventos" role="button" tabindex="0" title="Ver eventos">
+                        <span class="kpi-card__icono"><i class="fa-regular fa-calendar-days"></i></span>
+                        <span class="kpi-card__label">Eventos registrados</span>
+                        <span class="kpi-card__numero" id="kpiEventos">—</span>
+                        <span class="kpi-card__nota">Total en el sistema</span>
+                        <span class="kpi-card__tend" id="tendEventos" hidden></span>
+                    </article>
+                    <article class="kpi-card" data-reveal="up" data-ir="solicitudes" role="button" tabindex="0" title="Verificar solicitudes">
+                        <span class="kpi-card__icono"><i class="fa-regular fa-clipboard"></i></span>
+                        <span class="kpi-card__label">Solicitudes pendientes</span>
+                        <span class="kpi-card__numero" id="kpiSolicitudes">—</span>
+                        <span class="kpi-card__nota">En revisión o aprobación</span>
+                        <span class="kpi-card__tend" id="tendSolicitudes" hidden></span>
+                    </article>
+                    <article class="kpi-card" data-reveal="up" data-ir="usuarios" role="button" tabindex="0" title="Ver maestros">
+                        <span class="kpi-card__icono"><i class="fa-solid fa-chalkboard-user"></i></span>
+                        <span class="kpi-card__label">Maestros registrados</span>
+                        <span class="kpi-card__numero" id="kpiMaestros">—</span>
+                        <span class="kpi-card__nota">Docentes activos en la plataforma</span>
+                        <span class="kpi-card__tend" id="tendMaestros" hidden></span>
+                    </article>
+                    <article class="kpi-card" data-reveal="up" data-ir="roles" role="button" tabindex="0" title="Ver roles">
+                        <span class="kpi-card__icono"><i class="fa-solid fa-users-gear"></i></span>
+                        <span class="kpi-card__label">Usuarios y roles</span>
+                        <span class="kpi-card__numero" id="kpiUsuarios">—</span>
+                        <span class="kpi-card__nota">Total de usuarios con permisos</span>
+                        <span class="kpi-card__tend" id="tendUsuarios" hidden></span>
+                    </article>
+                </div>
+
+                <div class="home-fila home-fila--analitica">
+                    <article class="tarjeta tarjeta--serie" data-reveal="up">
+                        <header class="tarjeta__cab">
+                            <div class="tarjeta__cab-texto">
+                                <span class="tarjeta__etq">Estadísticas generales</span>
+                                <h3 class="tarjeta__titulo">Actividad del sistema (últimos 7 días)</h3>
+                            </div>
+                            <div class="serie-leyenda">
+                                <span class="serie-leyenda__item"><i class="serie-leyenda__punto serie-leyenda__punto--eventos"></i> Eventos</span>
+                                <span class="serie-leyenda__item"><i class="serie-leyenda__punto serie-leyenda__punto--solicitudes"></i> Solicitudes</span>
+                            </div>
+                        </header>
+                        <div class="grafica__lienzo" id="graficaSerie"></div>
+                    </article>
+
+                    <article class="tarjeta tarjeta--dona" data-reveal="up">
+                        <header class="tarjeta__cab">
+                            <div class="tarjeta__cab-texto">
+                                <span class="tarjeta__etq">Distribución</span>
+                                <h3 class="tarjeta__titulo">Composición del sistema</h3>
+                            </div>
+                        </header>
+                        <div class="dona" id="graficaDistribucion"></div>
+                    </article>
+
+                    <article class="tarjeta tarjeta--atajos" data-reveal="up">
+                        <header class="tarjeta__cab">
+                            <div class="tarjeta__cab-texto">
+                                <span class="tarjeta__etq">Atajos de gestión</span>
+                            </div>
+                        </header>
+                        <div class="atajos">
+                            <button type="button" class="atajo" data-nuevo-usuario>
+                                <span class="atajo__icono"><i class="fa-solid fa-user-plus"></i></span>
+                                <span class="atajo__texto"><b>Nuevo usuario</b><small>Crea una cuenta y asígale su rol</small></span>
+                                <i class="fas fa-chevron-right atajo__flecha" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="atajo" data-ir="eventos">
+                                <span class="atajo__icono"><i class="fa-regular fa-pen-to-square"></i></span>
+                                <span class="atajo__texto"><b>Editar eventos</b><small>Crea y modifica eventos institucionales</small></span>
+                                <i class="fas fa-chevron-right atajo__flecha" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="atajo" data-ir="solicitudes">
+                                <span class="atajo__icono"><i class="fa-regular fa-clipboard-check"></i></span>
+                                <span class="atajo__texto"><b>Verificar solicitudes</b><small>Revisa y aprueba las solicitudes</small></span>
+                                <i class="fas fa-chevron-right atajo__flecha" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="atajo" data-ir="usuarios">
+                                <span class="atajo__icono"><i class="fa-solid fa-user-group"></i></span>
+                                <span class="atajo__texto"><b>Gestión maestros</b><small>Asigna y administra usuarios</small></span>
+                                <i class="fas fa-chevron-right atajo__flecha" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="atajo" data-ir="roles">
+                                <span class="atajo__icono"><i class="fa-solid fa-user-shield"></i></span>
+                                <span class="atajo__texto"><b>Gestión roles</b><small>Consulta los permisos del sistema</small></span>
+                                <i class="fas fa-chevron-right atajo__flecha" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="atajo" data-ir="espacios">
+                                <span class="atajo__icono"><i class="fa-solid fa-door-open"></i></span>
+                                <span class="atajo__texto"><b>Propiedades espacio</b><small>Administra la información de espacios</small></span>
+                                <i class="fas fa-chevron-right atajo__flecha" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="home-fila home-fila--inferior">
+                    <article class="tarjeta tarjeta--resumen" data-reveal="up">
+                        <header class="tarjeta__cab">
+                            <div class="tarjeta__cab-texto">
+                                <span class="tarjeta__etq">Resumen de solicitudes</span>
+                                <h3 class="tarjeta__titulo">Estado de las solicitudes</h3>
+                            </div>
+                        </header>
+                        <div class="dona dona--sol" id="graficaDona"></div>
+                    </article>
+                    <article class="tarjeta tarjeta--actividad" data-reveal="up">
+                        <header class="tarjeta__cab">
+                            <div class="tarjeta__cab-texto">
+                                <span class="tarjeta__etq">Actividad reciente</span>
+                            </div>
+                            <button type="button" class="tarjeta__ver" data-ir="solicitudes">Ver todo <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+                        </header>
+                        <div class="actividad-lista" id="actividadLista"></div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ============ CALENDARIO DE ESPACIOS ============ -->
+            <section class="modulo vista" id="calendario">
+                {% include 'partials/volver_inicio.html' %}
+                <div class="seccion-cab">
+                    <div class="seccion-cab__texto">
+                        <span class="seccion-pastilla">Agenda</span>
+                        <h2 class="seccion-titulo">
+                            <span class="seccion-titulo__icono"><i class="fa-regular fa-calendar-days"></i></span>
+                            Calendario de espacios
+                        </h2>
+                        <p class="seccion-sub">
+                            Consulta y gestiona la disponibilidad de los espacios del colegio.
+                        </p>
+                    </div>
+                    <div class="cal-toolbar" id="calFiltros">
+                        <label class="campo-select" for="calFiltroTipo">
+                            <i class="fa-solid fa-filter" aria-hidden="true"></i>
+                            <select id="calFiltroTipo" class="input-min" aria-label="Filtrar por tipo de salón">
+                                <option value="">Todos los tipos de salón</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="cal-barra">
+                    <div class="cal-barra__nav">
+                        <button type="button" id="btnSemanaAnterior" class="btn-nav" aria-label="Semana anterior"><i class="fas fa-chevron-left"></i></button>
+                        <span id="semanaTitulo" class="cal-barra__titulo">—</span>
+                        <button type="button" id="btnSemanaSiguiente" class="btn-nav" aria-label="Semana siguiente"><i class="fas fa-chevron-right"></i></button>
+                        <button type="button" id="btnSemanaHoy" class="btn-hoy">Hoy</button>
+                    </div>
+                    <div class="cal-chips" id="calChips"></div>
+                </div>
+
+                <div id="calSemana" class="cal-semana">
+                    {# TODO(spec §2): la conexión del calendario con la base de datos
+                       la hará el equipo de trabajo más adelante. Se deja únicamente
+                       la estructura del mockup con su estado vacío. #}
+                    <div class="vacio-estado" data-reveal="up">
+                        <span class="vacio-estado__icono"><i class="fa-regular fa-calendar-days"></i></span>
+                        <p class="vacio-estado__titulo">Aún no hay actividades agendadas</p>
+                        <p class="vacio-estado__texto">Aquí aparecerá la disponibilidad de los espacios cuando la agenda esté conectada.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ EDITAR EVENTOS ============ -->
+            <section class="modulo vista" id="eventos">
+                {% include 'partials/volver_inicio.html' %}
+                <div class="seccion-cab">
+                    <div class="seccion-cab__texto">
+                        <span class="seccion-pastilla">Agenda</span>
+                        <h2 class="seccion-titulo">
+                            <span class="seccion-titulo__icono"><i class="fa-regular fa-pen-to-square"></i></span>
+                            Editar eventos
+                        </h2>
+                        <p class="seccion-sub">
+                            Los eventos que publiques aquí se muestran en el calendario institucional
+                            de toda la comunidad.
+                        </p>
+                    </div>
+                    <button id="btnNuevoEvento" class="btn-admin btn-admin--primario">
+                        <i class="fas fa-plus"></i> Nuevo evento
+                    </button>
+                </div>
+
+                <div class="cal-pared__nav">
+                    <button id="btnAnioAnterior" class="btn-nav" aria-label="Año anterior"><i class="fas fa-chevron-left"></i></button>
+                    <span id="anioActual" class="cal-pared__anio"></span>
+                    <button id="btnAnioSiguiente" class="btn-nav" aria-label="Año siguiente"><i class="fas fa-chevron-right"></i></button>
+                    <button type="button" id="btnCalHoy" class="btn-hoy" aria-label="Volver al año actual">Hoy</button>
+                </div>
+                {# TODO(spec §2): los eventos se conectarán a la base de datos más adelante. #}
+                <div class="cal-pared" id="calPared">
+                    <div class="vacio-estado" data-reveal="up">
+                        <span class="vacio-estado__icono"><i class="fa-regular fa-calendar-plus"></i></span>
+                        <p class="vacio-estado__titulo">Aún no hay eventos publicados</p>
+                        <p class="vacio-estado__texto">Los eventos institucionales aparecerán aquí cuando se conecte el calendario.</p>
+                    </div>
+                </div>
+
+                <div class="tabla-wrap modulo__card">
+                    <table class="tabla" id="tablaEventos">
+                        <thead>
+                            <tr>
+                                <th>Evento</th>
+                                <th>Fechas</th>
+                                <th>Color</th>
+                                <th class="tabla__col-acciones">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <p class="tabla-vacia" id="tablaEventosVacia" hidden>No hay eventos publicados todavía.</p>
+                </div>
+            </section>
+
+            <!-- ============ VERIFICAR SOLICITUDES ============ -->
+            <section class="modulo vista" id="solicitudes">
+                {% include 'partials/volver_inicio.html' %}
+                <div class="seccion-cab">
+                    <div class="seccion-cab__texto">
+                        <span class="seccion-pastilla">Revisión</span>
+                        <h2 class="seccion-titulo">
+                            <span class="seccion-titulo__icono"><i class="fa-regular fa-clipboard-check"></i></span>
+                            Verificar solicitudes
+                        </h2>
+                        <p class="seccion-sub">
+                            Revisa y gestiona las solicitudes pendientes y el historial de solicitudes.
+                            Se respeta la regla vigente de cruce de horarios al aprobar.
+                        </p>
+                    </div>
+                </div>
+                <div class="sol-barra">
+                    <label class="campo-busqueda" for="solBuscar">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input id="solBuscar" type="search" placeholder="Buscar por nombre, tipo o fecha...">
+                    </label>
+                    <label class="campo-select" for="solFiltroTipo">
+                        <i class="fa-solid fa-filter" aria-hidden="true"></i>
+                        <select id="solFiltroTipo" class="input-min" aria-label="Filtrar por tipo de espacio">
+                            <option value="">Todos los tipos</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="sol-columnas">
+                    <div class="sol-columna">
+                        <h3 class="sol-columna__titulo">
+                            Solicitudes pendientes
+                            <span class="sol-globo" id="solPendientesGlobo">0</span>
+                        </h3>
+                        <p class="sol-columna__sub">Estas solicitudes necesitan tu revisión o aprobación.</p>
+                        {# TODO(spec §2): conexión con la base de datos pendiente. #}
+                        <div id="solPendientes">
+                            <div class="vacio-estado vacio-estado--compacto" data-reveal="up">
+                                <span class="vacio-estado__icono"><i class="fa-regular fa-circle-check"></i></span>
+                                <p class="vacio-estado__titulo">Aún no hay solicitudes pendientes</p>
+                                <p class="vacio-estado__texto">Cuando lleguen nuevas solicitudes aparecerán aquí para su revisión.</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="panel-bloque__cuerpo" id="actividadLista"></div>
-                </div>
-                <div class="panel-bloque panel-bloque--accesos">
-                    <div class="panel-bloque__cab">
-                        <div>
-                            <span class="etiqueta-seccion">Accesos</span>
-                            <h3>Atajos rápidos</h3>
+                    <div class="sol-columna">
+                        <h3 class="sol-columna__titulo">
+                            Historial de solicitudes
+                            <span class="sol-globo sol-globo--neutro" id="solHistorialGlobo">0</span>
+                        </h3>
+                        <p class="sol-columna__sub">Aquí puedes ver el estado de todas las solicitudes.</p>
+                        {# TODO(spec §2): el historial se conectará más adelante. #}
+                        <div id="solHistorial">
+                            <div class="vacio-estado vacio-estado--compacto" data-reveal="up">
+                                <span class="vacio-estado__icono"><i class="fa-regular fa-folder-open"></i></span>
+                                <p class="vacio-estado__titulo">El historial está vacío</p>
+                                <p class="vacio-estado__texto">Las solicitudes ya resueltas aparecerán aquí con su estado.</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="accesos-rapidos">
-                        <button type="button" class="btn-admin btn-admin--primario" id="accesoNuevoEspacio">
+                </div>
+            </section>
+
+            <!-- ============ GESTIÓN MAESTROS ============ -->
+            <section class="modulo vista" id="usuarios">
+                {% include 'partials/volver_inicio.html' %}
+                <div class="seccion-cab">
+                    <div class="seccion-cab__texto">
+                        <span class="seccion-pastilla">Usuarios</span>
+                        <h2 class="seccion-titulo">
+                            <span class="seccion-titulo__icono"><i class="fa-solid fa-user-group"></i></span>
+                            Gestión maestros
+                        </h2>
+                        <p class="seccion-sub">
+                            Crea cuentas, edita datos y habilita o deshabilita usuarios. El alta es
+                            interna: no existe registro público en la plataforma.
+                        </p>
+                    </div>
+                    <button id="btnAgregarUsuario" class="btn-admin btn-admin--success" data-nuevo-usuario>
+                        <i class="fas fa-user-plus"></i> Nuevo usuario
+                    </button>
+                </div>
+
+                <div class="filtros-rol" id="filtrosRol" role="tablist" aria-label="Filtrar por rol">
+                    <button type="button" class="filtro-rol filtro-rol--activo" data-rol-filtro="Docente" role="tab" aria-selected="true">Docentes</button>
+                    <button type="button" class="filtro-rol" data-rol-filtro="Estudiante" role="tab" aria-selected="false">Estudiantes</button>
+                    <button type="button" class="filtro-rol" data-rol-filtro="Administrador" role="tab" aria-selected="false">Administradores</button>
+                    <button type="button" class="filtro-rol" data-rol-filtro="" role="tab" aria-selected="false">Todos</button>
+                </div>
+
+                <div class="tabla-wrap modulo__card">
+                    <table class="tabla" id="tablaUsuarios">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Correo / usuario</th>
+                                <th>Rol</th>
+                                <th>Espacio a cargo</th>
+                                <th>Estado</th>
+                                <th class="tabla__col-acciones">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============ GESTIÓN ROLES (solo lectura) ============ -->
+            <section class="modulo vista" id="roles">
+                {% include 'partials/volver_inicio.html' %}
+                <div class="seccion-cab">
+                    <div class="seccion-cab__texto">
+                        <span class="seccion-pastilla">Sistema</span>
+                        <h2 class="seccion-titulo">
+                            <span class="seccion-titulo__icono"><i class="fa-solid fa-user-shield"></i></span>
+                            Gestión roles
+                        </h2>
+                        <p class="seccion-sub">
+                            La plataforma tiene tres roles fijos. Esta vista es informativa: describe
+                            qué puede hacer cada rol y cuántos usuarios lo tienen.
+                        </p>
+                    </div>
+                </div>
+                <div class="roles-grid" id="rolesGrid"></div>
+            </section>
+
+            <!-- ============ PROPIEDADES ESPACIO ============ -->
+            <section class="modulo vista" id="espacios">
+                {% include 'partials/volver_inicio.html' %}
+                <div class="seccion-cab">
+                    <div class="seccion-cab__texto">
+                        <span class="seccion-pastilla">Gestión</span>
+                        <h2 class="seccion-titulo">
+                            <span class="seccion-titulo__icono"><i class="fa-solid fa-door-open"></i></span>
+                            Propiedades espacio
+                        </h2>
+                        <p class="seccion-sub">
+                            Estado, tipo, capacidad y encargado de cada espacio. Los espacios del
+                            Instituto son fijos: aquí solo se edita su información.
+                        </p>
+                    </div>
+                    <div class="seccion-cab__acciones">
+                        <label class="filtro-tipo" for="filtroTipo">
+                            <i class="fa-solid fa-filter" aria-hidden="true"></i>
+                            <select id="filtroTipo" class="input-min" aria-label="Filtrar por tipo de espacio">
+                                <option value="">Todos los tipos</option>
+                            </select>
+                        </label>
+                        <button id="btnNuevoEspacio" class="btn-admin btn-admin--primario" hidden>
                             <i class="fas fa-plus"></i> Nuevo espacio
                         </button>
-                        <button type="button" class="btn-admin btn-admin--success" id="accesoNuevoUsuario">
-                            <i class="fas fa-user-plus"></i> Agregar usuario
-                        </button>
-                        <button type="button" class="btn-admin btn-admin--outline" data-ir="mapa">
-                            <i class="fas fa-map-marked-alt"></i> Ver mapa
-                        </button>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <section class="modulo vista" id="espacios">
-            <div class="modulo__encabezado">
-                <span class="etiqueta-seccion">Gestión</span>
-                <h2>Espacios</h2>
-            </div>
-
-            <div class="toolbar">
-                <div class="toolbar__campo">
-                    <label class="toolbar__label" for="filtroTipo">Filtrar por tipo</label>
-                    <select id="filtroTipo" class="input-min">
-                        <option value="">Todos los tipos</option>
-                    </select>
+                <div class="cal-op modulo__card">
+                    <div class="cal-op__cabecera">
+                        <button id="btnOpAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
+                        <h3 id="opTitulo">Calendario operativo</h3>
+                        <button id="btnOpSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
+                        <button type="button" id="btnOpHoy" class="btn-hoy" aria-label="Volver al mes actual">Hoy</button>
+                        <div class="cal-op__leyenda">
+                            <span class="leyenda"><i class="punto punto--aprobada"></i> Actividad aprobada</span>
+                        </div>
+                    </div>
+                    <div class="cal-op__grilla" id="calOperativo"></div>
                 </div>
-                <button id="btnNuevoEspacio" class="btn-admin btn-admin--primario">
-                    <i class="fas fa-plus"></i> Nuevo espacio
-                </button>
-            </div>
 
-            <div class="cal-op modulo__card">
-                <div class="cal-op__cabecera">
-                    <button id="btnOpAnterior" class="btn-nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
-                    <h3 id="opTitulo">Calendario operativo</h3>
-                    <button id="btnOpSiguiente" class="btn-nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
-                    <button type="button" id="btnOpHoy" class="btn-hoy" aria-label="Volver al mes actual">Hoy</button>
-                    <div class="cal-op__leyenda">
-                        <span class="leyenda"><i class="punto punto--aprobada"></i> Actividad aprobada</span>
+                <h3 class="acordeon__titulo">Listado de espacios</h3>
+                <div class="acordeon" id="listaEspacios"></div>
+            </section>
+
+            <!-- ============ MAPA ============ -->
+            <section class="modulo vista" id="mapa">
+                {% include 'partials/volver_inicio.html' %}
+                <div class="seccion-cab">
+                    <div class="seccion-cab__texto">
+                        <span class="seccion-pastilla">Mapa</span>
+                        <h2 class="seccion-titulo">
+                            <span class="seccion-titulo__icono"><i class="fa-solid fa-map-location-dot"></i></span>
+                            Mapa interactivo
+                        </h2>
+                        <p class="seccion-sub">
+                            Este es el mapa del Instituto San Ignacio de Loyola. Aquí podrás ubicar
+                            salones, laboratorios y oficinas al instante.
+                        </p>
                     </div>
                 </div>
-                <div class="cal-op__grilla" id="calOperativo"></div>
-            </div>
-
-            <h3 class="acordeon__titulo">Listado de espacios</h3>
-            <div class="acordeon" id="listaEspacios"></div>
-        </section>
-
-        <section class="modulo vista" id="calendario">
-            <div class="modulo__encabezado modulo__encabezado--fila">
-                <div>
-                    <span class="etiqueta-seccion">Agenda</span>
-                    <h2>Eventos institucionales</h2>
+                <div class="bloque-proximamente">
+                    <i class="fa-solid fa-helmet-safety"></i>
+                    <strong>PRÓXIMAMENTE</strong>
+                    <span>Estamos preparando el mapa interactivo del Instituto.</span>
                 </div>
-                <button id="btnNuevoEvento" class="btn-admin btn-admin--primario">
-                    <i class="fas fa-plus"></i> Nuevo evento
-                </button>
-            </div>
-            <p class="seccion-nota">
-                Los eventos que publiques aquí se muestran en el calendario institucional de toda la comunidad.
-            </p>
+            </section>
 
-            <div class="cal-pared__nav">
-                <button id="btnAnioAnterior" class="btn-nav" aria-label="Año anterior"><i class="fas fa-chevron-left"></i></button>
-                <span id="anioActual" class="cal-pared__anio"></span>
-                <button id="btnAnioSiguiente" class="btn-nav" aria-label="Año siguiente"><i class="fas fa-chevron-right"></i></button>
-                <button type="button" id="btnCalHoy" class="btn-hoy" aria-label="Volver al año actual">Hoy</button>
-            </div>
-            <div class="cal-pared" id="calPared"></div>
-
-            <div class="tabla-wrap modulo__card">
-                <table class="tabla" id="tablaEventos">
-                    <thead>
-                        <tr>
-                            <th>Evento</th>
-                            <th>Fechas</th>
-                            <th>Color</th>
-                            <th class="tabla__col-acciones">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                <p class="tabla-vacia" id="tablaEventosVacia" hidden>No hay eventos publicados todavía.</p>
-            </div>
-        </section>
-
-        <section class="modulo vista" id="usuarios">
-            <div class="modulo__encabezado modulo__encabezado--fila">
-                <div>
-                    <span class="etiqueta-seccion">Usuarios</span>
-                    <h2>Comunidad ISAILO</h2>
-                </div>
-                <button id="btnAgregarUsuario" class="btn-admin btn-admin--success">
-                    <i class="fas fa-user-plus"></i> Agregar usuario
-                </button>
-            </div>
-            <p class="seccion-nota">
-                Crea cuentas, edita datos y habilita o deshabilita usuarios. El alta es interna:
-                no existe registro público en la plataforma.
-            </p>
-
-            <div class="tabla-wrap modulo__card">
-                <table class="tabla" id="tablaUsuarios">
-                    <thead>
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Correo / usuario</th>
-                            <th>Rol</th>
-                            <th>Estado</th>
-                            <th>Último acceso</th>
-                            <th class="tabla__col-acciones">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section class="modulo vista" id="mapa">
-            <span class="badge-proximamente"><i class="fas fa-helmet-safety"></i> Próximamente</span>
-            <h2>Mapa interactivo</h2>
-            <p class="seccion-nota mapa-intro">
-                Este es el mapa del Instituto San Ignacio de Loyola. Aquí podrás ubicar salones,
-                laboratorios y oficinas al instante. Esta función estará disponible próximamente.
-            </p>
-            <div id="mapa-container" aria-hidden="true"></div>
-        </section>
-
+        </div>
     </main>
 
-    <footer class="footer">
-        <div class="footer__contenedor">
-            <div class="footer__logo">
-                <i class="fas fa-map-marked-alt"></i>
-                <span class="footer__logo-texto">ISAILO MAPS</span>
-            </div>
-            <p class="footer__derechos">© 2026 ISAILO MAPS — Instituto San Ignacio de Loyola, Barrio Olaya</p>
-        </div>
-    </footer>
+    <!-- ================= MODALES ================= -->
 
     <div class="modal-overlay" id="modalEspacioForm" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true">
+        <div class="modal" role="dialog" aria-modal="true" data-lenis-prevent>
             <button type="button" class="modal__cerrar" data-cerrar aria-label="Cerrar">&times;</button>
             <span class="etiqueta-seccion">Espacios</span>
-            <h3 id="tituloModalEspacio">Nuevo espacio</h3>
+            <h3 id="tituloModalEspacio">Editar información</h3>
             <form id="formEspacio" autocomplete="off">
                 <div class="form-grid">
                     <div class="form-campo form-campo--ancho">
@@ -316,8 +542,99 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalEvento" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" data-lenis-prevent>
+            <button type="button" class="modal__cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+            <span class="etiqueta-seccion">Agenda</span>
+            <h3 id="tituloModalEvento">Nuevo evento</h3>
+            <form id="formEvento" autocomplete="off">
+                <div class="form-grid">
+                    <div class="form-campo form-campo--ancho">
+                        <label for="evNombre">Nombre del evento</label>
+                        <input id="evNombre" type="text" maxlength="100" required placeholder="Nombre del evento">
+                    </div>
+                    <div class="form-campo form-campo--par">
+                        <label for="evInicio">Fecha inicio</label>
+                        <input id="evInicio" type="date" required>
+                    </div>
+                    <div class="form-campo form-campo--par">
+                        <label for="evFin">Fecha fin (opcional)</label>
+                        <input id="evFin" type="date">
+                    </div>
+                    <div class="form-campo form-campo--ancho">
+                        <label>Color</label>
+                        <div class="swatches" id="evColores">
+                            <label class="swatch"><input type="radio" name="evColor" value="#8B1E1E" checked><span style="--c:#8B1E1E"></span></label>
+                            <label class="swatch"><input type="radio" name="evColor" value="#D4A843"><span style="--c:#D4A843"></span></label>
+                            <label class="swatch"><input type="radio" name="evColor" value="#4CAF50"><span style="--c:#4CAF50"></span></label>
+                            <label class="swatch"><input type="radio" name="evColor" value="#CF6679"><span style="--c:#CF6679"></span></label>
+                            <label class="swatch"><input type="radio" name="evColor" value="#E6D7B8"><span style="--c:#E6D7B8"></span></label>
+                        </div>
+                    </div>
+                    <div class="form-campo form-campo--ancho">
+                        <label for="evDescripcion">Descripción (opcional)</label>
+                        <textarea id="evDescripcion" rows="2" maxlength="255"></textarea>
+                    </div>
+                </div>
+                <p class="form-error" id="errorModalEvento" hidden></p>
+                <div class="modal__acciones">
+                    <button type="button" class="btn-admin btn-admin--outline" data-cerrar>Cancelar</button>
+                    <button type="submit" class="btn-admin btn-admin--primario">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalUsuario" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" data-lenis-prevent>
+            <button type="button" class="modal__cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+            <span class="etiqueta-seccion">Usuarios</span>
+            <h3 id="tituloModalUsuario">Agregar usuario</h3>
+            <form id="formUsuario" autocomplete="off">
+                <div class="form-grid">
+                    <div class="form-campo">
+                        <label for="usuNombre">Nombre</label>
+                        <input id="usuNombre" type="text" maxlength="50" required>
+                    </div>
+                    <div class="form-campo">
+                        <label for="usuApellido">Apellido</label>
+                        <input id="usuApellido" type="text" maxlength="50">
+                    </div>
+                    <div class="form-campo form-campo--ancho">
+                        <label for="usuCorreo">Correo o usuario</label>
+                        <input id="usuCorreo" type="text" maxlength="100" required placeholder="usuario@correo.com">
+                    </div>
+                    <div class="form-campo form-campo--ancho">
+                        <label for="usuPassword">Contraseña temporal</label>
+                        <input id="usuPassword" type="password" minlength="4" placeholder="Mínimo 4 caracteres">
+                    </div>
+                    <div class="form-campo">
+                        <label for="usuRol">Rol</label>
+                        <select id="usuRol">
+                            <option value="1">Estudiante</option>
+                            <option value="2">Docente</option>
+                            <option value="3">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-field" id="campoEspacioCargo" hidden style="margin-top:10px;">
+                    <label class="form-label" for="usuEspacioCargo">Espacio a cargo</label>
+                    <select id="usuEspacioCargo" class="form-input">
+                        <option value="">Sin espacio</option>
+                    </select>
+                    <p class="texto-tenue small">Solo aplica cuando el rol es Docente. Los espacios ya ocupados aparecen con su encargado.</p>
+                </div>
+                <p class="form-error" id="errorModalUsuario" hidden></p>
+                <div class="modal__acciones">
+                    <button type="button" class="btn-admin btn-admin--outline" data-cerrar>Cancelar</button>
+                    <button type="submit" class="btn-admin btn-admin--primario">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="modalSolicitud" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true">
+        <div class="modal" role="dialog" aria-modal="true" data-lenis-prevent>
             <button type="button" class="modal__cerrar" data-cerrar aria-label="Cerrar">&times;</button>
             <span class="etiqueta-seccion">Solicitud</span>
             <h3>Solicitar espacio</h3>
@@ -372,7 +689,7 @@
     </div>
 
     <div class="modal-overlay" id="modalCampana" aria-hidden="true">
-        <div class="modal modal--campana" role="dialog" aria-modal="true">
+        <div class="modal modal--campana" role="dialog" aria-modal="true" data-lenis-prevent>
             <button type="button" class="modal__cerrar" data-cerrar aria-label="Cerrar">&times;</button>
             <span class="etiqueta-seccion">Notificaciones</span>
             <h3>Solicitudes pendientes</h3>
@@ -391,90 +708,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="modalEvento" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true">
-            <button type="button" class="modal__cerrar" data-cerrar aria-label="Cerrar">&times;</button>
-            <span class="etiqueta-seccion">Agenda</span>
-            <h3 id="tituloModalEvento">Nuevo evento</h3>
-            <form id="formEvento" autocomplete="off">
-                <div class="form-grid">
-                    <div class="form-campo form-campo--ancho">
-                        <label for="evNombre">Nombre del evento</label>
-                        <input id="evNombre" type="text" maxlength="100" required placeholder="Ej. Izada de bandera">
-                    </div>
-                    <div class="form-campo form-campo--par">
-                        <label for="evInicio">Fecha inicio</label>
-                        <input id="evInicio" type="date" required>
-                    </div>
-                    <div class="form-campo form-campo--par">
-                        <label for="evFin">Fecha fin (opcional)</label>
-                        <input id="evFin" type="date">
-                    </div>
-                    <div class="form-campo form-campo--ancho">
-                        <label>Color</label>
-                        <div class="swatches" id="evColores">
-                            <label class="swatch"><input type="radio" name="evColor" value="#8B1E1E" checked><span style="--c:#8B1E1E"></span></label>
-                            <label class="swatch"><input type="radio" name="evColor" value="#D4A843"><span style="--c:#D4A843"></span></label>
-                            <label class="swatch"><input type="radio" name="evColor" value="#4CAF50"><span style="--c:#4CAF50"></span></label>
-                            <label class="swatch"><input type="radio" name="evColor" value="#CF6679"><span style="--c:#CF6679"></span></label>
-                            <label class="swatch"><input type="radio" name="evColor" value="#E6D7B8"><span style="--c:#E6D7B8"></span></label>
-                        </div>
-                    </div>
-                    <div class="form-campo form-campo--ancho">
-                        <label for="evDescripcion">Descripción (opcional)</label>
-                        <textarea id="evDescripcion" rows="2" maxlength="255"></textarea>
-                    </div>
-                </div>
-                <p class="form-error" id="errorModalEvento" hidden></p>
-                <div class="modal__acciones">
-                    <button type="button" class="btn-admin btn-admin--outline" data-cerrar>Cancelar</button>
-                    <button type="submit" class="btn-admin btn-admin--primario">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modalUsuario" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true">
-            <button type="button" class="modal__cerrar" data-cerrar aria-label="Cerrar">&times;</button>
-            <span class="etiqueta-seccion">Usuarios</span>
-            <h3 id="tituloModalUsuario">Agregar usuario</h3>
-            <form id="formUsuario" autocomplete="off">
-                <div class="form-grid">
-                    <div class="form-campo">
-                        <label for="usuNombre">Nombre</label>
-                        <input id="usuNombre" type="text" maxlength="50" required>
-                    </div>
-                    <div class="form-campo">
-                        <label for="usuApellido">Apellido</label>
-                        <input id="usuApellido" type="text" maxlength="50">
-                    </div>
-                    <div class="form-campo form-campo--ancho">
-                        <label for="usuCorreo">Correo o usuario</label>
-                        <input id="usuCorreo" type="text" maxlength="100" required placeholder="usuario@correo.com">
-                    </div>
-                    <div class="form-campo form-campo--ancho">
-                        <label for="usuPassword">Contraseña temporal</label>
-                        <input id="usuPassword" type="password" minlength="4" placeholder="Mínimo 4 caracteres">
-                    </div>
-                    <div class="form-campo">
-                        <label for="usuRol">Rol</label>
-                        <select id="usuRol">
-                            <option value="1">Estudiante</option>
-                            <option value="2">Docente</option>
-                            <option value="3">Administrador</option>
-                        </select>
-                    </div>
-                </div>
-                <p class="form-error" id="errorModalUsuario" hidden></p>
-                <div class="modal__acciones">
-                    <button type="button" class="btn-admin btn-admin--outline" data-cerrar>Cancelar</button>
-                    <button type="submit" class="btn-admin btn-admin--primario">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="modalConfirm" aria-hidden="true">
         <div class="modal modal--sm" role="alertdialog" aria-modal="true">
             <span class="etiqueta-seccion">Confirmar</span>
@@ -487,7 +720,16 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="../static/panel.js?v=9"></script>
+    <!-- ================= LIBRERÍAS (vendorizadas, sin build) ================= -->
+    <script src="../static/vendor/anime.umd.min.js"></script>
+    <script src="../static/vendor/lenis.min.js"></script>
+    <script src="../static/js/motion.js?v=2"></script>
+    <!-- Respaldo: si motion.js (o anime.js) no cargó, mostramos el contenido sin animar. -->
+    <script>
+        if (!(window.Motion && window.Motion.animado)) { document.documentElement.classList.remove('js'); }
+        /* Red de seguridad: nunca dejamos el bloqueo de entrada de login activo. */
+        setTimeout(function () { document.documentElement.classList.remove('transicion-login-entrada'); }, 1200);
+    </script>
+    <script src="../static/panel.js?v=11"></script>
 </body>
 </html>

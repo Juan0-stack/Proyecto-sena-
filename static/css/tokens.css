@@ -1,0 +1,107 @@
+/* =====================================================================
+   ISAILO MAPS — Design tokens compartidos
+   Sistema visual "Gestión de Calidad" (fondo casi negro + oro champán).
+   Se usa en el panel de Gestión de Calidad y queda listo para reutilizar
+   en los paneles de Docente y Estudiante.
+   ===================================================================== */
+
+:root {
+    /* ---- Superficies ---- */
+    --bg: #0c0708;
+    --bg-panel: #110a0b;
+    --bg-card: #130b0c;
+    --bg-tile: #1a1012;
+
+    /* ---- Acentos ---- */
+    --oro: #C9A96E;
+    --oro-claro: #E0C48A;
+    --burdeos: #7F1D2D;
+
+    /* ---- Texto (legible sobre fondo oscuro) ---- */
+    --texto: #F3EAD8;
+    --texto-2: #CDC1AA;
+    --texto-3: rgba(205, 193, 170, 0.72);
+    /* Placeholders de formularios (spec sección 7) */
+    --placeholder: #B3A892;
+    /* Iconos: mayor contraste (spec sección 7). Los cuadros redondeados que
+       contienen el icono conservan su fondo; solo cambia el color del icono. */
+    --icono: #EAD7A8;
+    --icono-activo: #F6E6BE;
+
+    /* ---- Líneas / bordes ---- */
+    --linea: rgba(201, 169, 110, 0.16);
+    --linea-fuerte: rgba(201, 169, 110, 0.30);
+
+    /* ---- Estados ---- */
+    --ok: #7FCBA0;
+    --alerta: #E0B65C;
+    --error: #E58A93;
+    --info: #4C8DDB;
+
+    /* ---- Tipografía ---- */
+    --fuente-titulo: 'Playfair Display', Georgia, serif;
+    --fuente-cuerpo: 'Inter', 'Manrope', Arial, Helvetica, sans-serif;
+    --tracking-label: 0.14em;
+
+    /* ---- Colores por tipo de salón (calendario y chips) ---- */
+    --tipo-laboratorio: #2B6F73;
+    --tipo-aula: #4B4F9A;
+    --tipo-auditorio: #7A5F25;
+    --tipo-sala: #2F7D5B;
+    --tipo-gimnasio: #8A2A3A;
+    --tipo-teatro: #1F6F8B;
+
+    /* ---- Geometría ---- */
+    --radio-sm: 10px;
+    --radio: 14px;
+    --radio-lg: 18px;
+    --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
+    --sombra-suave: 0 6px 24px rgba(0, 0, 0, 0.28);
+
+    /* ---- Layout del panel ---- */
+    --header-h: 72px;
+    --sidebar-w: 290px;
+    --sidebar-w-min: 88px;
+    --dur-micro: 200ms;
+    --dur-entrada: 520ms;
+}
+
+/* ---------------------------------------------------------------------
+   Estado inicial de los elementos animados.
+   La clase .js la agrega un script inline en el <head>; si JavaScript
+   falla por completo, la clase no existe y todo se ve igual (respaldo).
+   Con "prefers-reduced-motion" los elementos quedan visibles sin animar.
+   --------------------------------------------------------------------- */
+/* OJO: el selector incluye :not([data-reveal-done]). Sin esa exclusión, al
+   terminar la animación (que limpia el opacity en línea) la regla volvía a
+   ocultar el elemento y el panel se quedaba en negro. */
+html.js [data-reveal]:not([data-reveal-done]) {
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.js [data-reveal]:not([data-reveal-done]) {
+        opacity: 1 !important;
+        transform: none !important;
+        will-change: auto;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   Placeholders (spec sección 7): color #B3A892, nunca gris oscuro.
+   --------------------------------------------------------------------- */
+::placeholder {
+    color: var(--placeholder, #B3A892);
+    opacity: 1;
+}
+::-webkit-input-placeholder {
+    color: var(--placeholder, #B3A892);
+    opacity: 1;
+}
+select:invalid,
+input:disabled,
+textarea:disabled,
+select:disabled {
+    color: var(--placeholder, #B3A892);
+}

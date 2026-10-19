@@ -1,0 +1,44 @@
+{# =====================================================================
+   ISAILO MAPS — Parcial reutilizable: encabezado superior del panel.
+   Variables esperadas en el contexto:
+     rol_etiqueta  (texto visible del rol, por defecto el de Gestión de Calidad)
+     rol_panel     (identificador del panel, p. ej. "calidad")
+   El resto del menú se define en la plantilla que lo incluye.
+   ===================================================================== #}
+{% import 'partials/logo.html' as logo %}
+{% set _home = '/admin/panel' if session.get('nombre_rol') == 'Administrador'
+    else ('/maestro/panel' if session.get('nombre_rol') == 'Docente'
+    else ('/estudiante/panel' if session.get('nombre_rol') == 'Estudiante' else '/login')) %}
+<header class="app-header" id="header">
+    <button type="button" class="app-header__avisomenu" id="sidebarAbrir"
+            aria-label="Abrir menú" aria-expanded="false">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+    </button>
+    {# El logo y el nombre llevan al inicio del panel correspondiente (spec §3). #}
+    <a class="app-header__marca" href="{{ _home }}" aria-label="Ir al panel de control">
+        {{ logo.marca(size=34, texto=True, wordmark='ISAILO MAPS') }}
+    </a>
+
+    <div class="app-header__usuario">
+        <span class="app-header__saludo">
+            Bienvenido/a, <strong>{{ session['nombre'] }}</strong>
+        </span>
+        {% if session.get('nombre_rol') == 'Administrador' %}
+        <button type="button" class="btn-admin btn-admin--success btn-admin--small" data-nuevo-usuario style="margin-right:10px;">
+            <i class="fas fa-user-plus"></i> Nuevo usuario
+        </button>
+        {% endif %}
+        <button type="button" class="app-header__perfil" id="usuarioBoton"
+                aria-haspopup="true" aria-expanded="false"
+                aria-label="Menú de usuario ({{ session['nombre'] }})">
+            <span class="app-header__saludo-corto" aria-hidden="true">{{ session['nombre'][:1]|upper }}</span>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+        </button>
+        <div class="app-header__menu" id="usuarioMenu" hidden>
+            <span class="app-header__menu-rol">{{ rol_etiqueta|default('Gestión de Calidad', true) }}</span>
+            <a class="app-header__menu-item" href="/logout">
+                <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Cerrar sesión
+            </a>
+        </div>
+    </div>
+</header>

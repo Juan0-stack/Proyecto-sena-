@@ -6,12 +6,20 @@ from flask import jsonify, redirect, session
 def _respuesta_sin_sesion(api):
     if api:
         return jsonify({'ok': False, 'error': 'Debes iniciar sesión.'}), 401
+    # Para rutas que esperan acceso administrativo, ir al login de administrador
     return redirect('/login')
 
 
 def _respuesta_sin_rol(api):
     if api:
         return jsonify({'ok': False, 'error': 'No tienes permisos para esta acción.'}), 403
+    rol = session.get('nombre_rol')
+    if rol == 'Administrador':
+        return redirect('/admin/panel')
+    if rol == 'Docente':
+        return redirect('/maestro/panel')
+    if rol == 'Estudiante':
+        return redirect('/estudiante/panel')
     return redirect('/login')
 
 

@@ -1,0 +1,55 @@
+{# =====================================================================
+   ISAILO MAPS — Parcial reutilizable: barra lateral del panel.
+
+   Variables esperadas en el contexto:
+     rol_etiqueta : texto visible del rol (por defecto "Gestión de Calidad")
+     menu         : lista de ítems [{ vista, etiqueta, icono, badge_salida }]
+                    - vista         : id de la sección (data-vista)
+                    - etiqueta      : texto visible
+                    - icono         : clase de Font Awesome
+                    - badge_salida  : id del globo de pendientes (opcional)
+   El estado colapsado se guarda en localStorage (ver panel.js).
+   ===================================================================== #}
+{% import 'partials/logo.html' as logo %}
+{% set _home = '/admin/panel' if session.get('nombre_rol') == 'Administrador'
+    else ('/maestro/panel' if session.get('nombre_rol') == 'Docente'
+    else ('/estudiante/panel' if session.get('nombre_rol') == 'Estudiante' else '/login')) %}
+<aside class="app-sidebar" id="sidebar" aria-label="Menú de gestión">
+    <div class="app-sidebar__perfil">
+        {# El logo (solo el círculo cuando la barra está colapsada) lleva al
+           inicio del panel; el nombre también (spec §3). #}
+        <a class="app-sidebar__marca-logo" href="{{ _home }}" aria-label="Ir al panel de control">
+            {{ logo.marca(size=46, clase='marca-logo--sidebar') }}
+        </a>
+        <div class="app-sidebar__datos">
+            <a class="app-sidebar__nombre app-sidebar__nombre--enlace" href="{{ _home }}">{{ session['nombre'] }}</a>
+            <span class="app-sidebar__rol">{{ rol_etiqueta|default('Gestión de Calidad', true) }}</span>
+        </div>
+        <button type="button" class="app-sidebar__pin" id="sidebarToggle"
+                aria-label="Colapsar menú" aria-expanded="true" title="Colapsar menú">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <span class="app-sidebar__etiqueta">Menú</span>
+
+    <nav class="app-sidebar__nav" aria-label="Secciones">
+        <span class="app-sidebar__indicador" id="menuIndicador" aria-hidden="true"></span>
+        <ul class="nav__lista">
+            {% for item in menu %}
+            <li>
+                <a class="nav__enlace" href="#{{ item.vista }}" data-vista="{{ item.vista }}"
+                   title="{{ item.etiqueta }}">
+                    <span class="nav__icono" aria-hidden="true"><i class="{{ item.icono }}"></i></span>
+                    <span class="nav__texto">{{ item.etiqueta }}</span>
+                    {% if item.badge_salida %}
+                    <span class="nav__badge" id="{{ item.badge_salida }}" hidden aria-hidden="true">0</span>
+                    {% endif %}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </nav>
+</aside>
+
+<button type="button" class="app-sidebar__velo" id="sidebarVelo" tabindex="-1" aria-hidden="true"></button>

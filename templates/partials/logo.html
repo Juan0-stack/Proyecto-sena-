@@ -1,0 +1,44 @@
+{# =====================================================================
+   ISAILO MAPS — Componente reutilizable: LOGOTIPO.
+
+   Un único lugar para la marca (spec §3). El archivo vive en
+   static/vendor/logo.png (emblema cuadrado, 500x500).
+
+   Uso:
+     {% import 'partials/logo.html' as logo %}
+     {{ logo.marca(size=30, texto=True, href='/', etiqueta='ISAILO MAPS') }}
+
+   Parámetros:
+     size      : alto/ancho del emblema en px (por defecto 30)
+     texto     : mostrar el nombre junto al emblema (por defecto false)
+     href      : si se indica, todo el componente es un enlace
+     etiqueta  : texto alternativo y aria-label (por defecto 'ISAILO MAPS')
+     subtitulo : texto pequeño bajo el nombre (opcional)
+     wordmark  : texto del nombre (por defecto 'ISAILO MAPS')
+     clase     : clases CSS extra para el contenedor
+     id        : id del contenedor (opcional)
+   ===================================================================== #}
+{% macro marca(size=30, texto=False, href=None, etiqueta='ISAILO MAPS', subtitulo=None, wordmark='ISAILO MAPS', clase='', id=None) -%}
+{%- set clases = 'marca-logo' + (' ' + clase if clase else '') -%}
+{%- if href -%}
+<a class="{{ clases }}" href="{{ href }}" aria-label="{{ etiqueta }}"{% if id %} id="{{ id }}"{% endif %} style="--logo-size: {{ size }}px;">
+{%- else -%}
+<span class="{{ clases }}"{% if id %} id="{{ id }}"{% endif %} style="--logo-size: {{ size }}px;">
+{%- endif %}
+    <img class="marca-logo__img" src="{{ url_for('static', filename='vendor/logo.png') }}"
+         alt="{{ etiqueta }}" width="{{ size }}" height="{{ size }}" decoding="async">
+    {%- if texto %}
+    <span class="marca-logo__texto">
+        <span class="marca-logo__nombre">{{ wordmark }}</span>
+        {%- if subtitulo %}<span class="marca-logo__sub">{{ subtitulo }}</span>{% endif %}
+    </span>
+    {%- endif %}
+{%- if href %}</a>{% else %}</span>{% endif %}
+{%- endmacro %}
+
+{# Solo el emblema, sin envoltorio (para favicon, avatares, hero, etc.). #}
+{% macro emblema(size=30, etiqueta='ISAILO MAPS', clase='', id=None) -%}
+<img class="marca-logo__img {{ clase }}" src="{{ url_for('static', filename='vendor/logo.png') }}"
+     alt="{{ etiqueta }}" width="{{ size }}" height="{{ size }}"{% if id %} id="{{ id }}"{% endif %}
+     style="--logo-size: {{ size }}px;" decoding="async">
+{%- endmacro %}

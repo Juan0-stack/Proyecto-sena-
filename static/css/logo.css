@@ -1,0 +1,77 @@
+/* =====================================================================
+   ISAILO MAPS — logo.css
+   Estilos del componente reutilizable de logotipo (templates/partials/logo.html).
+   Se carga en todas las páginas (pública, logins y los tres paneles) para que
+   la marca se vea idéntica en todo el sitio (spec §3).
+   ===================================================================== */
+
+.marca-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    vertical-align: middle;
+}
+
+.marca-logo__img {
+    width: var(--logo-size, 30px);
+    height: var(--logo-size, 30px);
+    flex: 0 0 auto;
+    object-fit: contain;
+    display: block;
+    border-radius: 50%;
+}
+
+.marca-logo__texto {
+    display: inline-flex;
+    flex-direction: column;
+    line-height: 1.12;
+    min-width: 0;
+}
+
+.marca-logo__nombre {
+    font-family: var(--fuente-titulo, 'Playfair Display', Georgia, serif);
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    color: var(--oro-claro, #E0C48A);
+}
+
+.marca-logo__sub {
+    font-size: 0.64rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--texto-2, #CDC1AA);
+}
+
+a.marca-logo {
+    border-radius: 12px;
+    transition: opacity 200ms ease, transform 200ms ease;
+}
+a.marca-logo:hover { opacity: 0.92; }
+a.marca-logo:active { transform: scale(0.98); }
+a.marca-logo:focus-visible,
+span.marca-logo:focus-visible {
+    outline: 2px solid var(--oro, #C9A96E);
+    outline-offset: 3px;
+}
+
+/* Marca del encabezado: el nombre completo junto al emblema. */
+.app-header__marca .marca-logo__nombre { font-size: 1.3rem; }
+
+/* Portada pública: el logotipo del navbar debe seguir el color del navbar
+   (transparente/sólido al hacer scroll) y mantener el aspecto original. */
+.navbar .logo-nav { display: inline-flex; align-items: center; gap: 8px; }
+.navbar .logo-nav .marca-logo__nombre {
+    color: inherit;
+    letter-spacing: 0.01em;
+    text-shadow: inherit;
+}
+
+/* Logo de la barra lateral. Cuando la barra está colapsada solo se ve el
+   círculo (el texto se oculta con el resto de .app-sidebar__datos). */
+.app-sidebar .marca-logo__nombre { font-size: 1.05rem; }
+
+@media (prefers-reduced-motion: reduce) {
+    a.marca-logo { transition: none; }
+}

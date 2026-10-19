@@ -4,21 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISAILO MAPS</title>
+    <link rel="stylesheet" href="../static/css/logo.css?v=1">
     <link rel="stylesheet" href="../static/css.css?v=8">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="../static/vendor/logo.png" type="image/png">
 </head>
 <body>
 
+    {% import 'partials/logo.html' as logo %}
+
     <header class="navbar navbar--transparent" id="navbar">
-        <div class="logo-nav">ISAILO MAPS</div>
+        {{ logo.marca(size=32, texto=True, href='#inicio', etiqueta='ISAILO MAPS', clase='logo-nav') }}
         <nav>
             <ul class="menu" id="menu">
                 <li><a href="#inicio">Inicio</a></li>
                 <li><a href="#nosotros">Nosotros</a></li>
                 <li><a href="#contacto">Contacto</a></li>
-                <li><a href="login_profes.html">Inicio de sesión</a></li>
-                <li><a href="login_admin.html">Para administradores</a></li>
+                <li><a href="/login">Inicio de sesión</a></li>
+                <li><a href="/admin/login">Para administradores</a></li>
             </ul>
             <button class="hamburguesa" id="hamburguesa" aria-label="Menú" style="display:none;">
                 <span></span><span></span><span></span>
@@ -34,7 +38,7 @@
         <div class="hero__decoracion hero__decoracion--5"></div>
 
         <div class="hero__contenido">
-            <img src="../static/logo.png" alt="Logo Isailo Maps" class="hero__logo" id="heroLogo">
+            {{ logo.emblema(size=200, etiqueta='Logo Isailo Maps', clase='hero__logo', id='heroLogo') }}
             <h1 class="hero__h1">ISAILO <span>MAPS</span></h1>
             <p class="hero__sub">
                 Descubre, explora y gestiona cada espacio del
@@ -42,7 +46,7 @@
                 a través de la <strong>realidad aumentada</strong>.
             </p>
             <div class="hero__acciones">
-                <a href="login.html" class="btn-hero--primario">
+                <a href="/login" class="btn-hero--primario">
                     <i class="fas fa-rocket"></i> Comenzar
                 </a>
                 <a href="#nosotros" class="btn-hero--secundario">
@@ -65,7 +69,7 @@
             </p>
             <p>
                 Con nuestro mapa interactivo puedes localizar salones, laboratorios y
-                oficinas al instante. La agenda institucional te permite apartar espacios
+                oficinas al instante. La agenda institucional te permite reservar espacios
                 para actividades académicas, optimizando el uso de cada recurso.
             </p>
             <div class="about__stats">
@@ -127,12 +131,12 @@
                 <div class="contacto__item">
                     <div class="contacto__icono"><i class="fas fa-map-marker-alt"></i></div>
                     <h3>Ubicación</h3>
-                    <p>Barrio Olaya — Instituto San Ignacio de Loyola</p>
+                    <p>Barrio Olaya a Instituto San Ignacio de Loyola</p>
                 </div>
                 <div class="contacto__item">
                     <div class="contacto__icono"><i class="fas fa-clock"></i></div>
                     <h3>Horario de Atención</h3>
-                    <p>Lunes a Viernes · 7:00 AM – 5:00 PM</p>
+                    <p>Lunes a Viernes de 7:00 AM a 5:00 PM</p>
                 </div>
             </div>
         </div>
@@ -141,13 +145,13 @@
     <section class="cta">
         <h2>Únete a ISAILO MAPS</h2>
         <p>Forma parte de la transformación digital de tu institución.</p>
-        <a href="login.html" class="btn-cta">
+        <a href="/login" class="btn-cta">
             <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
         </a>
     </section>
 
     <footer>
-        <p>© 2026 ISAILO MAPS — Instituto San Ignacio de Loyola, Barrio Olaya</p>
+        <p>© 2026 ISAILO MAPS - Instituto San Ignacio de Loyola, Barrio Olaya</p>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>

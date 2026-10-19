@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, redirect, render_template, request, session
 
-from controllers.controller import PANEL_POR_ROL, ClienteController, SolicitudController
+from controllers.controller import PANEL_POR_ROL, ClienteController, PanelController, SolicitudController
 from models.cliente_model import ClienteModel
 from models.espacio_model import EspacioModel
 from models.evento_model import EventoModel
@@ -42,14 +42,29 @@ def home():
 
 @clientes_bp.route('/register')
 @clientes_bp.route('/register.html')
-@clientes_bp.route('/admin-login')
-@clientes_bp.route('/admin-login.html')
-@clientes_bp.route('/admin')
-@clientes_bp.route('/admin.html')
 def redirigir_login():
     if session.get('id_usuario'):
         return redirect(_panel_para_rol(session.get('nombre_rol')))
     return redirect('/login')
+
+
+@clientes_bp.route('/admin-login')
+@clientes_bp.route('/admin-login.html')
+@clientes_bp.route('/admin')
+@clientes_bp.route('/admin.html')
+def redirigir_login_admin():
+    """Alias antiguos del acceso administrativo -> login administrativo."""
+    if session.get('id_usuario'):
+        return redirect(_panel_para_rol(session.get('nombre_rol')))
+    return redirect('/admin/login')
+
+
+@clientes_bp.route('/admin/login')
+@clientes_bp.route('/admin/login.html')
+def login_admin():
+    if session.get('id_usuario'):
+        return redirect(_panel_para_rol(session.get('nombre_rol')))
+    return render_template('login_admin.html')
 
 
 @clientes_bp.route('/admin/panel')
@@ -61,13 +76,19 @@ def admin_panel():
 @clientes_bp.route('/maestro/panel')
 @role_required('Docente')
 def maestro_panel():
-    return render_template('maestro_panel.html')
+    # Solo lectura: reutilizamos PanelController.datos_docente (spec §5).
+    datos = PanelController.datos_docente(session.get('id_usuario'))
+    espacios = datos.get('mis_espacios') or []
+    return render_template('maestro_panel.html', datos=datos,
+                           tiene_espacio=bool(espacios),
+                           espacio=espacios[0] if espacios else None)
 
 
 @clientes_bp.route('/estudiante/panel')
 @role_required('Estudiante')
 def estudiante_panel():
-    return render_template('estudiante_panel.html')
+    datos = PanelController.datos_estudiante()
+    return render_template('estudiante_panel.html', datos=datos)
 
 
 @clientes_bp.route('/api/clientes/login', methods=['POST'])
@@ -128,3 +149,10 @@ def resumen_admin():
             'eventos': EventoModel.contar()
         }
     })
+
+
+@clientes_bp.route('/solicitud-espacio')
+@clientes_bp.route('/solicitud-espacio.html')
+@login_required()
+def solicitud_espacio():
+    return render_template('solicitud_espacio.html')
