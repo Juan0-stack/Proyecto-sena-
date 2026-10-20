@@ -958,6 +958,41 @@ body.sidebar-colapsada .app-sidebar .nav__enlace { justify-content: center; padd
 
 }
 
+.admin-mapa {
+    overflow: hidden;
+    border: 1px solid var(--linea-fuerte);
+    border-radius: var(--radio-lg);
+    background: var(--bg-card);
+    box-shadow: var(--sombra-suave);
+}
+
+.admin-mapa iframe {
+    display: block;
+    width: 100%;
+    height: min(70vh, 760px);
+    min-height: 520px;
+    border: 0;
+    background: #0c0708;
+}
+
+.admin-mapa__pie {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 18px;
+    border-top: 1px solid var(--linea);
+}
+
+.admin-mapa__pie > span { color: var(--texto-2); font-size: .86rem; }
+.admin-mapa__pie > span i { margin-right: 6px; color: var(--oro); }
+.admin-mapa__pie a { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+
+@media (max-width: 600px) {
+    .admin-mapa iframe { height: 65vh; min-height: 430px; }
+    .admin-mapa__pie { align-items: flex-start; flex-direction: column; }
+}
+
 
 
 /* ---- Hero del panel de control (adaptado al shell con header fijo) ----

@@ -96,6 +96,17 @@
         if (errorText) errorText.textContent = '';
     }
 
+    function mostrarAvisoDeAcceso() {
+        var aviso = new URLSearchParams(window.location.search).get('aviso');
+        var mensajes = {
+            docente: 'Esta cuenta es de docente. Ya puedes ingresar aquí.',
+            admin: 'Esta cuenta es administrativa. Ya puedes ingresar aquí.'
+        };
+        if (!mensajes[aviso]) return;
+        mostrarError(mensajes[aviso]);
+        window.history.replaceState({}, '', window.location.pathname);
+    }
+
     /* ----------------------------------------------------------------
        Envío del formulario.
        ---------------------------------------------------------------- */
@@ -150,6 +161,9 @@
                             if (t) t.textContent = boton.getAttribute('data-texto') || 'Ingresar';
                         }
                         mostrarError(res.error || 'No se pudo iniciar sesión.');
+                        if (res.redirect) {
+                            setTimeout(function () { window.location.assign(res.redirect); }, 1200);
+                        }
                         return;
                     }
                     try { sessionStorage.setItem('isailo-login-transition', '1'); } catch (e) { }
@@ -208,6 +222,7 @@
     function iniciar() {
         initPasswordToggle();
         mostrarTarjeta();
+        mostrarAvisoDeAcceso();
     }
 
     if (document.readyState === 'loading') {

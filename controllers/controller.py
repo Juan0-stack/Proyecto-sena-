@@ -197,12 +197,21 @@ class ClienteController:
         rol = usuario.get('nombre_rol')
         if rol == 'Estudiante':
             return {'ok': False, 'error': 'El acceso para estudiantes ya no está disponible.'}
-        try:
-            if admin_only or str(admin_only).lower() in ('1', 'true', 'on'):
-                if rol not in ROLES_ADMINISTRATIVOS:
-                    return {'ok': False, 'error': 'Esta cuenta no tiene acceso administrativo'}
-        except Exception:
-            pass
+        acceso_admin = str(admin_only).lower() in ('1', 'true', 'on')
+        if acceso_admin and rol not in ROLES_ADMINISTRATIVOS:
+            return {
+                'ok': False,
+                'error': 'Esta cuenta es de docente. Te llevaremos al inicio de sesión para docentes.',
+                'redirect': '/login?aviso=docente'
+            }
+        if not acceso_admin and rol in ROLES_ADMINISTRATIVOS:
+            return {
+                'ok': False,
+                'error': 'Esta cuenta es administrativa. Te llevaremos al acceso administrativo.',
+                'redirect': '/admin/login?aviso=admin'
+            }
+        if rol != 'Docente' and rol not in ROLES_ADMINISTRATIVOS:
+            return {'ok': False, 'error': 'Este tipo de cuenta no tiene acceso a la plataforma.'}
 
         nombre_completo = f"{usuario['nombre']} {usuario.get('apellido') or ''}".strip()
 

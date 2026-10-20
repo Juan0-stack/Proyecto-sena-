@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="../static/css/logo.css?v=1">
     <link rel="stylesheet" href="../static/css/login.css?v=1">
     <link rel="stylesheet" href="../static/vendor/lenis.css">
-    <link rel="stylesheet" href="../static/css/calidad.css?v=3">
+    <link rel="stylesheet" href="../static/css/calidad.css?v=4">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="../static/vendor/logo.png" type="image/png">
@@ -487,10 +487,12 @@
                         </p>
                     </div>
                 </div>
-                <div class="bloque-proximamente">
-                    <i class="fa-solid fa-helmet-safety"></i>
-                    <strong>PRÓXIMAMENTE</strong>
-                    <span>Estamos preparando el mapa interactivo del Instituto.</span>
+                <div class="admin-mapa">
+                    <iframe id="mapaFuncional" title="Mapa institucional de consulta" src="/mapa-publico" loading="eager"></iframe>
+                    <div class="admin-mapa__pie">
+                        <span><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Selecciona un edificio para consultar sus pisos y espacios.</span>
+                        <a class="btn-admin btn-admin--outline" href="/recorrido-virtual"><i class="fa-solid fa-vr-cardboard" aria-hidden="true"></i> Recorrido virtual</a>
+                    </div>
                 </div>
             </section>
 

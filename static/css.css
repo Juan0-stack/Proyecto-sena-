@@ -935,7 +935,8 @@ footer {
 .mapa-publico__visor { display: block; width: 100%; height: clamp(520px, 72vh, 820px); border: 1px solid rgba(201,169,110,.2); border-radius: 15px; background: #0c0708; box-shadow: 0 14px 36px rgba(0,0,0,.24); }
 .recorrido-publico { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 20px; border: 1px solid rgba(201,169,110,.16); border-radius: 14px; background: rgba(255,255,255,.018); }
 .recorrido-publico p { margin: 5px 0 0; color: #cfc3b2; }
-.recorrido-publico .btn-hoy:disabled { opacity: .78; cursor: not-allowed; }
+.recorrido-publico .btn-hoy { gap: 8px; text-decoration: none; }
+.recorrido-publico .btn-hoy:hover { color: var(--oro-claro, #E0C48A); }
 @media (max-width: 760px) { .cal-publico__panel-cabecera { align-items: flex-start; flex-direction: column; } .cal-publico__eventos-lista { grid-template-columns: 1fr; } }
 @media (max-width: 600px) { .calendario-publico { padding: 66px 18px; } .cal-publico__atajos { grid-template-columns: 1fr; } .cal-publico__atajo { min-height: 76px; } .cal-publico__barra { width: 100%; gap: 7px; } .cal-publico__anio { min-width: 0; flex: 1; font-size: .95rem; } .cal-publico__meses { padding: 10px; } .cal-publico__dias { gap: 4px; } .cal-publico__dia { min-height: 38px; } .mapa-publico__titulo,.recorrido-publico { align-items: flex-start; flex-direction: column; } .mapa-publico__visor { height: 68vh; min-height: 440px; } }
 

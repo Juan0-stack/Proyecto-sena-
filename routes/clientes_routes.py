@@ -127,6 +127,11 @@ def mapa_publico():
     return render_template('HOME(MAPA).html', integrado=True, vista_publica=True)
 
 
+@clientes_bp.route('/recorrido-virtual')
+def recorrido_virtual():
+    return render_template('recorrido_virtual.html')
+
+
 @clientes_bp.route('/estudiante/panel')
 def panel_estudiante_desactivado():
     return redirect('/login')
