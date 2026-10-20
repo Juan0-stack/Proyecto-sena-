@@ -34,7 +34,7 @@ USUARIOS = [
     {'id_usuario': 1, 'nombre': 'Administrador', 'apellido': 'ISAILO', 'correo': 'admin',
      'password_hash': HASH_ADMIN, 'estado': 'Activo', 'id_rol': 3, 'nombre_rol': 'Administrador'},
     {'id_usuario': 2, 'nombre': 'Carolina', 'apellido': 'Rios', 'correo': 'carolina@colegio.edu',
-     'password_hash': HASH_DOC, 'estado': 'Activo', 'id_rol': 2, 'nombre_rol': 'Docente'},
+     'password: 'docente123', 'estado': 'Activo', 'id_rol': 2, 'nombre_rol': 'Docente'},
     {'id_usuario': 3, 'nombre': 'Pedro', 'apellido': 'Gomez', 'correo': 'pedro@colegio.edu',
      'password_hash': HASH_EST, 'estado': 'Activo', 'id_rol': 1, 'nombre_rol': 'Estudiante'},
     {'id_usuario': 4, 'nombre': 'Sofia', 'apellido': 'Mora', 'correo': 'sofia@colegio.edu',

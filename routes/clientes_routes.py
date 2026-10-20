@@ -21,6 +21,7 @@ def index():
     return render_template('index.html')
 
 
+
 @clientes_bp.route('/login')
 @clientes_bp.route('/login.html')
 def login():
@@ -127,7 +128,7 @@ def mapa_publico():
     return render_template('HOME(MAPA).html', integrado=True, vista_publica=True)
 
 
-@clientes_bp.route('/recorrido-virtual')
+@clientes_bp.route('/street_view')
 def recorrido_virtual():
     return render_template('recorrido_virtual.html')
 

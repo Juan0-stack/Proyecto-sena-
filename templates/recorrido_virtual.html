@@ -10,16 +10,1697 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="../static/vendor/logo.png" type="image/png">
+    <link rel="stylesheet"
+      href="/static/pannellum/pannellum.css">
+<script type="text/javascript"
+        src="/static/pannellum/pannellum.js"></script>
+<style>
+    #panorama {
+        
+        width: 1500px;
+        height: 620px;
+       
+       
+    }</style>
+	  
 </head>
 <body class="recorrido-pagina">
     <main class="recorrido-pagina__marco">
-        <a class="recorrido-pagina__volver" href="/" aria-label="Volver al inicio"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Volver al inicio</a>
-        <header class="recorrido-pagina__marca">
+        <div class="nav">
+            <a class="recorrido-pagina__volver" href="/" aria-label="Volver al inicio"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Volver al inicio</a>
+            <header class="recorrido-pagina__marca">
             <img src="../static/logo.png" alt="Logo de ISAILO MAPS">
             <h1>ISAILO MAPS</h1>
-        </header>
-        <h2>Recorrido virtual</h2>
-        <section class="recorrido-pagina__visor" aria-label="Espacio reservado para Street View"></section>
+            </header>
+            <h2>Recorrido virtual</h2>
+        </div>
+        <section class="recorrido-pagina__visor" aria-label="Espacio reservado para Street View">
+            <div id="panorama"></div>
+        </section>
     </main>
+<script>
+    pannellum.viewer('panorama', {
+        "default": {
+            "firstScene": "porteria",
+            "author": "ISAILO MAPS"
+            
+        },
+        "scenes": {
+/*
+----------
+PLANTILLAS
+----------
+"id": {
+	"title": "",
+	"autoLoad": true,
+	"autoRotate": -4,
+	"hfov": 120,
+	"pitch": 1,
+	"yaw": -140,
+	"type": "equirectangular",
+	"panorama":"/static/pannellum/IMAGES/nombre.jpg",
+	"hotSpotDebug": true,
+	"hotSpots": [ 
+    	{
+            "pitch": ,
+			"yaw": ,
+			"type": "scene",
+			"text": "",
+			sceneId": ""
+		}, //si hay mas de 2 hotspots, usar '},'
+
+        { //plantilla para un enlace youtube
+            "pitch": -12.91680198698398,
+            "yaw": -260.0696537714195,
+            "type": "info",
+            "text": "papu",
+            "URL": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        }
+    ] 
+
+},  //si hay mas de 2 scenes, usar '},'
+
+----------
+*/
+
+            //ADMINISTRACION
+            "porteria": {
+                "title": "Portería",
+                "type": "equirectangular",
+                "panorama": "/static/pannellum/IMAGES/porteria.jpg",
+                "autoLoad": true,
+                "autoRotate": -4,
+                "pitch": 1, //eje y inicio
+                "yaw": -140, // eje x inicio
+                "hfov": 120, //fov
+                //hot spotdibug te da coordenadas para el hotspot
+                //comentarlo al final del proyecto
+                "hotSpotDebug": true,
+                "hotSpots": [
+                    
+                    {
+                        "pitch": -12.43690083209501, 
+                        "yaw": 101.2745084512371,
+                        "type": "scene",
+                        "text": "Escaleras Administración 1",
+                        "sceneId": "es_ad_1"
+                    },
+					{
+						"pitch": -5.441058092772876, 
+						"yaw": 37.95009745471117,
+						"type": "scene",
+						"text": "Patio 0",
+						sceneId: "patio0"
+					},
+                ]//fin hotspots
+            },//fin scene 1
+            "es_ad_1": {
+                "title": "Escaleras de Administración 1 Piso",
+                "autoLoad": true,
+			    "autoRotate": -4,
+                "hfov": 120,
+                "pitch": 1,
+                "yaw": -140,
+                "type": "equirectangular",
+                "panorama": "/static/pannellum/IMAGES/escaleras_ad_1.jpg",
+                "hotSpotDebug": true,
+                "hotSpots": [ 
+					{
+						"pitch": -15.791168216269943,
+						"yaw": -45.01417790486967,
+						"type": "scene",
+						"text": "Portería",
+						sceneId: "porteria"
+					},
+					{
+						"pitch": 9.916926749980853, 
+						"yaw": -149.32993000024675, 
+						"type": "scene",
+						"text": "Escaleras de Administración 1.5 Piso",
+						sceneId: "escaleras_ad_2"
+					}
+				]
+            },
+            "escaleras_ad_2": {
+				"title": "Escaleras de Administración 1.5 Piso",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/escaleras_ad_2.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -33.87818077978416, 
+						"yaw": -209.16529769211328,
+						"type": "scene",
+						"text": "Escaleras de Administración 1 Piso",
+						sceneId: "es_ad_1"
+					},
+					{
+						"pitch": 6.901208293499426, 
+						"yaw": -255.9581559093711,
+						"type": "scene",
+						"text": "Escaleras de Administración 2 Piso",
+						sceneId: "escaleras_ad_3"
+					}
+
+				 ]
+
+			},
+            "escaleras_ad_3": {
+				"title": "Escaleras de Administración 2 Piso",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/escaleras_ad_3.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -38.25355890389072,
+						"yaw": 91.38148942572008,
+						"type": "scene",
+						"text": "Escaleras de Administración 1.5 Piso",
+						sceneId: "escaleras_ad_2"
+					},
+					{
+						"pitch": -13.955825901522754,
+						"yaw": 167.6332003368798,
+						"type": "scene",
+						"text": "Pasillo de Administración 1",
+						sceneId: "pasillo1_p2_ad"
+					},
+					{
+						"pitch": 14.515186139231249,
+						"yaw": 50.93021496035335,
+						"type": "scene",
+						"text": "Escaleras de Administración 2.5 Piso",
+						sceneId: "escaleras_ad_4"
+					},
+				 ]
+
+			},
+            "escaleras_ad_4": {
+				"title": "Escaleras de Administración 2.5 Piso",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/escaleras_ad_4.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -38.313483081007064,
+						"yaw": -211.94732776713613,
+						"type": "scene",
+						"text": "Escaleras de Administración 2 Piso",
+						sceneId: "escaleras_ad_3"
+					},
+					{
+						"pitch": 15.138366383009974,
+						"yaw": -252.12697816168713,
+						"type": "scene",
+						"text": "Escaleras de Administración 3 Piso",
+						sceneId: "escaleras_ad_5"
+					},
+				 ]
+
+			},
+            "escaleras_ad_5": {
+				"title": "Escaleras de Administración 3 Piso",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/escaleras_ad_5.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": -37.52630146178866, 
+						"yaw": -25.746254931519104,
+						"type": "scene",
+						"text": "Escaleras de Administración 2.5 Piso",
+						sceneId: "escaleras_ad_4"
+					},
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Biblioteca",
+						sceneId: "biblioteca"
+					}
+				]
+
+			},
+
+            //TORRE BACHILLERATO
+            "1piso_b_pasillo": {
+				"title": "Pasillo Primer Piso Torre de Bachillerato",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/1piso_b_pasillo_1.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": -18.333707052748473,
+						"yaw": -169.85177724270181, 
+						"type": "scene",
+						"text": "Patio -2",
+						sceneId: "patio-2"
+					},
+					{
+						"pitch": 3.889456710376182, 
+						"yaw": -142.54111762859606, 
+						"type": "scene",
+						"text": "Escaleras Torre de Bachillerato 1",
+						sceneId: "escaleras_b1"
+					},
+					{
+						"pitch": 1.457408182080483, 
+						"yaw": -82.3889551876571, 
+						"type": "scene",
+						"text": "salon_danzas",
+						sceneId: "Salón de Danzas"
+					}
+				]
+
+            },
+            "2piso_b_pasillo": {
+				"title": "Pasillo Segundo Piso Torre de Bachillerato",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/2piso_b_pasillo_1.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": -17.522395125275956,
+						"yaw": -153.4531188546304, 
+						"type": "scene",
+						"text": "Escaleras Torre de Bachillerato 1",
+						sceneId: "escaleras_b1"
+					},
+					{
+						"pitch": -2.918278372950902,
+						"yaw": -127.33434665924861, 
+						"type": "scene",
+						"text": "Escaleras Torre de Bachillerato 2",
+						sceneId: "escaleras_b2"
+					},
+					{
+						"pitch": -8.91390436497999, 
+						"yaw": -249.8824260597296, 
+						"type": "scene",
+						"text": "Laboratorio de Biología",
+						sceneId: "lab_bio"
+					},
+					{
+						"pitch": -22.28587477628475, 
+						"yaw": -298.21364220857186, 
+						"type": "scene",
+						"text": "Laboratorio de Física",
+						sceneId: "lab_fis"
+					},
+					{
+						"pitch": -8.097193935802665, 
+						"yaw": -78.7305562034899, 
+						"type": "scene",
+						"text": "Laboratorio de Química ",
+						sceneId: "lab_qui"
+					}
+				]
+
+			},
+            "3piso_b_pasillo": {
+				"title": "Pasillo Tercer Piso Torre de Bachillerato",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/3piso_b_pasillo_1.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -7.420959702799599,
+						"yaw": -134.7313270917145, 
+						"type": "scene",
+						"text": "Escaleras Torre de Bachillerato 2",
+						sceneId: "escaleras_b2"
+					},
+				 ]
+
+			},
+            "escaleras_b1": {
+				"title": "Escaleras Torre de Bachillerato 1",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/escaleras_b1.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 				
+					{
+						"pitch": -26.222089491960233, 
+						"yaw": -247.3693549152962, 
+						"type": "scene",
+						"text": "Pasillo Primer Piso Torre de Bachillerato",
+						sceneId: "1piso_b_pasillo"
+					},
+					{
+						"pitch": 3.758896708618982, 
+						"yaw": -213.59532904547495, 
+						"type": "scene",
+						"text": "Pasillo Segundo Piso Torre de Bachillerato",
+						sceneId: "2piso_b_pasillo"
+					}
+				]
+
+			},
+            "escaleras_b2": {
+				"title": "Escaleras Torre de Bachillerato 2",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/escaleras_b2.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": -31.027703049757246,  
+						"yaw": -246.62749197577807,
+						"type": "scene",
+						"text": "Pasillo Segundo Piso Torre de Bachillerato",
+						sceneId: "2piso_b_pasillo"
+					},
+					{
+						"pitch": -9.663975529219345,  
+						"yaw": -215.09073982363228,
+						"type": "scene",
+						"text": "Pasillo Tercer Piso Torre de Bachillerato",
+						sceneId: "3piso_b_pasillo"
+					}
+				]
+
+			},
+            //PRIMARIA
+            
+            "escaleras_p3": {
+				"title": "Escaleras Primaria 2",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/es_p_3.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -21.18163436137358,
+						"yaw": -66.17812013557968, 
+						"type": "scene",
+						"text": "Escaleras Primaria Patio",
+						sceneId: "escaleras_primaria_patio"
+					},
+					{
+						"pitch": 12.728332366356703,
+						"yaw": -39.253251009901966,
+						"type": "scene",
+						"text": "Escaleras Primaria 1",
+						sceneId: "escaleras_p2"
+					}
+				 ]
+
+			},
+			"escaleras_p2": {
+				"title": "Escaleras Primaria 1",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/es_p_2.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -23.26393483085507, 
+						"yaw": -66.96119856316089, 
+						"type": "scene",
+						"text": "Escaleras Primaria 2",
+						sceneId: "escaleras_p3"
+					},
+					{
+						"pitch": -4.251053638556819,
+						"yaw": 27.763367717483305, 
+						"type": "scene",
+						"text": "Salón de Artes",
+						sceneId: "salon_artes"
+					},
+					{
+						"pitch": -3.8334633721421714, 
+						"yaw": -141.28878572624987, 
+						"type": "scene",
+						"text": "Primaria Pasillo 5",
+						sceneId: "primaria_p5"
+					}
+				 ]
+
+			},
+            "primaria_p1": {
+				"title": "Primaria Pasillo 1",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/pasillo_p_2.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": -5.137804290467367,
+						"yaw": -138.69396452167868, 
+						"type": "scene",
+						"text": "Primaria Pasillo 2",
+						sceneId: "primaria_p2"
+					},
+					{
+						"pitch": -4.169780385276885,
+						"yaw": 26.461736742151906,
+						"type": "scene",
+						"text": "Primaria Pasillo 6",
+						sceneId: "primaria_p6"
+					},
+					{
+						"pitch": -17.85250252478359, 
+						"yaw": 108.2381615831178, 
+						"type": "scene",
+						"text": "Escaleras 2 Piso Primaria 1",
+						sceneId: "escaleras_2_piso_1"
+					}
+				]
+
+			},
+            "primaria_p2": {
+				"title": "Primaria Pasillo 2",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/pas_p_3.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": -0.39653829724834244,
+						"yaw": -53.6895612375111,
+						"type": "scene",
+						"text": "Primaria Pasillo 3",
+						sceneId: "primaria_p3"
+					},
+					{
+						"pitch": 0.5429223882141214,
+						"yaw": 128.63511944620555,
+						"type": "scene",
+						"text": "Primaria Pasillo 1",
+						sceneId: "primaria_p1"
+					}
+				]
+
+			},
+            "primaria_p3": {
+				"title": "Primaria Pasillo 3",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/pasillo_p_5.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": 0.5657074709081282, 
+						"yaw": 45.391784996341954, 
+						"type": "scene",
+						"text": "Primaria Pasillo 4",
+						sceneId: "primaria_p4"
+					},
+					{
+						"pitch": -3.074498876719133,
+						"yaw": 228.90824704634053,
+						"type": "scene",
+						"text": "Primaria Pasillo 2",
+						sceneId: "primaria_p2"
+					}
+				 ]
+
+			},
+            "primaria_p4": {
+				"title": "Primaria Pasillo 4",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/p_p_6.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -1.8861739693349406,  
+						"yaw": -227.56627263216913, 
+						"type": "scene",
+						"text": "Primaria Pasillo 5",
+						sceneId: "primaria_p5"
+					},
+					{
+						"pitch": 0.6373872971432039,
+						"yaw": -47.251079610675816, 
+						"type": "scene",
+						"text": "Primaria Pasillo 3",
+						sceneId: "primaria_p3"
+					}
+				 ]
+
+			},
+			"primaria_p5": {
+				"title": "Primaria Pasillo 5",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/p_p_7.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -6.631968136906966,
+						"yaw": -235.66222940232726,
+						"type": "scene",
+						"text": "Escaleras Primaria 1",
+						sceneId: "escaleras_p2"
+					},
+					{
+						"pitch": -16.089078979555598,
+						"yaw": -334.3462661099581,
+						"type": "scene",
+						"text": "Primaria Pasillo 4",
+						sceneId: "primaria_p4"
+					}
+				 ]
+
+			},
+
+            //PATIO
+            
+            "patio0": {
+				"title": "Patio 0",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/p6.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -3.14820516350722,
+						"yaw": -48.38636762024254, 
+						"type": "scene",
+						"text": "Patio 1",
+						sceneId: "patio1"
+					},
+					{
+						"pitch": -1.505332878436538,
+						"yaw": -177.3534516005569,
+						"type": "scene",
+						"text": "Portería",
+						sceneId: "porteria"
+					},
+					{
+						"pitch": 1.2072563938849503, 
+						"yaw": -220.71572218606926,
+						"type": "scene",
+						"text": "Patio -1",
+						sceneId: "patio-1"
+					},
+					{
+						"pitch": 0.4972550831529787 ,
+						"yaw": -301.62118627639745,
+						"type": "scene",
+						"text": "Patio Cubierto 2",
+						sceneId: "patio_c_2"
+					},
+					{
+						"pitch": -1.0227825107259685,
+						"yaw": -1.5759739676452924,
+						"type": "scene",
+						"text": "Patio Cubierto 1",
+						sceneId: "patio_c_1"
+					},
+					{
+						"pitch": -0.8818496828391837, 
+						"yaw": -112.21254662412714,
+						"type": "scene",
+						"text": "Portón",
+						sceneId: "patio_porton"
+					}
+				 ]
+
+			},
+			"patio1": {
+				"title": "Patio 1",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/pr5.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": 13.228568804188516, 
+						"yaw": -248.01105879007375,
+						"type": "scene",
+						"text": "Portón",
+						sceneId: "patio_porton"
+					},
+					{
+						"pitch": 14.953405666091994,
+						"yaw": -319.38427646681635,
+						"type": "scene",
+						"text": "Patio 0",
+						sceneId: "patio0"
+					},
+					{
+						"pitch": 12.840576839741114, 
+						"yaw": -40.53199191500796, 
+						"type": "scene",
+						"text": "Patio Cubierto 1",
+						sceneId: "patio_c_1"
+					},
+					{
+						"pitch": 9.949683926468355, 
+						"yaw": -138.3056886921491, 
+						"type": "scene",
+						"text": "Patio 2",
+						sceneId: "patio2"
+					}
+				]
+
+			},
+			"patio_porton": {
+				"title": "Portón",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/po.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": 1.8683981880494207, 
+						"yaw": -234.59089014802157,
+						"type": "scene",
+						"text": "Patio 1",
+						sceneId: "patio1"
+					},
+					{
+						"pitch": -0.45610739170522885,
+						"yaw": -169.66891836738995,
+						"type": "scene",
+						"text": "Patio 0",
+						sceneId: "patio0"
+					}
+				]
+
+			},
+			"patio2": {
+				"title": "Patio 2",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/p3.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": -3.469709718523666, 
+						"yaw": -140.10431754386707,
+						"type": "scene",
+						"text": "Patio 1",
+						sceneId: "patio1"
+					},
+					{
+						"pitch": -1.0886525495030575, 
+						"yaw": -216.21422970762725,
+						"type": "scene",
+						"text": "Patio Escaleras Primaria",
+						sceneId: "primaria_patio2"
+					},
+					{
+						"pitch": -0.9500053927354212,
+						"yaw": -12.868218392871157,
+						"type": "scene",
+						"text": "Gimnasio",
+						sceneId: "gimnasio"
+					},
+					{
+						"pitch": -1.0803796966175259, 
+						"yaw": -33.67937346347749, 
+						"type": "scene",
+						"text": "Escaleras 2 Piso Primaria 2 Salón de Actos",
+						sceneId: "escaleras_2_piso_salon_actos"
+					}
+				]
+
+			},
+			"patio_c_1": {
+				"title": "Patio Cubierto 1",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/pc1.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -1.3272920794517302,
+						"yaw": -218.82828049080302,
+						"type": "scene",
+						"text": "patio1",
+						sceneId: "Patio 1"
+					},
+					{
+						"pitch": 4.070694250668556,
+						"yaw": -271.84964909350225,
+						"type": "scene",
+						"text": "Patio 0",
+						sceneId: "patio0"
+					},
+					{
+						"pitch": 1.830971178132717,
+						"yaw": -323.0404096756795,
+						"type": "scene",
+						"text": "Patio Cubierto 2",
+						sceneId: "patio_c_2"
+					}
+				 ]
+
+			},
+			"patio_c_2": {
+				"title": "Patio Cubierto 2",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/pc2.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": 2.521978122882679, 
+						"yaw": -138.41488201311122, 
+						"type": "scene",
+						"text": "Patio Cubierto 1",
+						sceneId: "patio_c_1"
+					},
+					{
+						"pitch": 1.8288704775600073,
+						"yaw": -233.53427453894608,
+						"type": "scene",
+						"text": "Patio 0",
+						sceneId: "patio0"
+					}
+				 ]
+
+			},
+			"patio_c_3": {
+				"title": "Patio Cubierto 3",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/pc3.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+										{
+						"pitch": 1.2584043547794816,
+						"yaw": -262.28956631583065,
+						"type": "scene",
+						"text": "Patio -1",
+						sceneId: "patio-1"
+					},
+					{
+						"pitch": -0.6843112964094262,
+						"yaw": -198.56056820336806, 
+						"type": "scene",
+						"text": "Patio -2",
+						sceneId: "patio-2"
+					}
+				]
+
+			},
+			"patio-1": {
+				"title": "Patio -1",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/p8.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+										{
+						"pitch": 0.3661239470463009 ,
+						"yaw": -234.6052751824043,
+						"type": "scene",
+						"text": "Patio 0",
+						sceneId: "patio0"
+					},
+					{
+						"pitch": -2.21304826080869,
+						"yaw": 25.452154732530904, 
+						"type": "scene",
+						"text": "Patio Cubierto 3",
+						sceneId: "patio_c_3"
+					},
+					{
+						"pitch": -2.18891116922539, 
+						"yaw": -50.51430208535053, 
+						"type": "scene",
+						"text": "Patio -2",
+						sceneId: "patio-2"
+					},
+					{
+						"pitch": -3.793400608741837,
+						"yaw": 244.0176597439443,
+						"type": "scene",
+						"text": "Escaleras Primaria Patio",
+						sceneId: "escaleras_primaria_patio"
+					}
+				]
+
+			},
+			"patio-2": {
+				"title": "Patio -2",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/p9.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": 4.750216517848797, 
+						"yaw": 41.47394860991018, 
+						"type": "scene",
+						"text": "Patio -1",
+						sceneId: "patio-1"
+					},
+					{
+						"pitch": 0.9772736516192904, 
+						"yaw": -17.553323494077524, 
+						"type": "scene",
+						"text": "Patio Cubierto 3",
+						sceneId: "patio_c_3"
+					},
+					{
+						"pitch": 1.8982690254380605,
+						"yaw": -59.157138678369364,
+						"type": "scene",
+						"text": "Rotonda",
+						sceneId: "patio_rotonda"
+					},
+					{
+						"pitch": 8.975568447898688,
+						"yaw": -100.67548787381841,
+						"type": "scene",
+						"text": "Pasillo Primer Piso Torre de Bachillerato",
+						sceneId: "1piso_b_pasillo"
+					}
+				 ]
+
+			},
+			"patio_rotonda": {
+				"title": "Rotonda",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/p10.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch":-2.515266756706527 ,
+						"yaw": -154.73795068268734, 
+						"type": "scene",
+						"text": "Patio -2",
+						sceneId: "patio-2"
+					},
+					{
+						"pitch": -3.3117513367494666, 
+						"yaw": -53.7028019130942,
+						"type": "scene",
+						"text": "Pasillo Preescolar 1",
+						sceneId: "preescolar1"
+					}
+				 ]
+
+			},
+			"escaleras_primaria_patio": {
+				"title": "Escaleras Primaria Patio",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/es_pri_f.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": 3.330305902169699,
+						"yaw": 41.64296811917957, 
+						"type": "scene",
+						"text": "Patio -1",
+						sceneId: "patio-1"
+					},
+					{
+						"pitch": 2.4421504189369383, 
+						"yaw": -94.70164869162099,
+						"type": "scene",
+						"text": "Salón de Música Bachillerato",
+						sceneId: "salon_musica_bachillerato"
+					},
+					{
+						"pitch": 3.63366094911176,
+						"yaw": -163.18090086471813, 
+						"type": "scene",
+						"text": "Escaleras Primaria 2",
+						sceneId: "escaleras_p3"
+					}
+				]
+
+			},
+            //PREESCOLAR
+            "preescolar1": {
+				"title": "Pasillo Preescolar 1",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/prescolar_p_1.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -2.5816807204823013, 
+						"yaw": -236.48696909720346,
+						"type": "scene",
+						"text": "Rotonda",
+						sceneId: "patio_rotonda"
+					},
+					{
+						"pitch": -4.522796050772689, 
+						"yaw": -143.90205773716588,
+						"type": "scene",
+						"text": "Pasillo Preescolar 2",
+						sceneId: "preescolar2"
+					},
+					{
+						"pitch": -3.539271999528058, 
+						"yaw": -54.572510647789265, 
+						"type": "scene",
+						"text": "Pasillo Preescolar 3",
+						sceneId: "preescolar3"
+					}
+				 ]
+
+			},
+			
+            "preescolar2": {
+				"title": "Pasillo Preescolar 2",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/prescolar_p_2.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -1.5767226547263453,
+						"yaw": -137.183365956, 
+						"type": "scene",
+						"text": "Pasillo Preescolar 1",
+						sceneId: "preescolar1"
+					}
+				 ]
+
+			},
+			
+            "preescolar3": {
+				"title": "Pasillo Preescolar 3",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/prescolar_p_4.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": -1.516824155034508, 
+						"yaw": -234.2173905585596, 
+						"type": "scene",
+						"text": "Pasillo Preescolar 1",
+						sceneId: "preescolar1"
+					},
+					{
+						"pitch": -0.8603664427155984,
+						"yaw": -52.15645640041728,
+						"type": "scene",
+						"text": "Pasillo Preescolar 4",
+						sceneId: "preescolar4"
+					}
+				]
+
+			},
+			
+            "preescolar4": {
+				"title": "Pasillo Preescolar 4",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"/static/pannellum/IMAGES/prescolar_p_6.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": -0.8603664427155984,
+						"yaw": -16.88954318268781,
+						"type": "scene",
+						"text": "Pasillo Preescolar 3",
+						sceneId: "preescolar3"
+					}
+				 ]
+			},
+
+
+//ZONA GIMNASIO/INFORMATICA/SALON ACTOS
+
+            "salon_actos": {
+				"title": "Salón de Actos",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/salon_actos.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Escaleras 2 Piso Primaria 2 Salón de Actos",
+						sceneId: "escaleras_2_piso_salon_actos"
+					}
+				]
+
+			},
+			
+            "salon_contabilidad": {
+				"title": "Salón de Contabilidad",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/salon_contabilidad.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Escaleras Informática 3 Piso",
+						sceneId: "escaleras_3p_info"
+					}
+				 ]
+
+			},
+			
+            "salon_info_primaria": {
+				"title": "Salón de Informática Primaria",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/salon_info_pri.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": 1, 
+						"yaw": 1, 
+						"type": "scene",
+						"text": "pasillo_info",
+						sceneId: "Pasillo Informática"
+					},
+				]
+
+			},
+			
+            "salon_musica_primaria": {
+				"title": "Salón de Música Primaria",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/salon_musica_primaria.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Escaleras Informática 3 Piso",
+						sceneId: "escaleras_3p_info"
+					}
+				 ]
+
+			},
+/*
+            //PENDIENTES
+            "salon_info": {
+				"title": "Salón de Informática Bachillerato",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": , 
+						"yaw": , 
+						"type": "scene",
+						"text": "pasillo_info",
+						sceneId: "Pasillo Informática"
+					} 
+				]
+
+			},
+            "pasillo_info": {
+				"title": "Pasillo Informática",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Escaleras Informática 3 Piso",
+						sceneId: "escaleras_3p_info"
+					},
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Salón de Informática Primaria",
+						sceneId: "salon_info_primaria"
+					},
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Salón de Informática Bachillerato",
+						sceneId: "salon_info"
+					},
+				]
+
+			},
+            "escaleras_3p_info": {
+				"title": "Escaleras Informática 3 Piso",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": -1.0803796966175259, 
+						"yaw": -33.67937346347749, 
+						"type": "scene",
+						"text": "Escaleras 2 Piso Primaria 2 Salón de Actos",
+						sceneId: "escaleras_2_piso_salon_actos"
+					},
+					{
+						"pitch": ,
+						"yaw":  ,
+						"type": "scene",
+						"text": "Salón de Música Primaria",
+						sceneId: "salon_musica_primaria"
+					},
+					{
+						"pitch": , 
+						"yaw": , 
+						"type": "scene",
+						"text": "Salón de Contabilidad",
+						sceneId: "salon_contabilidad"
+					},
+					{
+						"pitch": , 
+						"yaw": , 
+						"type": "scene",
+						"text": "pasillo_info",
+						sceneId: "Pasillo Informática"
+					},
+					
+				]
+
+			},
+            "escaleras_2_piso_1": {
+				"title": "Escaleras 2 Piso Primaria 1",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Primaria Pasillo 1",
+						sceneId: "primaria_p1"
+					},
+						{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "primaria_patio2",
+						sceneId: "Patio Escaleras Primaria"
+					}
+				]
+
+			},
+			"primaria_patio2": {
+				"title": "Patio Escaleras Primaria",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Escaleras 2 Piso Primaria 1",
+						sceneId: "escaleras_2_piso_1"
+					},
+					{
+						"pitch": , 
+						"yaw": , 
+						"type": "scene",
+						"text": "Patio 2",
+						sceneId: "patio2"
+					}
+				]
+
+			},
+            "escaleras_2_piso_salon_actos": {
+				"title": "Escaleras 2 Piso Primaria 2 Salón de Actos",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Primaria Pasillo 6",
+						sceneId: "primaria_p6"
+					},
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Salón de Actos",
+						sceneId: "salon_actos"
+					},
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Patio 2",
+						sceneId: "patio2"
+					},
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Escaleras Informática 3 Piso",
+						sceneId: "escaleras_3p_info"
+					}
+
+				]
+
+			},
+            "pasillo1_p2_ad": {
+				"title": "Pasillo de Administración 1",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": ,
+						"yaw": ,
+						"type": "scene",
+						"text": "Pasillo de Administración 2",
+						sceneId: "pasillo2_p2_ad"
+					},
+					{
+						"pitch": ,
+						"yaw": ,
+						"type": "scene",
+						"text": "Escaleras de Administración 2 Piso",
+						sceneId: "escaleras_ad_3"
+					}
+				]
+
+			},
+            "pasillo2_p2_ad": {
+				"title": "Pasillo de Administración 2",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+				{
+						"pitch": ,
+						"yaw": ,
+						"type": "scene",
+						"text": "Pasillo de Administración 1",
+						sceneId: "pasillo1_p2_ad"
+					}]
+
+			},
+            "biblioteca": {
+				"title": "Biblioteca",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Escaleras de Administración 3 Piso",
+						sceneId: "escaleras_ad_5"
+					} 
+				]
+
+			},
+            "lab_bio": {
+				"title": "Laboratorio de Biología",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": , 
+						"yaw": , 
+						"type": "scene",
+						"text": "Pasillo Segundo Piso Torre de Bachillerato",
+						sceneId: "2piso_b_pasillo"
+					}
+				]
+
+			},
+            "lab_fis": {
+				"title": "Laboratorio de Física",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": , 
+						"yaw": , 
+						"type": "scene",
+						"text": "Pasillo Segundo Piso Torre de Bachillerato",
+						sceneId: "2piso_b_pasillo"
+					}
+				]
+
+			},
+            "lab_qui": {
+				"title": "Laboratorio de Química",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": , 
+						"yaw": , 
+						"type": "scene",
+						"text": "Pasillo Segundo Piso Torre de Bachillerato",
+						sceneId: "2piso_b_pasillo"
+					}
+				]
+
+			},
+            "salon_danzas": {
+				"title": "Salón de Danzas",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ {
+						"pitch": , 
+						"yaw": , 
+						"type": "scene",
+						"text": "Pasillo Primer Piso Torre de Bachillerato",
+						sceneId: "1piso_b_pasillo"
+					},]
+
+			},
+            "primaria_p6": {
+				"title": "Primaria Pasillo 6",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Primaria Pasillo 1",
+						sceneId: "primaria_p1"
+					}
+					{
+						"pitch": 1,
+						"yaw": 1,
+						"type": "scene",
+						"text": "Escaleras 2 Piso Primaria 2 Salón de Actos",
+						sceneId: "escaleras_2_piso_salon_actos"
+					}
+
+				]
+
+			},
+            "gimnasio": {
+				"title": "Gimnasio",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": , 
+						"yaw": , 
+						"type": "scene",
+						"text": "Patio 2",
+						sceneId: "patio2"
+					}
+				]
+
+			},
+            "salon_musica_bachillerato": {
+				"title": "Salón de Música Bachillerato",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{	
+						"pitch": -21.18163436137358,
+						"yaw": -66.17812013557968, 
+						"type": "scene",
+						"text": "Escaleras Primaria Patio",
+						sceneId: "escaleras_primaria_patio"
+					}
+				]
+
+			},
+            "salon_artes": {
+				"title": "Salón de Artes",
+				"autoLoad": true,
+				"autoRotate": -4,
+				"hfov": 120,
+				"pitch": 1,
+				"yaw": -140,
+				"type": "equirectangular",
+				"panorama":"pannellum/IMAGES/nombre.jpg",
+				"hotSpotDebug": true,
+				"hotSpots": [ 
+					{
+						"pitch": 12.728332366356703,
+						"yaw": -39.253251009901966,
+						"type": "scene",
+						"text": "Escaleras Primaria 1",
+						sceneId: "escaleras_p2"
+					}
+				]
+
+			},
+*/
+
+	
+			
+
+			
+            
+            
+			
+
+
+
+        } 
+    });
+</script>
 </body>
 </html>
