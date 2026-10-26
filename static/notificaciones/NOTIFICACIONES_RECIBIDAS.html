@@ -361,13 +361,22 @@
                 <p>Revisa las solicitudes pendientes y toma decisiones sobre el uso de los espacios.</p>
             </header>
 
-            <section class="panel-notificaciones">
-                <div class="cabecera-panel">
-                    <h2>Solicitudes recibidas</h2>
-                    <span class="contador" id="contador-recibidas">0</span>
-                </div>
-                <div id="lista-recibidas"></div>
-            </section>
+            <div class="notificaciones-grid">
+                <section class="panel-notificaciones">
+                    <div class="cabecera-panel">
+                        <h2>Recientes · aprobadas o rechazadas</h2>
+                        <span class="contador" id="contador-recibidas-recientes">0</span>
+                    </div>
+                    <div id="lista-recibidas-recientes"></div>
+                </section>
+                <section class="panel-notificaciones">
+                    <div class="cabecera-panel">
+                        <h2>Pendientes</h2>
+                        <span class="contador" id="contador-recibidas-pendientes">0</span>
+                    </div>
+                    <div id="lista-recibidas-pendientes"></div>
+                </section>
+            </div>
 
             <p class="aviso-prototipo">
                 Prototipo de demostración: Benitez, vincula esto a la base de datos.
@@ -550,7 +559,7 @@
             }
         }
 
-        renderizarNotificaciones();
+        if (document.getElementById("lista-recibidas")) renderizarNotificaciones();
     </script>
 </body>
 </html>

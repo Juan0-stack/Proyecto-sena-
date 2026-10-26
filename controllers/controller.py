@@ -5,6 +5,7 @@ from models.cliente_model import ClienteModel
 from models.espacio_model import EspacioModel
 from models.evento_model import EventoModel
 from models.solicitud_model import SolicitudModel
+from utils.modo_docente import modo_actual
 
 PANEL_POR_ROL = {
     'Administrador': '/admin/panel',
@@ -82,15 +83,25 @@ class ClienteController:
         if ClienteModel.buscar_por_correo(correo):
             return {'ok': False, 'error': 'Ya existe una cuenta con ese usuario o correo.'}
 
-        nuevo_id = ClienteModel.crear(nombre, apellido, correo, password, id_rol)
-        if not nuevo_id:
-            return {'ok': False, 'error': 'No se pudo crear el usuario. Verifica la conexión a la base de datos.'}
-
-        # Asignar "Espacio a cargo" si el rol es Docente y se indicó un espacio (espec. §6)
+        id_espacio = None
         if id_rol == 2:
-            id_espacio = datos.get('id_espacio') or datos.get('espacio')
-            if id_espacio:
-                EspacioModel.asignar_encargado(int(id_espacio), nuevo_id)
+            espacio_indicado = datos.get('id_espacio') or datos.get('espacio')
+            if espacio_indicado not in (None, ''):
+                try:
+                    id_espacio = int(espacio_indicado)
+                except (TypeError, ValueError):
+                    return {'ok': False, 'error': 'El espacio a cargo no es válido.'}
+                espacio = EspacioModel.obtener(id_espacio)
+                if not espacio:
+                    return {'ok': False, 'error': 'El espacio seleccionado ya no existe.'}
+                if espacio.get('id_usuario_encargado') is not None:
+                    return {'ok': False, 'error': 'Ese espacio ya tiene un encargado.'}
+
+        nuevo_id = ClienteModel.crear(
+            nombre, apellido, correo, password, id_rol, id_espacio=id_espacio
+        )
+        if not nuevo_id:
+            return {'ok': False, 'error': 'No se pudo crear el usuario o asignar su espacio a cargo.'}
 
         return {'ok': True, 'id': nuevo_id}
 
@@ -880,6 +891,7 @@ class SolicitudController:
         es_admin = rol in ROLES_ADMINISTRATIVOS
         es_encargado = (
             rol == 'Docente'
+            and modo_actual() == 'encargado'
             and solicitud.get('id_usuario_encargado') == id_usuario
         )
 

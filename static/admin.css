@@ -1476,6 +1476,12 @@ html.transicion-login-entrada body {
     cursor: default;
 }
 
+.cal-evento--rechazada {
+    background: rgba(229, 138, 147, 0.12);
+    border-left-color: #E58A93;
+    color: #F4C7CC;
+}
+
 .cal-dia-nombre {
     text-align: center;
     font-size: 0.75rem;

@@ -319,13 +319,22 @@
                 <p>Consulta el estado de las reservas que has realizado y revisa la respuesta de quienes gestionan los espacios.</p>
             </header>
 
-            <section class="panel-notificaciones">
-                <div class="cabecera-panel">
-                    <h2>Mis solicitudes</h2>
-                    <span class="contador" id="contador-propias">0</span>
-                </div>
-                <div id="lista-propias"></div>
-            </section>
+            <div class="notificaciones-grid">
+                <section class="panel-notificaciones">
+                    <div class="cabecera-panel">
+                        <h2>Recientes · aprobadas o rechazadas</h2>
+                        <span class="contador" id="contador-propias-recientes">0</span>
+                    </div>
+                    <div id="lista-propias-recientes"></div>
+                </section>
+                <section class="panel-notificaciones">
+                    <div class="cabecera-panel">
+                        <h2>Pendientes</h2>
+                        <span class="contador" id="contador-propias-pendientes">0</span>
+                    </div>
+                    <div id="lista-propias-pendientes"></div>
+                </section>
+            </div>
 
             <p class="aviso-prototipo">
                 Prototipo de demostración: Benitez, vincula esto a la base de datos.
@@ -463,7 +472,7 @@
             }
         }
 
-        renderizarNotificaciones();
+        if (document.getElementById("lista-propias")) renderizarNotificaciones();
     </script>
 </body>
 </html>

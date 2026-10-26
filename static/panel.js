@@ -201,6 +201,8 @@
         campanaIndice: 0,
         confirmCallback: null
     };
+    var solicitudesInicializadas = false;
+    var solicitudesAnimadas = {};
 
     /* ================= MODALES ================= */
 
@@ -383,6 +385,11 @@
     function showSection(id) {
         var nueva = document.getElementById(id);
         if (!nueva) return null;
+
+        /* Las solicitudes se consultan en la base de datos. Al abrir esta
+           sección volvemos a consultarlas para que el encargado vea las
+           solicitudes nuevas sin tener que salir del panel. */
+        if (id === 'notificaciones' && ROL === 'Docente') cargarSolicitudes();
 
         /* La última petición gana: invalida y limpia cualquier transición
            interrumpida antes de decidir qué sección debe salir. */
@@ -791,26 +798,31 @@
         });
     }
 
-    function decidirSolicitud(idSolicitud, nuevoEstado) {
+    function decidirSolicitud(idSolicitud, nuevoEstado, botonOrigen) {
+        var boton = botonOrigen || document.querySelector('[data-id="' + idSolicitud + '"]');
+        var tarjeta = boton ? boton.closest('.sol-card, .solicitud-item') : null;
+        if (tarjeta) tarjeta.classList.add('solicitud--salida');
         return api('/api/solicitudes/' + idSolicitud + '/estado', 'PATCH', { estado: nuevoEstado })
             .then(function (res) {
-                if (!res.ok) { toast(res.error || 'No se pudo actualizar.', 'error'); return false; }
+                if (!res.ok) {
+                    if (tarjeta) tarjeta.classList.remove('solicitud--salida');
+                    toast(res.error || 'No se pudo actualizar.', 'error');
+                    return false;
+                }
+                solicitudesAnimadas[String(idSolicitud)] = true;
                 toast(nuevoEstado === 'aprobada' ? 'Solicitud aprobada.' : 'Solicitud rechazada.');
-                return refrescarDespuesDeCambio();
+                return new Promise(function (resolve) { window.setTimeout(resolve, 220); })
+                    .then(refrescarDespuesDeCambio);
             });
     }
 
     function refrescarDespuesDeCambio() {
-        var promesas = [];
-        /* TODO (spec §2): en el panel de Gestión de Calidad las pantallas de
-           Calendario y Verificar solicitudes quedan vacías hasta la conexión;
-           por eso no se vuelven a enlazar cargarSolicitudes() ni cargarSemana(). */
-        if (!ES_GESTION) {
-            promesas.push(cargarSolicitudes(), cargarOcupacionOperativa(), cargarSemana());
-        } else {
-            promesas.push(cargarOcupacionOperativa());
-        }
-        promesas.push(cargarPanel());
+        var promesas = [
+            cargarSolicitudes(),
+            cargarOcupacionOperativa(),
+            cargarSemana(),
+            cargarPanel()
+        ];
         return Promise.all(promesas).then(function () {
             pintarEspacios();
             pintarCalOperativo();
@@ -914,11 +926,36 @@
 
     function cargarSolicitudes() {
         return api('/api/solicitudes').then(function (res) {
-            estado.solicitudes = res.ok ? (res.solicitudes || []) : [];
+            var solicitudesNuevas = res.ok ? (res.solicitudes || []) : [];
+            var solicitudesCalendarioCambiaron = solicitudesInicializadas && solicitudesNuevas.some(function (nueva) {
+                var anterior = estado.solicitudes.find(function (actual) {
+                    return String(actual.id_solicitud) === String(nueva.id_solicitud);
+                });
+                return anterior && anterior.estado !== nueva.estado &&
+                    (anterior.estado !== 'pendiente' || nueva.estado !== 'pendiente');
+            });
+            if (solicitudesInicializadas && ROL === 'Docente' && MODO_DOCENTE === 'encargado') {
+                var idsAnteriores = {};
+                estado.solicitudes.forEach(function (solicitud) {
+                    idsAnteriores[String(solicitud.id_solicitud)] = true;
+                });
+                var nuevaPendiente = solicitudesNuevas.find(function (solicitud) {
+                    return solicitud.estado === 'pendiente' && !idsAnteriores[String(solicitud.id_solicitud)];
+                });
+                if (nuevaPendiente) {
+                    toast('Nueva solicitud recibida para ' + (nuevaPendiente.espacio_nombre || 'tu espacio') + '.');
+                }
+            }
+            estado.solicitudes = solicitudesNuevas;
+            solicitudesInicializadas = true;
             pintarBadgeSolicitudes();
             pintarEspacios();
             pintarSolicitudes();
             pintarNotificaciones();
+            if (solicitudesCalendarioCambiaron) {
+                cargarOcupacionOperativa();
+                cargarSemana();
+            }
         });
     }
 
@@ -927,42 +964,50 @@
         if (!marco || !marco.contentDocument || marco.contentDocument.readyState !== 'complete') return;
         var doc = marco.contentDocument;
         var recibidas = MODO_DOCENTE === 'encargado';
-        var lista = doc.getElementById(recibidas ? 'lista-recibidas' : 'lista-propias');
-        var contador = doc.getElementById(recibidas ? 'contador-recibidas' : 'contador-propias');
-        if (!lista || !contador) return;
+        var recientes = doc.getElementById(recibidas ? 'lista-recibidas-recientes' : 'lista-propias-recientes');
+        var pendientes = doc.getElementById(recibidas ? 'lista-recibidas-pendientes' : 'lista-propias-pendientes');
+        var contadorRecientes = doc.getElementById(recibidas ? 'contador-recibidas-recientes' : 'contador-propias-recientes');
+        var contadorPendientes = doc.getElementById(recibidas ? 'contador-recibidas-pendientes' : 'contador-propias-pendientes');
+        if (!recientes || !pendientes || !contadorRecientes || !contadorPendientes) return;
         aplicarEstiloNotificaciones(doc);
         var solicitudes = estado.solicitudes.slice().sort(function (a, b) {
             return String(b.fecha_solicitud || '').localeCompare(String(a.fecha_solicitud || ''));
         });
-        if (recibidas) solicitudes = solicitudes.filter(function (item) { return item.estado === 'pendiente' || item.estado === 'aprobada' || item.estado === 'rechazada'; });
         if (!recibidas) solicitudes = solicitudes.filter(function (item) { return Number(item.id_usuario) === ID_USUARIO; });
-        lista.replaceChildren();
-        solicitudes.forEach(function (solicitud) {
-            lista.appendChild(crearTarjetaNotificacion(doc, solicitud, recibidas));
+        var listaPendientes = solicitudes.filter(function (item) { return item.estado === 'pendiente'; });
+        var listaRecientes = solicitudes.filter(function (item) { return item.estado === 'aprobada' || item.estado === 'rechazada'; });
+        recientes.replaceChildren();
+        pendientes.replaceChildren();
+        listaRecientes.forEach(function (solicitud) {
+            recientes.appendChild(crearTarjetaNotificacion(doc, solicitud, recibidas));
         });
-        if (!solicitudes.length) {
-            var vacio = doc.createElement('p');
-            vacio.className = 'mensaje-vacio';
-            vacio.textContent = recibidas ? 'Aún no tienes solicitudes recibidas.' : 'Aún no tienes solicitudes propias.';
-            lista.appendChild(vacio);
-        }
-        contador.textContent = recibidas
-            ? solicitudes.filter(function (item) { return item.estado === 'pendiente'; }).length + ' pendientes'
-            : solicitudes.length + ' registros';
+        listaPendientes.forEach(function (solicitud) {
+            pendientes.appendChild(crearTarjetaNotificacion(doc, solicitud, recibidas));
+        });
+        if (!listaRecientes.length) recientes.appendChild(mensajeVacioNotificaciones(doc, 'Aún no hay solicitudes aprobadas o rechazadas.'));
+        if (!listaPendientes.length) pendientes.appendChild(mensajeVacioNotificaciones(doc, 'No hay solicitudes pendientes.'));
+        contadorRecientes.textContent = listaRecientes.length + ' registros';
+        contadorPendientes.textContent = listaPendientes.length + ' pendientes';
         marco.classList.add('notificaciones-docente--lista');
         var badge = document.getElementById('badgeNotificaciones');
         if (badge) {
-            var pendientes = solicitudes.filter(function (item) { return item.estado === 'pendiente'; }).length;
-            badge.textContent = pendientes;
-            badge.hidden = pendientes === 0;
+            badge.textContent = listaPendientes.length;
+            badge.hidden = listaPendientes.length === 0;
         }
+    }
+
+    function mensajeVacioNotificaciones(doc, texto) {
+        var vacio = doc.createElement('p');
+        vacio.className = 'mensaje-vacio';
+        vacio.textContent = texto;
+        return vacio;
     }
 
     function aplicarEstiloNotificaciones(doc) {
         if (doc.getElementById('estilo-integracion-notificaciones')) return;
         var estilo = doc.createElement('style');
         estilo.id = 'estilo-integracion-notificaciones';
-        estilo.textContent = 'body{display:block!important;min-height:0!important;margin:0;background:#0c0708!important;color:#F3EAD8!important;font-family:Inter,Arial,sans-serif!important}aside,.header_nav,.aviso-prototipo{display:none!important}main{display:block!important;width:100%!important;height:auto!important;min-height:0!important;background:transparent!important;padding:0!important}.contenido-notificaciones{max-width:none!important;margin:0!important;padding:4px!important;background:transparent!important}.encabezado{display:none!important}.panel-notificaciones{background:#130b0c!important;border:1px solid rgba(201,169,110,.3)!important;color:#F3EAD8!important}.cabecera-panel{color:#E0C48A!important}.contador{background:#7F1D2D!important;color:#F3EAD8!important}.tarjeta-notificacion{background:#1a1012!important;border:1px solid rgba(201,169,110,.2)!important;color:#F3EAD8!important}.tarjeta-notificacion h3,.tarjeta-notificacion strong{color:#F3EAD8!important}.tarjeta-notificacion p,.dato span{color:#CDC1AA!important}.estado{color:#F3EAD8!important}.mensaje-vacio{color:#CDC1AA!important}';
+        estilo.textContent = 'body{display:block!important;min-height:0!important;margin:0;background:#0c0708!important;color:#F3EAD8!important;font-family:Inter,Arial,sans-serif!important}aside,.header_nav,.aviso-prototipo{display:none!important}main{display:block!important;width:100%!important;height:auto!important;min-height:0!important;background:transparent!important;padding:0!important}.contenido-notificaciones{max-width:none!important;margin:0!important;padding:4px!important;background:transparent!important}.encabezado{display:none!important}.notificaciones-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:16px}.panel-notificaciones{min-width:0;background:#130b0c!important;border:1px solid rgba(201,169,110,.3)!important;color:#F3EAD8!important}.cabecera-panel{color:#E0C48A!important}.contador{background:#7F1D2D!important;color:#F3EAD8!important}.tarjeta-notificacion{background:#1a1012!important;border:1px solid rgba(201,169,110,.2)!important;color:#F3EAD8!important;opacity:1;transform:translateY(0);transition:opacity .22s ease,transform .22s ease,max-height .22s ease}.tarjeta-notificacion h3,.tarjeta-notificacion strong{color:#F3EAD8!important}.tarjeta-notificacion p,.dato span{color:#CDC1AA!important}.estado{color:#1a1012!important}.estado.aprobada,.estado.aceptada{color:#14532d!important}.estado.rechazada{color:#7f1d1d!important}.estado.pendiente{color:#6b4b00!important}.tarjeta-notificacion--salida{opacity:0!important;transform:translateX(16px)!important;max-height:0!important;margin:0!important;padding-top:0!important;padding-bottom:0!important;overflow:hidden!important}.tarjeta-notificacion--entrada{animation:aviso-entra .28s ease both}.mensaje-vacio{color:#CDC1AA!important}@keyframes aviso-entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@media(max-width:700px){.notificaciones-grid{grid-template-columns:1fr}}';
         doc.head.appendChild(estilo);
     }
 
@@ -988,7 +1033,7 @@
         }
         var etiqueta = doc.createElement('span');
         etiqueta.className = 'estado ' + estado;
-        etiqueta.textContent = estado === 'aprobada' ? 'Aceptada' : (estado === 'rechazada' ? 'Rechazada' : 'Pendiente');
+        etiqueta.textContent = estado === 'aprobada' ? 'Aprobada' : (estado === 'rechazada' ? 'Rechazada' : 'Pendiente');
         cabecera.appendChild(titulo);
         cabecera.appendChild(etiqueta);
         tarjeta.appendChild(cabecera);
@@ -1026,6 +1071,10 @@
         }
         tarjeta.appendChild(acciones);
         tarjeta.appendChild(detalle);
+        if (solicitudesAnimadas[String(solicitud.id_solicitud)] && estado !== 'pendiente') {
+            tarjeta.classList.add('tarjeta-notificacion--entrada');
+            delete solicitudesAnimadas[String(solicitud.id_solicitud)];
+        }
         return tarjeta;
     }
 
@@ -1056,10 +1105,20 @@
         boton.className = 'boton ' + (estado === 'aprobada' ? 'boton-aceptar' : 'boton-rechazar');
         boton.textContent = texto;
         boton.addEventListener('click', function () {
+            var tarjeta = boton.closest('.tarjeta-notificacion');
+            var botones = tarjeta ? tarjeta.querySelectorAll('button') : [];
+            if (tarjeta) tarjeta.classList.add('tarjeta-notificacion--salida');
+            Array.prototype.forEach.call(botones, function (elemento) { elemento.disabled = true; });
             api('/api/solicitudes/' + id + '/estado', 'PATCH', { estado: estado }).then(function (res) {
-                if (!res.ok) { toast(res.error || 'No se pudo actualizar la solicitud.', 'error'); return; }
+                if (!res.ok) {
+                    if (tarjeta) tarjeta.classList.remove('tarjeta-notificacion--salida');
+                    Array.prototype.forEach.call(botones, function (elemento) { elemento.disabled = false; });
+                    toast(res.error || 'No se pudo actualizar la solicitud.', 'error');
+                    return;
+                }
+                solicitudesAnimadas[String(id)] = true;
                 toast(estado === 'aprobada' ? 'Solicitud aceptada.' : 'Solicitud rechazada.');
-                cargarSolicitudes();
+                window.setTimeout(refrescarDespuesDeCambio, 220);
             });
         });
         return boton;
@@ -1260,6 +1319,7 @@
         var filtradas = estado.filtroTipo
             ? estado.ocupOp.filter(function (b) { return b.espacio_tipo === estado.filtroTipo; })
             : estado.ocupOp;
+        filtradas = filtradas.concat(solicitudesRechazadasCalendario(estado.filtroTipo));
 
         var porFecha = {};
         filtradas.forEach(function (b) {
@@ -1279,15 +1339,24 @@
             var fecha = estado.opAnio + '-' + dos(estado.opMes + 1) + '-' + dos(_d);
             var clases = 'cal-celda' + ((_d + offset - 1) % 7 >= 5 ? ' cal-celda--fin-semana' : '') + (fecha === hoy ? ' cal-celda--hoy' : '');
             var items = (porFecha[fecha] || []).map(function (b) {
-                return '<div class="cal-evento" title="' + esc(b.nombre_actividad) + ' — ' +
+                var rechazada = b.estado === 'rechazada';
+                return '<div class="cal-evento' + (rechazada ? ' cal-evento--rechazada' : '') + '" title="' +
+                    (rechazada ? 'Rechazada · ' : '') + esc(b.nombre_actividad) + ' — ' +
                     esc(b.espacio_nombre) + ' (' + esc(String(b.hora_inicio).slice(0, 5)) + '–' +
                     esc(String(b.hora_fin).slice(0, 5)) + ')">' +
-                    esc(String(b.hora_inicio).slice(0, 5)) + ' ' + esc(b.nombre_actividad) + '</div>';
+                    esc(String(b.hora_inicio).slice(0, 5)) + ' ' +
+                    (rechazada ? 'Rechazada · ' : '') + esc(b.nombre_actividad) + '</div>';
             }).join('');
             html += '<div class="' + clases + '"><div class="cal-celda__numero">' + _d + '</div>' + items + '</div>';
         }
 
         cont.innerHTML = html;
+    }
+
+    function solicitudesRechazadasCalendario(tipo) {
+        return estado.solicitudes.filter(function (solicitud) {
+            return solicitud.estado === 'rechazada' && (!tipo || solicitud.espacio_tipo === tipo);
+        });
     }
 
     /* ================= CALENDARIO INSTITUCIONAL (PARED) ================= */
@@ -1617,12 +1686,17 @@
         var peticion = estado.usuarioEditandoId
             ? api('/api/clientes/' + estado.usuarioEditandoId, 'PUT', cuerpo)
             : api('/api/clientes/registrar', 'POST', cuerpo);
+        var esNuevoUsuario = !estado.usuarioEditandoId;
 
         peticion.then(function (res) {
             if (!res.ok) { setError('#errorModalUsuario', res.error || 'No se pudo guardar.'); return; }
             cerrarModal('modalUsuario');
             toast(estado.usuarioEditandoId ? 'Usuario actualizado.' : 'Usuario creado.');
-            cargarUsuarios();
+            if (esNuevoUsuario && String(rolSel) === '2' && cuerpo.id_espacio) {
+                cargarEspacios().then(cargarUsuarios);
+            } else {
+                cargarUsuarios();
+            }
             if (ES_GESTION) cargarResumen();
         });
     }
@@ -2039,6 +2113,7 @@
         var bloques = estado.semanaOp.filter(function (b) {
             return !estado.semanaTipo || b.espacio_tipo === estado.semanaTipo;
         });
+        bloques = bloques.concat(solicitudesRechazadasCalendario(estado.semanaTipo));
 
         var mapa = {};
         bloques.forEach(function (b) {
@@ -2065,8 +2140,10 @@
                 var items = mapa[f + '#' + h] || [];
                 var contenido = items.map(function (b) {
                     var rango = fmtHoraCorta(b.hora_inicio) + '–' + fmtHoraCorta(b.hora_fin);
-                    return '<div class="cal-bloque" title="' + esc(b.nombre_actividad + ' · ' + b.espacio_nombre + ' (' + rango + ')') + '">' +
-                        '<span class="cal-bloque__nombre">' + esc(b.nombre_actividad) + '</span>' +
+                    var rechazada = b.estado === 'rechazada';
+                    return '<div class="cal-bloque' + (rechazada ? ' cal-bloque--rechazada' : '') + '" title="' +
+                        (rechazada ? 'Rechazada · ' : '') + esc(b.nombre_actividad + ' · ' + b.espacio_nombre + ' (' + rango + ')') + '">' +
+                        '<span class="cal-bloque__nombre">' + (rechazada ? 'Rechazada · ' : '') + esc(b.nombre_actividad) + '</span>' +
                         '<span class="cal-bloque__meta">' + esc(rango) + ' · ' + esc(b.espacio_nombre) + '</span>' +
                     '</div>';
                 }).join('');
@@ -2103,7 +2180,9 @@
         } else {
             acciones = badgeSol(s.estado);
         }
-        return '<article class="sol-card' + (historial ? ' sol-card--historial' : '') + '">' +
+        var claseAnimacion = historial && solicitudesAnimadas[String(s.id_solicitud)] ? ' sol-card--entrada' : '';
+        if (claseAnimacion) delete solicitudesAnimadas[String(s.id_solicitud)];
+        return '<article class="sol-card' + (historial ? ' sol-card--historial' : '') + claseAnimacion + '">' +
             '<span class="sol-card__tipo">' + esc(s.espacio_tipo || 'Espacio') + '</span>' +
             '<h4 class="sol-card__titulo">' + esc(s.nombre_actividad) + '</h4>' +
             '<p class="sol-card__linea"><i class="fas fa-user"></i> Solicitante: ' + esc(s.solicitante) + '</p>' +
@@ -2158,6 +2237,12 @@
         }
 
         document.addEventListener('click', function (ev) {
+            var volverInicio = ev.target.closest('.volver-inicio');
+            if (volverInicio) {
+                ev.preventDefault();
+                irAVista('panel');
+                return;
+            }
             var ir = ev.target.closest('[data-ir]');
             if (ir) irAVista(ir.getAttribute('data-ir'));
         });
@@ -2202,7 +2287,7 @@
                 if (accion === 'campana-panel') {
                     abrirCampana(id);
                 } else if (accion === 'aprobar' || accion === 'rechazar') {
-                    decidirSolicitud(id, accion === 'aprobar' ? 'aprobada' : 'rechazada');
+                    decidirSolicitud(id, accion === 'aprobar' ? 'aprobada' : 'rechazada', btn);
                 }
             });
         }
@@ -2239,7 +2324,7 @@
                 } else if (accion === 'campana') {
                     abrirCampana(id);
                 } else if (accion === 'aprobar' || accion === 'rechazar') {
-                    decidirSolicitud(id, accion === 'aprobar' ? 'aprobada' : 'rechazada');
+                    decidirSolicitud(id, accion === 'aprobar' ? 'aprobada' : 'rechazada', btn);
                 }
             });
         }
@@ -2266,12 +2351,21 @@
             });
             window.addEventListener('message', function (evento) {
                 if (evento.origin !== window.location.origin || evento.source !== mapaFuncional.contentWindow) return;
-                if (evento.data && evento.data.tipo === 'seleccionar-espacio-mapa') {
+                if (evento.data && evento.data.tipo === 'mapa-listo') {
+                    enviarZonasPermitidasMapa();
+                    sincronizarTamanoMapa();
+                } else if (evento.data && evento.data.tipo === 'seleccionar-espacio-mapa') {
                     if (!seleccionarEspacioDesdeZona(evento.data.identificador)) {
                         toast('Esta zona no tiene un espacio relacionado en la base de datos. Puedes elegirlo en el listado.');
                     }
                 }
             });
+            try {
+                if (mapaFuncional.contentDocument && mapaFuncional.contentDocument.readyState === 'complete') {
+                    enviarZonasPermitidasMapa();
+                    sincronizarTamanoMapa();
+                }
+            } catch (e) { /* El evento load volverá a enviar la información. */ }
         }
 
         var tablaEv = $('#tablaEventos');
@@ -2345,8 +2439,8 @@
                 if (!btn) return;
                 var accion = btn.getAttribute('data-accion');
                 var id = parseInt(btn.getAttribute('data-id'), 10);
-                if (accion === 'sol-aprobar') decidirSolicitud(id, 'aprobada');
-                else if (accion === 'sol-rechazar') decidirSolicitud(id, 'rechazada');
+                if (accion === 'sol-aprobar') decidirSolicitud(id, 'aprobada', btn);
+                else if (accion === 'sol-rechazar') decidirSolicitud(id, 'rechazada', btn);
             });
         }
     }
@@ -2569,17 +2663,13 @@
 
         var cargas = [cargarEspacios(), cargarPanel(), cargarEspaciosMapa()];
 
-        /* TODO (spec §2): Calendario, Verificar solicitudes y Editar eventos se
-           muestran como pantallas vacías hasta que el equipo de trabajo conecte
-           la agenda. El código de estas funciones se conserva sin enlazar:
-           cargarSemana(), cargarSolicitudes() y cargarEventos() no se llaman. */
+        /* El calendario del docente y la gestión de solicitudes se cargan
+           desde la base de datos. Los roles administrativos consultan todas
+           las solicitudes; los docentes reciben las propias o las de sus
+           espacios según el modo activo. */
         seguro(function () {
-            if (!ES_GESTION) {
-                cargas.push(cargarEventos(), cargarSemana());
-                cargas.push(cargarSolicitudes(), cargarOcupacionOperativa());
-            } else {
-                cargas.push(cargarOcupacionOperativa());
-            }
+            if (!ES_GESTION) cargas.push(cargarEventos());
+            cargas.push(cargarSemana(), cargarOcupacionOperativa(), cargarSolicitudes());
             if (ES_GESTION) cargas.push(cargarUsuarios(), cargarDocentes());
         }, 'carga por rol');
 
@@ -2595,6 +2685,17 @@
             try { posicionarIndicadorInicial(); } catch (e) { }
             try { entradaInicial(); } catch (e) { }
         });
+
+        /* Mantiene actualizadas las solicitudes recibidas y sus respuestas
+           para docentes, administradores y Gestión de Calidad. */
+        if (ROL === 'Docente' || ES_GESTION) {
+            window.setInterval(function () {
+                if (!document.hidden) cargarSolicitudes();
+            }, 15000);
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) cargarSolicitudes();
+            });
+        }
     });
 
     /* Aviso de error de carga con botón para reintentar (spec §2). */

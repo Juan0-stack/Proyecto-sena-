@@ -1451,6 +1451,9 @@ document.querySelectorAll("map").forEach(map => {
                 }, window.location.origin);
             });
         });
+        // El panel espera este aviso para enviar las zonas que sí existen
+        // en la base de datos, incluso si el iframe terminó de cargar antes.
+        window.parent.postMessage({ tipo: "mapa-listo" }, window.location.origin);
     }
 
 });

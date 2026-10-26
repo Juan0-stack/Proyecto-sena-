@@ -7,7 +7,7 @@ from utils.formato import fila, lista
 class ClienteModel:
 
     @staticmethod
-    def crear(nombre, apellido, correo, password, id_rol):
+    def crear(nombre, apellido, correo, password, id_rol, id_espacio=None):
         conn = get_connection()
         if not conn:
             return None
@@ -27,8 +27,21 @@ class ClienteModel:
                     id_rol
                 )
             )
+            id_usuario = cursor.lastrowid
+            if id_espacio is not None:
+                cursor.execute(
+                    """
+                    UPDATE espacios
+                    SET id_usuario_encargado = %s
+                    WHERE id_espacio = %s AND id_usuario_encargado IS NULL
+                    """,
+                    (id_usuario, id_espacio)
+                )
+                if cursor.rowcount != 1:
+                    conn.rollback()
+                    return None
             conn.commit()
-            return cursor.lastrowid
+            return id_usuario
         except Exception as e:
             print(f'Error al crear usuario: {e}')
             conn.rollback()

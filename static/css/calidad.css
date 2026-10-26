@@ -1782,6 +1782,12 @@ body.calidad .app-content .panel-hero {
 
 .cal-bloque__meta { font-size: 0.68rem; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+.cal-bloque--rechazada {
+    background: rgba(229, 138, 147, 0.12);
+    border-color: rgba(229, 138, 147, 0.42);
+    border-left-color: #E58A93;
+}
+
 .cal-semana__vacio { color: var(--texto-3); font-size: 0.85rem; padding: 12px 2px; }
 
 
@@ -1913,6 +1919,15 @@ body.calidad .app-content .panel-hero {
 }
 
 .sol-card:hover { border-color: var(--linea-fuerte); transform: translateY(-2px); }
+
+.sol-card--entrada { animation: solicitud-entra 0.28s ease both; }
+.sol-card.solicitud--salida,
+.solicitud-item.solicitud--salida { opacity: 0 !important; transform: translateX(14px) !important; transition: opacity 0.2s ease, transform 0.2s ease; }
+
+@keyframes solicitud-entra {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 .sol-card__tipo { font-size: 0.68rem; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--oro); }
 

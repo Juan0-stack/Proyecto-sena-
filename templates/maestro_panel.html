@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISAILO MAPS — Panel Docente</title>
 
-    <link rel="stylesheet" href="../static/admin.css?v=9">
+    <link rel="stylesheet" href="../static/admin.css?v=10">
     <link rel="stylesheet" href="../static/variables.css">
     <link rel="stylesheet" href="../static/css/tokens.css?v=1">
     <link rel="stylesheet" href="../static/css/logo.css?v=1">
     <link rel="stylesheet" href="../static/vendor/lenis.css">
-    <link rel="stylesheet" href="../static/css/calidad.css?v=3">
+    <link rel="stylesheet" href="../static/css/calidad.css?v=4">
     <link rel="stylesheet" href="../static/css/maestro-mapa.css?v=5">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -91,7 +91,7 @@
                             <span class="kpi-card__nota">Pendientes de tu aprobación</span>
                         </article>
                         <article class="kpi-card" data-reveal="up" role="button" tabindex="0" title="Hoy en el espacio">
-                            <span class="kpi-card__icono"><i class="fa-regular fa-calendar-day"></i></span>
+                            <span class="kpi-card__icono"><i class="fa-solid fa-calendar-day"></i></span>
                             <span class="kpi-card__label">Hoy en el espacio</span>
                             <span class="kpi-card__numero">0</span>
                             <span class="kpi-card__nota">Reservas y eventos de hoy</span>
@@ -233,7 +233,7 @@
             <section class="modulo vista" id="notificaciones">
                 {% include 'partials/volver_inicio.html' %}
                 <div class="seccion-cab"><div class="seccion-cab__texto"><span class="seccion-pastilla">Avisos</span><h2 class="seccion-titulo"><span class="seccion-titulo__icono"><i class="fa-regular fa-bell"></i></span>{{ 'Solicitudes recibidas' if modo_encargado else 'Mis solicitudes' }}</h2><p class="seccion-sub">{{ 'Revisa y responde las solicitudes dirigidas a tus espacios.' if modo_encargado else 'Consulta el estado de tus solicitudes.' }}</p></div></div>
-                <iframe class="notificaciones-docente" id="notificacionesHtml" title="Notificaciones del docente" src="{{ '/static/notificaciones/NOTIFICACIONES_RECIBIDAS.html' if modo_encargado else '/static/notificaciones/NOTIFICACIONES_PROPIAS.html' }}" loading="lazy" aria-label="Lista de notificaciones"></iframe>
+                <iframe class="notificaciones-docente" id="notificacionesHtml" title="Notificaciones del docente" src="{{ '/static/notificaciones/NOTIFICACIONES_RECIBIDAS.html?v=2' if modo_encargado else '/static/notificaciones/NOTIFICACIONES_PROPIAS.html?v=2' }}" loading="lazy" aria-label="Lista de notificaciones"></iframe>
             </section>
 
             {% if modo_encargado %}
@@ -343,7 +343,7 @@
         if (!(window.Motion && window.Motion.animado)) { document.documentElement.classList.remove('js'); }
         setTimeout(function () { document.documentElement.classList.remove('transicion-login-entrada'); }, 1200);
     </script>
-    <script src="../static/panel.js?v=17"></script>
+    <script src="../static/panel.js?v=21"></script>
     <script>
         (function () {
             try {
