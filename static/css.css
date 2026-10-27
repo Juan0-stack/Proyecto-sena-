@@ -6,9 +6,9 @@
 }
 
 body {
-    background: #0d0505;
+    background: #0b0b0b;
     font-family: 'Manrope', 'Inter', Arial, sans-serif;
-    color: #E6D7B8;
+    color: #f3efe8;
     overflow-x: hidden;
     line-height: 1.6;
 }
@@ -107,7 +107,9 @@ ul {
 
 .hero {
     min-height: 100vh;
-    background: linear-gradient(135deg, #0d0505 0%, #1a0808 30%, #2a0d0d 60%, #0d0505 100%);
+    background:
+        linear-gradient(rgba(17, 14, 12, 0.55), rgba(17, 14, 12, 0.55)),
+        url('../static/mapa-antiguo.jpg') center/cover no-repeat fixed;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -178,7 +180,12 @@ ul {
     position: relative;
     z-index: 2;
     text-align: center;
-    max-width: 700px;
+    max-width: 760px;
+    background: linear-gradient(135deg, rgba(125, 15, 31, 0.97), rgba(88, 13, 23, 0.96));
+    padding: 56px 52px 44px;
+    border-radius: 28px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 54px rgba(0,0,0,0.22);
 }
 
 .hero__logo {
@@ -292,14 +299,21 @@ ul {
 
 .about {
     padding: 120px 60px;
-    background: linear-gradient(180deg, #0d0505 0%, #120808 100%);
+    background:
+        linear-gradient(rgba(245, 236, 220, 0.82), rgba(245, 236, 220, 0.82)),
+        url('../static/mapa-antiguo.jpg') center/cover no-repeat fixed;
     text-align: center;
     position: relative;
 }
 
 .about__contenedor {
-    max-width: 900px;
+    max-width: 980px;
     margin: 0 auto;
+    background: rgba(250, 245, 239, 0.82);
+    border-radius: 28px;
+    padding: 48px 36px;
+    box-shadow: 0 18px 55px rgba(0,0,0,0.18);
+    border: 1px solid rgba(62, 44, 30, 0.18);
 }
 
 .etiqueta {
@@ -308,10 +322,10 @@ ul {
     font-weight: 700;
     letter-spacing: 2.5px;
     text-transform: uppercase;
-    color: rgba(230,215,184,0.72);
-    background: rgba(230,215,184,0.04);
-    border: 1px solid rgba(230,215,184,0.06);
-    padding: 6px 16px;
+    color: #f6efe8;
+    background: linear-gradient(135deg, #7d0f1f 0%, #5c0d1a 100%);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 8px 18px;
     border-radius: 50px;
     margin-bottom: 16px;
 }
@@ -319,14 +333,21 @@ ul {
 .about h2 {
     font-family: 'Playfair Display', serif;
     font-size: clamp(2rem, 4vw, 3rem);
-    color: #E6D7B8;
+    color: #000000;
     margin-bottom: 20px;
+}
+
+.about p,
+.about span,
+.about strong,
+.about .stat__label,
+.about .stat__num {
+    color: #000000;
 }
 
 .about p {
     font-size: 18px;
     line-height: 1.9;
-    color: rgba(245, 232, 204, 0.72);
     margin-bottom: 16px;
 }
 
@@ -346,14 +367,14 @@ ul {
     font-family: 'Playfair Display', serif;
     font-size: 48px;
     font-weight: 900;
-    color: #8B1E1E;
+    color: #1d1d1d;
     display: block;
-    text-shadow: 0 2px 20px rgba(139,30,30,0.15);
+    text-shadow: none;
 }
 
 .stat__label {
     font-size: 14px;
-    color: rgba(245, 232, 204, 0.72);
+    color: #3a3a3a;
     margin-top: 4px;
 }
 
@@ -440,25 +461,41 @@ ul {
 
 .contacto {
     padding: 100px 60px;
-    background: linear-gradient(180deg, #0d0505 0%, #120808 100%);
+    background:
+        linear-gradient(rgba(245, 236, 220, 0.82), rgba(245, 236, 220, 0.82)),
+        url('../static/mapa-antiguo.jpg') center/cover no-repeat fixed;
     text-align: center;
 }
 
 .contacto__contenedor {
-    max-width: 900px;
+    max-width: 980px;
     margin: 0 auto;
+    background: rgba(250, 245, 239, 0.82);
+    border-radius: 28px;
+    padding: 48px 36px;
+    box-shadow: 0 18px 55px rgba(0,0,0,0.18);
+    border: 1px solid rgba(62, 44, 30, 0.18);
 }
 
 .contacto h2 {
     font-family: 'Playfair Display', serif;
     font-size: clamp(2rem, 4vw, 3rem);
-    color: #E6D7B8;
+    color: #000000;
     margin-bottom: 14px;
+}
+
+.contacto__sub,
+.contacto__item p,
+.contacto__item h3,
+.contacto__item span,
+.contacto span,
+.contacto p,
+.contacto .etiqueta {
+    color: #000000;
 }
 
 .contacto__sub {
     font-size: 17px;
-    color: rgba(245, 232, 204, 0.72);
     margin-bottom: 50px;
     line-height: 1.7;
 }
@@ -470,52 +507,52 @@ ul {
 }
 
 .contacto__item {
-    background: rgba(16, 8, 8, 0.55);
+    background: #faf8f5;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 20px;
     padding: 35px 25px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-    border: 1px solid rgba(230,215,184,0.04);
+    border: 1px solid rgba(0,0,0,0.06);
     transition: 0.4s;
 }
 
 .contacto__item:hover {
     transform: translateY(-6px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
-    border-color: rgba(230,215,184,0.72);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+    border-color: rgba(125,15,31,0.18);
 }
 
 .contacto__icono {
     width: 56px;
     height: 56px;
-    background: rgba(139, 30, 30, 0.16);
+    background: rgba(125, 15, 31, 0.10);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 16px;
     font-size: 22px;
-    color: #E6D7B8;
+    color: #4a0f1d;
     transition: 0.3s;
 }
 
 .contacto__item:hover .contacto__icono {
-    background: #8B1E1E;
-    color: #F5E8CC;
+    background: rgba(125, 15, 31, 0.16);
+    color: #2c0a12;
 }
 
 .contacto__item h3 {
     font-family: 'Playfair Display', serif;
     font-size: 18px;
     font-weight: 700;
-    color: #E6D7B8;
+    color: #1d1d1d;
     margin-bottom: 8px;
 }
 
 .contacto__item p {
     font-size: 14px;
-    color: rgba(245, 232, 204, 0.72);
+    color: #2b2b2b;
     line-height: 1.6;
 }
 
@@ -764,8 +801,8 @@ body {
 
 .hero {
     background:
-        radial-gradient(ellipse at 50% 35%, rgba(127, 29, 45, 0.2), transparent 55%),
-        var(--bg, #0c0708);
+        linear-gradient(rgba(17, 14, 12, 0.55), rgba(17, 14, 12, 0.55)),
+        url('../static/mapa-antiguo.jpg') center/cover no-repeat fixed;
 }
 
 .hero::after {
@@ -779,12 +816,27 @@ body {
 .hero__decoracion--5 { background: linear-gradient(to bottom, transparent, rgba(201, 169, 110, 0.08), transparent); }
 
 .hero__h1,
-.about h2,
 .features h2,
-.contacto h2,
 .cta h2,
 .mapa-publico h2 {
     color: var(--texto, #F3EAD8);
+}
+
+.about h2,
+.contacto h2,
+.about p,
+.about span,
+.about strong,
+.about .stat__label,
+.about .stat__num,
+.contacto__sub,
+.contacto__item p,
+.contacto__item h3,
+.contacto__item span,
+.contacto span,
+.contacto p,
+.contacto .etiqueta {
+    color: #000000;
 }
 
 .hero__h1 span,
@@ -793,10 +845,7 @@ body {
 }
 
 .hero__sub,
-.about p,
 .feature-card p,
-.contacto__sub,
-.contacto__item p,
 .cta p {
     color: var(--texto-2, #CDC1AA);
 }
@@ -835,9 +884,16 @@ body {
 
 .hero__mas-informacion:hover { color: var(--oro-claro, #E0C48A); }
 
-.about,
+.about {
+    background:
+        linear-gradient(rgba(245, 236, 220, 0.82), rgba(245, 236, 220, 0.82)),
+        url('../static/mapa-antiguo.jpg') center/cover no-repeat fixed;
+}
+
 .contacto {
-    background: var(--bg, #0c0708);
+    background:
+        linear-gradient(rgba(245, 236, 220, 0.82), rgba(245, 236, 220, 0.82)),
+        url('../static/mapa-antiguo.jpg') center/cover no-repeat fixed;
 }
 
 .features,
