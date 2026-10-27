@@ -19,14 +19,56 @@
 
 body.calidad {
 
-    background: var(--bg);
+    background: #ffffff;
 
-    color: var(--texto);
+    color: var(--texto-claro);
 
     font-family: var(--fuente-cuerpo);
 
     min-height: 100vh;
 
+}
+
+body.calidad .modulo.vista,
+body.calidad .modulo.vista.activa,
+body.calidad .modulo.vista .kpi-card,
+body.calidad .modulo.vista .tarjeta,
+body.calidad .modulo.vista .modulo__card,
+body.calidad .modulo.vista .sol-columna,
+body.calidad .modulo.vista .vacio-estado,
+body.calidad .modulo.vista .atajo,
+body.calidad .modulo.vista .tabla,
+body.calidad .modulo.vista .cal-filtro-chip,
+body.calidad .modulo.vista .filtro-rol,
+body.calidad .modulo.vista .filtro-rol--activo {
+    background: #111214;
+    border-color: rgba(255,255,255,0.07);
+    color: var(--texto-oscuro);
+    padding: 22px 22px 20px;
+    box-sizing: border-box;
+    border-radius: 16px;
+}
+
+body.calidad .modulo.vista p,
+body.calidad .modulo.vista span,
+body.calidad .modulo.vista small,
+body.calidad .modulo.vista label,
+body.calidad .modulo.vista li,
+body.calidad .modulo.vista h1,
+body.calidad .modulo.vista h2,
+body.calidad .modulo.vista h3,
+body.calidad .modulo.vista h4,
+body.calidad .modulo.vista h5,
+body.calidad .modulo.vista h6,
+body.calidad .modulo.vista .kpi-card__label,
+body.calidad .modulo.vista .kpi-card__numero,
+body.calidad .modulo.vista .kpi-card__nota,
+body.calidad .modulo.vista .tarjeta__titulo,
+body.calidad .modulo.vista .sol-columna__sub,
+body.calidad .modulo.vista .atajo__texto,
+body.calidad .modulo.vista .tabla td,
+body.calidad .modulo.vista .tabla th {
+    color: var(--texto-oscuro);
 }
 
 
@@ -77,11 +119,11 @@ body.calidad .num-serif {
 
     padding: 0 28px;
 
-    background: rgba(12, 7, 8, 0.86);
+    background: linear-gradient(90deg, #7a0d1c 0%, #a5162d 50%, #5a0913 100%);
 
     backdrop-filter: blur(14px);
 
-    border-bottom: 1px solid var(--linea);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 
 }
 
@@ -133,7 +175,7 @@ body.calidad .num-serif {
 
 }
 
-.app-header__marca:hover { background: rgba(201, 169, 110, 0.06); }
+.app-header__marca:hover { background: rgba(183, 15, 45, 0.10); }
 
 
 
@@ -169,7 +211,7 @@ body.calidad .num-serif {
 
     font-weight: 700;
 
-    color: var(--oro-claro);
+    color: #fff3f5;
 
     letter-spacing: 0.04em;
 
@@ -195,9 +237,9 @@ body.calidad .num-serif {
 
     gap: 8px;
 
-    background: var(--bg-tile);
+    background: rgba(0, 0, 0, 0.18);
 
-    border: 1px solid var(--linea);
+    border: 1px solid rgba(255, 255, 255, 0.14);
 
     color: var(--texto-2);
 
@@ -331,7 +373,7 @@ body.calidad .num-serif {
 
     z-index: 55;
 
-    background: var(--bg-panel);
+    background: linear-gradient(180deg, #17181b 0%, #111214 100%);
 
     border-right: 1px solid var(--linea);
 
@@ -579,13 +621,16 @@ body.calidad .num-serif {
 
 }
 
-.app-sidebar .nav__enlace:hover { background: rgba(201, 169, 110, 0.07); color: var(--texto); }
+.app-sidebar .nav__enlace:hover {
+    background: rgba(183, 15, 45, 0.14);
+    color: #c10f2d;
+}
 
 .app-sidebar .nav__enlace--activo {
 
-    background: rgba(201, 169, 110, 0.10);
+    background: rgba(183, 15, 45, 0.18);
 
-    color: var(--texto);
+    color: #111111;
 
 }
 
@@ -605,11 +650,11 @@ body.calidad .num-serif {
 
     place-items: center;
 
-    background: var(--bg-tile);
+    background: rgba(255, 255, 255, 0.06);
 
-    border: 1px solid var(--linea);
+    border: 1px solid rgba(183, 15, 45, 0.35);
 
-    color: var(--oro);
+    color: #8d1224;
 
     font-size: 0.98rem;
 
@@ -737,6 +782,7 @@ body.sidebar-colapsada .app-sidebar .nav__enlace { justify-content: center; padd
     overflow-x: hidden;
 
     padding: 30px 38px 90px;
+    background: #ffffff;
     transition: left 300ms ease;
     scroll-behavior: smooth;
 
@@ -751,6 +797,8 @@ body.sidebar-colapsada .app-sidebar .nav__enlace { justify-content: center; padd
     margin: 0 auto;
 
     padding: 0;
+
+    background: transparent;
 
 }
 
@@ -906,7 +954,7 @@ body.sidebar-colapsada .app-sidebar .nav__enlace { justify-content: center; padd
 
 .seccion-sub {
 
-    color: var(--texto-2);
+    color: var(--texto-claro-2);
 
     font-size: 0.98rem;
 
@@ -914,6 +962,46 @@ body.sidebar-colapsada .app-sidebar .nav__enlace { justify-content: center; padd
 
     margin-top: 10px;
 
+}
+
+/* Texto sobre fondo blanco: prioridad al negro para mejorar contraste. */
+body.calidad .app-content .home-cab__titulo,
+body.calidad .app-content .home-cab__sub,
+body.calidad .app-content .tarjeta__titulo,
+body.calidad .app-content .kpi-card__label,
+body.calidad .app-content .kpi-card__numero,
+body.calidad .app-content .kpi-card__nota,
+body.calidad .app-content .tabla,
+body.calidad .app-content .tabla th,
+body.calidad .app-content .tabla td,
+body.calidad .app-content .sol-columna__sub,
+body.calidad .app-content .seccion-sub,
+body.calidad .app-content .filtro-rol,
+body.calidad .app-content .filtro-rol--activo,
+body.calidad .app-content .cal-filtro-chip,
+body.calidad .app-content .cal-filtro-chip--activo {
+    color: #111111;
+}
+
+body.calidad .modulo.vista,
+body.calidad .modulo.vista .vacio-estado,
+body.calidad .modulo.vista .tarjeta,
+body.calidad .modulo.vista .kpi-card,
+body.calidad .modulo.vista .sol-columna,
+body.calidad .modulo.vista .tabla,
+body.calidad .modulo.vista .modulo__card,
+body.calidad .modulo.vista p,
+body.calidad .modulo.vista li,
+body.calidad .modulo.vista span,
+body.calidad .modulo.vista label,
+body.calidad .modulo.vista small,
+body.calidad .modulo.vista h1,
+body.calidad .modulo.vista h2,
+body.calidad .modulo.vista h3,
+body.calidad .modulo.vista h4,
+body.calidad .modulo.vista h5,
+body.calidad .modulo.vista h6 {
+    color: var(--texto-oscuro);
 }
 
 
@@ -1388,7 +1476,7 @@ body.calidad .app-content .panel-hero {
 
 }
 
-.tarjeta__titulo { font-family: var(--fuente-titulo); font-size: 1.05rem; font-weight: 600; color: var(--texto); }
+.tarjeta__titulo { font-family: var(--fuente-titulo); font-size: 1.05rem; font-weight: 600; color: var(--texto-oscuro); }
 
 .tarjeta__ver {
 

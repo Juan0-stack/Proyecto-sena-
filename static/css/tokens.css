@@ -7,36 +7,47 @@
 
 :root {
     /* ---- Superficies ---- */
-    --bg: #0c0708;
-    --bg-panel: #110a0b;
-    --bg-card: #130b0c;
-    --bg-tile: #1a1012;
+    --bg: #ffffff;
+    --bg-panel: #17181b;
+    --bg-card: #111214;
+    --bg-tile: #2a2d31;
 
     /* ---- Acentos ---- */
-    --oro: #C9A96E;
-    --oro-claro: #E0C48A;
-    --burdeos: #7F1D2D;
+    --oro: #7d0f1f;
+    --oro-claro: #b70f2d;
+    --burdeos: #4d0713;
 
-    /* ---- Texto (legible sobre fondo oscuro) ---- */
-    --texto: #F3EAD8;
-    --texto-2: #CDC1AA;
-    --texto-3: rgba(205, 193, 170, 0.72);
+    /* ---- Texto sobre fondo oscuro / negro ---- */
+    --texto-oscuro: #f4f1ee;
+    --texto-oscuro-2: #d9d3cf;
+    --texto-oscuro-3: rgba(217, 211, 207, 0.74);
+
+    /* ---- Texto sobre fondo claro / blanco ---- */
+    --texto-claro: #111111;
+    --texto-claro-2: #2b2b2b;
+    --texto-claro-3: rgba(17, 17, 17, 0.72);
+
+    /* ---- Alias de compatibilidad para temas oscuros ---- */
+    --texto: var(--texto-oscuro);
+    --texto-2: var(--texto-oscuro-2);
+    --texto-3: var(--texto-oscuro-3);
+
     /* Placeholders de formularios (spec sección 7) */
-    --placeholder: #B3A892;
+    --placeholder: #a5a7ad;
     /* Iconos: mayor contraste (spec sección 7). Los cuadros redondeados que
        contienen el icono conservan su fondo; solo cambia el color del icono. */
-    --icono: #EAD7A8;
-    --icono-activo: #F6E6BE;
+    --icono: #f5dfe4;
+    --icono-activo: #ffffff;
 
     /* ---- Líneas / bordes ---- */
-    --linea: rgba(201, 169, 110, 0.16);
-    --linea-fuerte: rgba(201, 169, 110, 0.30);
+    --linea: rgba(255, 255, 255, 0.08);
+    --linea-fuerte: rgba(255, 255, 255, 0.16);
 
     /* ---- Estados ---- */
-    --ok: #7FCBA0;
-    --alerta: #E0B65C;
-    --error: #E58A93;
-    --info: #4C8DDB;
+    --ok: #2f8f65;
+    --alerta: #d68a35;
+    --error: #d95b5b;
+    --info: #4c7fe8;
 
     /* ---- Tipografía ---- */
     --fuente-titulo: 'Playfair Display', Georgia, serif;

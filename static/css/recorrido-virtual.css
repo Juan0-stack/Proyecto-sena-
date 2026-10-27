@@ -5,7 +5,7 @@ body.recorrido-pagina {
     height: 50vh;
     margin: 0; 
     padding: 0.5rem;
-    background: #0c0708; color: #F3EAD8; font-family: Inter, Arial, sans-serif; 
+    background: #0c0708; color: #f4f1ee; font-family: Inter, Arial, sans-serif; 
 }
 
 .recorrido-pagina__marco {
@@ -13,8 +13,8 @@ body.recorrido-pagina {
      min-height: 100%;
      margin: 0 0; 
      padding: 10px;
-     border: 1px solid rgba(201,169,110,.58); border-radius: 24px; 
-     background: linear-gradient(145deg, rgba(25,16,18,.96), rgba(12,7,8,.98)); box-shadow: 0 20px 60px rgba(0,0,0,.3), inset 0 0 0 1px rgba(201,169,110,.08); 
+     border: 1px solid rgba(125, 15, 31, 0.6); border-radius: 24px; 
+     background: linear-gradient(145deg, rgba(25,16,18,.96), rgba(12,7,8,.98)); box-shadow: 0 20px 60px rgba(0,0,0,.3), inset 0 0 0 1px rgba(125,15,31,.12); 
      
 }
 .nav{
@@ -28,17 +28,18 @@ body.recorrido-pagina {
     align-items: center; 
     gap: 9px; 
     padding: 9px 13px; 
-    border: 1px solid rgba(201,169,110,.28); border-radius: 999px; 
-    color: #E0C48A; 
+    border: 1px solid rgba(125, 15, 31, 0.5); border-radius: 999px; 
+    color: #b70f2d; 
     font-size: .88rem; 
     font-weight: 650; 
     text-decoration: none; 
-    transition: border-color .18s, background .18s; 
+    transition: border-color .18s, background .18s, color .18s; 
 }
 
 .recorrido-pagina__volver:hover { 
-    border-color: #C9A96E; 
-    background: rgba(201,169,110,.08); 
+    border-color: #7d0f1f; 
+    background: rgba(125, 15, 31, 0.12); 
+    color: #f5dfe4;
 }
 
 .recorrido-pagina__marca { 
@@ -59,13 +60,13 @@ body.recorrido-pagina {
 
 .recorrido-pagina__marca h1 { 
     margin: 0; 
-    color: #F3EAD8; font: 900 clamp(1.8rem, 4vw, 3rem)/1.1 'Playfair Display', Georgia, serif; letter-spacing: .035em; 
+    color: #f4f1ee; font: 900 clamp(1.8rem, 4vw, 3rem)/1.1 'Playfair Display', Georgia, serif; letter-spacing: .035em; 
     
 }
 
 .recorrido-pagina h2 { 
     margin: 0;
-    color: #E0C48A; 
+    color: #b70f2d; 
     text-align: center; 
     font: 700 clamp(1.35rem, 2.6vw, 2rem)/1.25 'Playfair Display', Georgia, serif; 
     margin: 5px;
@@ -76,9 +77,9 @@ body.recorrido-pagina {
 
 .recorrido-pagina__visor { 
     min-height: clamp(320px, 56vh, 680px); 
-    border: 1px solid rgba(201,169,110,.48); border-radius: 18px; 
+    border: 1px solid rgba(125, 15, 31, 0.5); border-radius: 18px; 
     background: rgba(12,7,8,.68); 
-    box-shadow: inset 0 0 28px rgba(201,169,110,.025); 
+    box-shadow: inset 0 0 28px rgba(125,15,31,.05); 
     display: flex;
     align-items: center;
     justify-content: center;

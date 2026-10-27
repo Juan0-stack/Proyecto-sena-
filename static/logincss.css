@@ -20,12 +20,32 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #0d0505 0%, #1f0c0c 25%, #2a1010 50%, #1a0a0a 75%, #0d0505 100%);
+    background: linear-gradient(135deg, rgba(13, 5, 5, 0.7), rgba(31, 12, 12, 0.74));
     font-family: 'Manrope', 'Inter', Arial, sans-serif;
     padding: 24px;
     position: relative;
-    overflow-x: hidden;
+    overflow: hidden;
     line-height: 1.6;
+    isolation: isolate;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: -10% -2%;
+    z-index: -1;
+    background-image: linear-gradient(90deg, rgba(13, 5, 5, 0.7), rgba(13, 5, 5, 0.32) 45%, rgba(13, 5, 5, 0.7)),
+        url('../fondo1.jpeg');
+    background-repeat: repeat-x;
+    background-size: 200% 100%;
+    background-position: 0 50%;
+    filter: grayscale(0.25) sepia(0.35) brightness(0.78) contrast(1.15);
+    animation: loginPanorama 40s linear infinite;
+}
+
+@keyframes loginPanorama {
+    0% { background-position: -100% 50%; }
+    100% { background-position: 0 50%; }
 }
 
 button,
