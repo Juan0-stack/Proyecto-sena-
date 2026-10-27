@@ -7,6 +7,7 @@ from models.evento_model import EventoModel
 from models.solicitud_model import SolicitudModel
 from utils.auth import login_required, role_required
 from utils.modo_docente import modo_actual, espacios_a_cargo
+from utils.espacios_mapa import clave_espacio
 
 clientes_bp = Blueprint('clientes', __name__)
 
@@ -208,6 +209,14 @@ def estado_sesion():
 
 @clientes_bp.route('/solicitud-espacio')
 @clientes_bp.route('/solicitud-espacio.html')
-@login_required()
+@role_required('Docente')
 def solicitud_espacio():
-    return render_template('solicitud_espacio.html')
+    # La solicitud independiente solo está disponible en modo Docente.
+    if modo_actual() != 'docente':
+        return redirect('/maestro/panel')
+    espacios = [
+        espacio for espacio in EspacioModel.listar()
+        if clave_espacio(espacio.get('nombre'))
+        and espacio.get('estado') != 'Mantenimiento'
+    ]
+    return render_template('solicitud_espacio.html', espacios=espacios)
