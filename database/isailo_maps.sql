@@ -1,4 +1,4 @@
-@@ -1,11 +1,11 @@
+--@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- version 5.1.3
@@ -12,10 +12,10 @@
 -- Versión del servidor: 10.4.22-MariaDB
 -- Versión de PHP: 7.4.28
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-@@ -18,42 +18,181 @@ SET time_zone = "+00:00";
-/*!40101 SET NAMES utf8mb4 */;
+--SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+--START TRANSACTION;
+--@@ -18,42 +18,181 @@ SET time_zone = "+00:00";
+--/*!40101 SET NAMES utf8mb4 */
 
 --
 -- Base de datos: `isailo_maps`
@@ -77,11 +77,9 @@ CREATE TABLE `reserva` (
 
 CREATE TABLE `roles` (
   `id_rol` int(11) NOT NULL,
-  `id_rol` int(11) NOT NULL ,
   `nombre_rol` varchar(50) NOT NULL,
   `descripcion` varchar(200) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 -- Estructura de tabla para la tabla `solicitud`
@@ -111,10 +109,8 @@ CREATE TABLE `solicitud` (
 
 CREATE TABLE `usuarios` (
   `id_usuario` int(11) NOT NULL,
-  `id_usuario` int(11) NOT NULL ,
   `nombre` varchar(50) NOT NULL,
   `apellido` varchar(50) DEFAULT NULL,
-  `apellido` varchar(50) not NULL,
   `correo` varchar(100) NOT NULL,
   `password_hash` varchar(150) NOT NULL,
   `estado` enum('Activo','Inactivo') DEFAULT 'Activo',
@@ -122,10 +118,6 @@ CREATE TABLE `usuarios` (
   `ultimo_acceso` datetime DEFAULT NULL,
   `id_rol` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-  `password_hash` varchar(100) NOT NULL,
-  `estado` enum('activo','inactivo') DEFAULT 'activo' not null,
-  `id_rol_fk` int(11) default NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 
@@ -213,7 +205,7 @@ ALTER TABLE `reserva`
 
 --
 -- Indices de la tabla `roles`
-@@ -62,39 +201,165 @@ ALTER TABLE `roles`
+ALTER TABLE `roles`
   ADD PRIMARY KEY (`id_rol`),
   ADD UNIQUE KEY `nombre_rol` (`nombre_rol`);
 
@@ -232,7 +224,7 @@ ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id_usuario`),
   ADD UNIQUE KEY `correo` (`correo`),
   ADD KEY `id_rol` (`id_rol`);
-  ADD KEY `id_rol_fk` (`id_rol_fk`);
+ 
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -360,7 +352,7 @@ ALTER TABLE `solicitud`
 --
 ALTER TABLE `usuarios`
   ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`);
-  ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_rol_fk`) REFERENCES `roles` (`id_rol`);
+
 
 -- filtros notificacion
 
@@ -388,4 +380,3 @@ ALTER TABLE `usuario_espacio`
 
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
