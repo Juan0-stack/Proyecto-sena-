@@ -3,31 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISAILO MAPS — Solicitar espacio</title>
-    <link rel="stylesheet" href="../static/css/tokens.css?v=1">
-    <link rel="stylesheet" href="../static/css/calidad.css?v=2">
+    <title>Solicitar espacio | ISAILO MAPS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/calidad.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        .blank-body { min-height: 100vh; background: radial-gradient(1200px circle at 50% 50%, rgba(201,169,110,0.06), transparent 60%), var(--bg, #0c0708); color: var(--texto, #F3EAD8); display: flex; flex-direction: column; }
-        .blank-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px; }
-        .blank-card { text-align: center; max-width: 520px; display: flex; flex-direction: column; gap: 16px; padding: 40px 32px; border-radius: var(--radio-lg, 18px); border: 1px solid var(--linea, rgba(201,169,110,0.16)); background: linear-gradient(180deg, rgba(19,11,12,0.98), rgba(13,5,5,0.92)); box-shadow: var(--sombra, 0 10px 30px rgba(0,0,0,0.35)); }
-        .blank-card__title { margin: 0; font-family: var(--fuente-titulo, 'Playfair Display', Georgia, serif); font-size: clamp(32px, 5vw, 48px); }
-        .blank-card__text { margin: 0; color: var(--texto-2, #CDC1AA); line-height: 1.7; }
-        .blank-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 8px; }
+        .sol-page { min-height:100vh; padding:32px 18px; background:radial-gradient(900px circle at 50% 0,rgba(201,169,110,.08),transparent 65%),var(--bg,#0c0708); color:var(--texto,#F3EAD8); }
+        .sol-wrap { width:min(760px,100%); margin:auto; }
+        .sol-back { display:inline-flex; gap:9px; align-items:center; margin:0 0 20px; color:#d2b16f; text-decoration:none; }
+        .sol-card { padding:clamp(22px,5vw,42px); border:1px solid rgba(201,169,110,.28); border-radius:18px; background:linear-gradient(155deg,rgba(24,14,15,.98),rgba(13,7,8,.98)); box-shadow:0 18px 55px #0005; }
+        .sol-title { margin:0 0 8px; font:700 clamp(30px,5vw,44px)/1.15 'Playfair Display',Georgia,serif; }
+        .sol-intro { margin:0 0 26px; color:#d2c6b2; line-height:1.65; }
+        .sol-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:17px; }
+        .sol-field { display:flex; flex-direction:column; gap:7px; }
+        .sol-field--full { grid-column:1/-1; }
+        .sol-field label { font-weight:600; }
+        .sol-field input,.sol-field select,.sol-field textarea { width:100%; box-sizing:border-box; border:1px solid rgba(201,169,110,.32); border-radius:10px; padding:12px 13px; color:#f3ead8; background:#170f10; font:inherit; }
+        .sol-field input:focus,.sol-field select:focus,.sol-field textarea:focus { outline:2px solid #c9a96e; outline-offset:2px; }
+        .sol-note { color:#cbbfa9; font-size:.9rem; line-height:1.5; margin:20px 0 0; }
+        .sol-message { margin:18px 0 0; padding:13px 15px; border-radius:10px; line-height:1.5; }
+        .sol-message[hidden] { display:none; }
+        .sol-message--ok { border:1px solid #508d68; background:#173222; color:#d8f3df; }
+        .sol-message--error { border:1px solid #a54f58; background:#351619; color:#ffe0e1; }
+        .sol-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:24px; }
+        .sol-actions button { font:inherit; cursor:pointer; }
+        .sol-actions button:disabled { opacity:.65; cursor:wait; }
+        @media(max-width:560px) { .sol-grid { grid-template-columns:1fr; } .sol-field--full { grid-column:auto; } }
     </style>
 </head>
-<body class="blank-body">
-    <main class="blank-main">
-        <section class="blank-card">
-            <h1 class="blank-card__title">Solicitar espacio</h1>
-            <p class="blank-card__text">El formulario de solicitud de espacios no se ha conectado aún. Esta página se deja en blanco a la espera de la conexión del calendario y el formulario (tarea del equipo de trabajo).</p>
-            <p class="blank-card__text">Puedes volver al panel del docente para consultar el estado de tus solicitudes.</p>
-            <div class="blank-actions">
-                <a class="btn-admin btn-admin--primario" href="/maestro/panel"><i class="fas fa-arrow-left"></i> Volver al panel docente</a>
-                <a class="btn-admin btn-admin--outline" href="/logout">Cerrar sesión</a>
-            </div>
+<body class="sol-page">
+    <main class="sol-wrap">
+        <a class="sol-back" href="/maestro/panel"><i class="fas fa-arrow-left" aria-hidden="true"></i> Volver al panel docente</a>
+        <section class="sol-card" aria-labelledby="solTitulo">
+            <span class="seccion-pastilla">Reservas</span>
+            <h1 class="sol-title" id="solTitulo">Solicitar espacio</h1>
+            <p class="sol-intro">Completa los datos para enviar tu solicitud. El encargado revisará la disponibilidad y te notificaremos el resultado en el panel.</p>
+            <form id="solicitudEspacioForm" autocomplete="off">
+                <div class="sol-grid">
+                    <div class="sol-field sol-field--full">
+                        <label for="idEspacio">Espacio</label>
+                        <select id="idEspacio" name="id_espacio" required>
+                            <option value="">Selecciona un espacio</option>
+                            {% for espacio in espacios %}
+                            <option value="{{ espacio.id_espacio }}">{{ espacio.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="sol-field"><label for="fechaUso">Fecha de uso</label><input id="fechaUso" name="fecha_uso" type="date" required></div>
+                    <div class="sol-field"><label for="actividad">Nombre de la actividad</label><input id="actividad" name="nombre_actividad" type="text" maxlength="100" required placeholder="Ej. Ensayo de música"></div>
+                    <div class="sol-field"><label for="horaInicio">Hora de inicio</label><input id="horaInicio" name="hora_inicio" type="time" required></div>
+                    <div class="sol-field"><label for="horaFin">Hora de fin</label><input id="horaFin" name="hora_fin" type="time" required></div>
+                    <div class="sol-field sol-field--full"><label for="descripcion">Descripción (opcional)</label><textarea id="descripcion" name="descripcion" rows="3" maxlength="255" placeholder="Agrega información útil para quien revisará la solicitud"></textarea></div>
+                </div>
+                <p class="sol-note">Al enviar, la solicitud queda pendiente hasta que el administrador o encargado la apruebe o rechace. Las solicitudes aprobadas ocupan ese horario en el calendario.</p>
+                <p class="sol-message sol-message--ok" id="mensajeExito" role="status" aria-live="polite" hidden></p>
+                <p class="sol-message sol-message--error" id="mensajeError" role="alert" aria-live="assertive" hidden></p>
+                <div class="sol-actions">
+                    <button class="btn-admin btn-admin--primario" id="enviarSolicitud" type="submit"><i class="fas fa-paper-plane" aria-hidden="true"></i> Enviar solicitud</button>
+                    <a class="btn-admin btn-admin--outline" href="/maestro/panel">Cancelar</a>
+                </div>
+            </form>
         </section>
     </main>
+    <script>
+        (function () {
+            const form = document.getElementById('solicitudEspacioForm');
+            const fecha = document.getElementById('fechaUso');
+            const boton = document.getElementById('enviarSolicitud');
+            const exito = document.getElementById('mensajeExito');
+            const error = document.getElementById('mensajeError');
+            function fechaLocal() {
+                const hoy = new Date();
+                hoy.setMinutes(hoy.getMinutes() - hoy.getTimezoneOffset());
+                return hoy.toISOString().slice(0, 10);
+            }
+            fecha.min = fechaLocal();
+
+            form.addEventListener('submit', async function (evento) {
+                evento.preventDefault();
+                exito.hidden = true;
+                error.hidden = true;
+                const datos = Object.fromEntries(new FormData(form).entries());
+                boton.disabled = true;
+                boton.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Enviando…';
+                try {
+                    const respuesta = await fetch('/api/solicitudes', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(datos)
+                    });
+                    const resultado = await respuesta.json();
+                    if (!respuesta.ok || !resultado.ok) throw new Error(resultado.error || 'No se pudo enviar la solicitud.');
+                    form.reset();
+                    fecha.min = fechaLocal();
+                    exito.textContent = 'Solicitud enviada. Puedes consultar su estado desde el panel docente.';
+                    exito.hidden = false;
+                } catch (problema) {
+                    error.textContent = problema.message || 'Ocurrió un error al enviar la solicitud.';
+                    error.hidden = false;
+                } finally {
+                    boton.disabled = false;
+                    boton.innerHTML = '<i class="fas fa-paper-plane" aria-hidden="true"></i> Enviar solicitud';
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
